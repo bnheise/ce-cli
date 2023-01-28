@@ -1,0 +1,12 @@
+printWidth: 80
+trailingComma: "es5"
+tabWidth: 2
+singleQuote: true
+useTabs: true
+semi: true
+quoteProps: "as-needed"
+jsxSingleQuote: true
+bracketSpacing: true
+bracketSameLine: true
+arrowParens: "avoid"
+singleAttributePerLine: true
