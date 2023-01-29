@@ -1,6 +1,6 @@
-use std::path::PathBuf;
-
+use crate::structs::client_extension_yaml::PortletCategoryNames;
 use clap::{Parser, Subcommand};
+use std::path::PathBuf;
 
 #[derive(Parser)]
 #[command(author, version, about, long_about = None)]
@@ -9,7 +9,7 @@ pub struct Cli {
     pub command: Commands,
 }
 
-#[derive(Subcommand)]
+#[derive(Debug, Subcommand)]
 pub enum Commands {
     Init {
         #[arg(short, long)]
@@ -23,7 +23,26 @@ pub enum Commands {
     },
 
     Add {
+        #[command(subcommand)]
+        extension_type: ClientExtType,
+    },
+}
+
+#[derive(Debug, Subcommand)]
+pub enum ClientExtType {
+    RemoteApp {
+        name: String,
+        #[arg(short = 'n', long)]
+        html_element_name: Option<String>,
         #[arg(short, long)]
-        list: bool,
+        friendly_url_mapping: Option<String>,
+        #[arg(short, long)]
+        instanceable: Option<bool>,
+        #[arg(short, long)]
+        portlet_category_name: Option<PortletCategoryNames>,
+        #[arg(short, long)]
+        description: Option<String>,
+        #[arg(short, long)]
+        use_esm: Option<bool>,
     },
 }

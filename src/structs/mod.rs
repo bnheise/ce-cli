@@ -1,1 +1,1 @@
-mod client_extension_yaml;
+pub mod client_extension_yaml;
