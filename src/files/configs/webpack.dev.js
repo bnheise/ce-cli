@@ -1,5 +1,5 @@
 import { merge } from 'webpack-merge';
-import common from './webpack.common.mjs';
+import common from './webpack.common.js';
 import Dotenv from 'dotenv-webpack';
 
 const PORT = 3000;

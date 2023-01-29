@@ -1,16 +1,13 @@
 {
-	"name": "ce-workspace",
-	"version": "1.0.0",
-	"description": "",
-	"main": "index.js",
+	"name": "unnamed",
+	"version": "0.1.0",
+	"type": "module",
 	"scripts": {
-		"start": "webpack serve --open --config webpack.dev.mjs",
+		"start": "webpack serve --open --config webpack.dev.js",
 		"test": "echo \"no test specified\"",
-		"build": "webpack --config webpack.prod.mjs",
+		"build": "webpack --config webpack.prod.js",
 		"deploy": "blade gw deploy"
 	},
-	"keywords": [],
-	"author": "",
 	"license": "ISC",
 	"devDependencies": {
 		"@babel/preset-env": "^7.20.2",

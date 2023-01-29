@@ -1,16 +1,29 @@
 use std::path::PathBuf;
 
-use clap::Parser;
+use clap::{Parser, Subcommand};
 
 #[derive(Parser)]
 #[command(author, version, about, long_about = None)]
 pub struct Cli {
-    #[arg(short, long)]
-    pub project_name: Option<String>,
+    #[command(subcommand)]
+    pub command: Commands,
+}
 
-    #[arg(short, long)]
-    pub bundle_path: Option<PathBuf>,
+#[derive(Subcommand)]
+pub enum Commands {
+    Init {
+        #[arg(short, long)]
+        project_name: Option<String>,
 
-    #[arg(short, long, value_name = "FILE")]
-    config: Option<PathBuf>,
+        #[arg(short, long)]
+        bundle_path: Option<PathBuf>,
+
+        #[arg(short, long, value_name = "CONFIG")]
+        config_path: Option<PathBuf>,
+    },
+
+    Add {
+        #[arg(short, long)]
+        list: bool,
+    },
 }

@@ -1,0 +1,7 @@
+assemble:
+  - from: dist
+    include: '*.css'
+    into: static/
+  - from: dist
+    include: '*.js'
+    into: static/

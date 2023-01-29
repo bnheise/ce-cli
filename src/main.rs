@@ -1,32 +1,26 @@
-use clap::{Error, Parser};
+use crate::{commands::init::handle_init, config::ConfigBuilder};
+use clap::Parser;
 use cli::Cli;
-use config::{get_project_name_from_user, Config};
-
-use crate::config::{get_bundle_path_from_environment, get_bundle_path_from_user};
+use std::io::Result;
 
 mod cli;
+mod commands;
 mod config;
+mod structs;
+mod templates;
 
-fn main() -> Result<(), Error> {
+fn main() -> Result<()> {
     let cli = Cli::parse();
-    let mut config = Config::new();
+    let config = ConfigBuilder::new();
 
-    if let Some(project_name) = cli.project_name {
-        config.set_project_name(project_name);
-    } else {
-        let project_name = get_project_name_from_user()?;
-        config.set_project_name(project_name);
-    }
-
-    if let Some(bundle_path) = cli.bundle_path {
-        config.set_bundle_path(bundle_path);
-    } else {
-        let bundle_path = get_bundle_path_from_environment();
-        let bundle_path = get_bundle_path_from_user(bundle_path);
-        config.set_bundle_path(bundle_path);
-    }
-    println!("{:?}", config);
-    let config = config.build();
-    println!("{:?}", config);
+    match cli.command {
+        cli::Commands::Init {
+            project_name,
+            bundle_path,
+            config_path,
+        } => handle_init(config, project_name, bundle_path, config_path)?,
+        cli::Commands::Add { list } => todo!(),
+    };
+    let thing = "";
     Ok(())
 }

@@ -1,14 +1,12 @@
 import ESLintWebpackPlugin from 'eslint-webpack-plugin';
 import path, { dirname } from 'path';
 import { fileURLToPath } from 'url';
+import workspaceConfig from './workspace-config.json' assert { type: 'json' };
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 
 export default {
-	entry: {
-		widget1: './src/widget1/index.tsx',
-		widget2: './src/widget2/index.tsx',
-	},
+	entry: workspaceConfig.entrypoints,
 	plugins: [new ESLintWebpackPlugin()],
 	module: {
 		rules: [

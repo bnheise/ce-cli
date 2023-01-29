@@ -1,8 +1,8 @@
 import { merge } from 'webpack-merge';
-import common from './webpack.common.mjs';
+import common from './webpack.common.js';
 import MiniCssExtractPlugin from 'mini-css-extract-plugin';
 import { BundleAnalyzerPlugin } from 'webpack-bundle-analyzer';
-import { liferayExteranls } from './util/liferayExternals.mjs';
+import { liferayExteranls } from './util/liferayExternals.js';
 
 const plugins = [new MiniCssExtractPlugin()];
 
