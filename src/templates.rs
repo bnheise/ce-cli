@@ -41,3 +41,16 @@ pub const LIFERAY_EXTERNALS_FILENAME: &str = "util/liferayExternals.js";
 pub const LIFERAY_EXTERNALS: &str = include_str!("files/scripts/liferayExternals.js");
 
 pub const WORKSPACE_CONFIG_FILENAME: &str = "workspace-config.json";
+
+pub const CUSTOM_ELEMENT_CSS: &str = include_str!("files/app_templates/custom_element/app.scss");
+pub const CUSTOM_ELEMENT_CSS_FILENAME: &str = "app.scss";
+
+pub const CUSTOM_ELEMENT_INDEX: &str = include_str!("files/app_templates/custom_element/index.ts");
+pub const CUSTOM_ELEMENT_INDEX_FILENAME: &str = "index.ts";
+
+pub const CUSTOM_ELEMENT_APP: &str = include_str!("files/app_templates/custom_element/app.tsx");
+pub const CUSTOM_ELEMENT_APP_FILENAME: &str = "app.tsx";
+
+pub const CUSTOM_ELEMENT_APP_NAME_CAMEL: &str = "{{app-name-camelcase}}";
+pub const CUSTOM_ELEMENT_NAME: &str = "{{custom-element-name}}";
+pub const CUSTOM_ELEMENT_APP_NAME: &str = "{{custom-element-app-name}}";

@@ -1,7 +1,7 @@
-use serde::Serialize;
+use serde::{Deserialize, Serialize};
 use std::{collections::HashMap, path::PathBuf};
 
-#[derive(Debug, Serialize)]
+#[derive(Debug, Serialize, Deserialize)]
 pub struct Config {
     pub project_name: String,
     pub bundle_path: PathBuf,
@@ -12,7 +12,6 @@ pub struct Config {
 pub struct ConfigBuilder {
     project_name: Option<String>,
     bundle_path: Option<PathBuf>,
-    entrypoints: HashMap<String, PathBuf>,
 }
 
 impl ConfigBuilder {

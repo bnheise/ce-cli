@@ -1,7 +1,10 @@
 import ESLintWebpackPlugin from 'eslint-webpack-plugin';
 import path, { dirname } from 'path';
 import { fileURLToPath } from 'url';
-import workspaceConfig from './workspace-config.json' assert { type: 'json' };
+import fs from 'fs';
+
+const rawConfig = fs.readFileSync(path.join('./', 'workspace-config.json'));
+const workspaceConfig = JSON.parse(rawConfig);
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 
