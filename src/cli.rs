@@ -54,6 +54,11 @@ pub enum Commands {
         #[command(subcommand)]
         extension_type: ClientExtType,
     },
+
+    #[command(
+        about = "Deploy with urls pointing to your dev server. No need to remember to switch the port back in client-extension.yaml."
+    )]
+    DevDeploy,
 }
 
 #[derive(Debug, Subcommand)]

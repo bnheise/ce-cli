@@ -1,16 +1,13 @@
-use yaml_rust::{YamlEmitter, YamlLoader};
-
 use crate::{
-    config::Config,
-    structs::client_extension_yaml::ClientExtType,
-    structs::client_extension_yaml::{
-        ClientExtId, ClientExtensionYaml, CustomElementDefinition, PortletCategoryNames,
+    commands::{
+        format_yaml, get_client_ext_yaml, get_client_extension_yaml_path, update_workspace_config,
     },
+    structs::client_extension_yaml::ClientExtType,
+    structs::client_extension_yaml::{ClientExtId, CustomElementDefinition, PortletCategoryNames},
     templates::{
-        CLIENT_EXT_YAML_FILENAME, CUSTOM_ELEMENT_APP, CUSTOM_ELEMENT_APP_FILENAME,
-        CUSTOM_ELEMENT_APP_NAME, CUSTOM_ELEMENT_APP_NAME_CAMEL, CUSTOM_ELEMENT_CSS,
-        CUSTOM_ELEMENT_CSS_FILENAME, CUSTOM_ELEMENT_INDEX, CUSTOM_ELEMENT_INDEX_FILENAME,
-        CUSTOM_ELEMENT_NAME, WORKSPACE_CONFIG_FILENAME,
+        CUSTOM_ELEMENT_APP, CUSTOM_ELEMENT_APP_FILENAME, CUSTOM_ELEMENT_APP_NAME,
+        CUSTOM_ELEMENT_APP_NAME_CAMEL, CUSTOM_ELEMENT_CSS, CUSTOM_ELEMENT_CSS_FILENAME,
+        CUSTOM_ELEMENT_INDEX, CUSTOM_ELEMENT_INDEX_FILENAME, CUSTOM_ELEMENT_NAME,
     },
 };
 use std::{
@@ -63,58 +60,28 @@ pub fn handle_custom_element(
     create_app_file(&definition, &app_path)?;
     create_css_file(&definition, &app_path)?;
     create_index_file(&definition, &index_path)?;
-    update_workspace_config(&definition, &index_path)?;
+
+    update_workspace_config(|config| {
+        config
+            .entrypoints
+            .insert(definition.get_id(), index_path.to_path_buf());
+    })?;
+
     update_client_ext_yaml(definition)?;
 
     Ok(())
 }
 
 fn update_client_ext_yaml(definition: CustomElementDefinition) -> Result<()> {
-    let client_ext_yaml_path = Path::new(CLIENT_EXT_YAML_FILENAME);
+    let path = get_client_extension_yaml_path();
 
-    let client_ext_yaml = fs::read_to_string(client_ext_yaml_path)
-        .expect("Unable to locate client-extension.yaml file");
-
-    let mut deserialized = serde_yaml::from_str::<ClientExtensionYaml>(&client_ext_yaml)
-        .expect("Could not parse client-ext.yaml");
+    let mut deserialized = get_client_ext_yaml(&path);
 
     deserialized.add_app(ClientExtType::CustomElement(definition));
 
-    let string = serde_yaml::to_string(&deserialized)
-        .expect("It was not possible to stringify the client-extension.yaml data");
+    let yaml = format_yaml(deserialized);
 
-    let indent_hack = YamlLoader::load_from_str(&string).unwrap();
-
-    let mut out_str = String::new();
-    {
-        let mut emitter = YamlEmitter::new(&mut out_str);
-        indent_hack
-            .iter()
-            .for_each(|item| emitter.dump(item).unwrap()); // dump the YAML object to a String
-    }
-
-    fs::write(client_ext_yaml_path, out_str)?;
-
-    Ok(())
-}
-
-fn update_workspace_config(definition: &CustomElementDefinition, index_path: &Path) -> Result<()> {
-    let config_path = Path::new("./").join(WORKSPACE_CONFIG_FILENAME);
-
-    let workspace_config =
-        fs::read_to_string(&config_path).expect("Unable to locate client-extension.yaml file");
-
-    let mut deserialized =
-        serde_json::from_str::<Config>(&workspace_config).expect("Could not deserialize config");
-
-    deserialized
-        .entrypoints
-        .insert(definition.get_id(), index_path.to_path_buf());
-
-    fs::write(
-        config_path,
-        serde_json::to_string_pretty(&deserialized).unwrap(),
-    )?;
+    fs::write(path, yaml)?;
 
     Ok(())
 }

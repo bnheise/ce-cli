@@ -121,7 +121,9 @@ pub fn get_project_name_from_user() -> Result<String> {
 
     let stdin = io::stdin();
     let mut user_input = String::new();
-    println!("Please enter a project name ({})", folder_name);
+
+    println!("Please enter a project name ({folder_name})");
+
     stdin
         .read_line(&mut user_input)
         .expect("Expected to get a project name from the user but failed");

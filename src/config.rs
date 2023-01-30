@@ -2,10 +2,12 @@ use serde::{Deserialize, Serialize};
 use std::{collections::HashMap, path::PathBuf};
 
 #[derive(Debug, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
 pub struct Config {
     pub project_name: String,
     pub bundle_path: PathBuf,
     pub entrypoints: HashMap<String, PathBuf>,
+    pub dev_server_port: u16,
 }
 
 #[derive(Debug, Default)]
@@ -36,6 +38,7 @@ impl ConfigBuilder {
                 .bundle_path
                 .expect("Expected to get a bundle path but got None"),
             entrypoints: HashMap::new(),
+            dev_server_port: 3000,
         }
     }
 }

@@ -54,3 +54,5 @@ pub const CUSTOM_ELEMENT_APP_FILENAME: &str = "app.tsx";
 pub const CUSTOM_ELEMENT_APP_NAME_CAMEL: &str = "{{app-name-camelcase}}";
 pub const CUSTOM_ELEMENT_NAME: &str = "{{custom-element-name}}";
 pub const CUSTOM_ELEMENT_APP_NAME: &str = "{{custom-element-app-name}}";
+
+pub const BUILD_DIR: &str = "./build";

@@ -1,15 +1,17 @@
 import { merge } from 'webpack-merge';
 import common from './webpack.common.js';
 import Dotenv from 'dotenv-webpack';
+import fs from 'fs';
 
-const PORT = 3000;
+const rawConfig = fs.readFileSync(path.join('./', 'workspace-config.json'));
+const workspaceConfig = JSON.parse(rawConfig);
 
 export default merge(common, {
 	mode: 'development',
 	devtool: 'inline-source-map',
 	devServer: {
 		static: './public',
-		port: PORT,
+		port: workspaceConfig.devServerPort,
 		hot: true,
 		headers: {
 			'Access-Control-Allow-Origin': '*',
@@ -18,7 +20,14 @@ export default merge(common, {
 				'X-Requested-With, content-type, Authorization',
 		},
 		liveReload: true,
-		watchFiles: ['src/**/*.tsx', 'src/**/*.ts', 'src/**/*.scss'],
+		watchFiles: [
+			'src/**/*.tsx',
+			'src/**/*.ts',
+			'src/**/*.scss',
+			'src/**/*.css',
+			'src/**/*.js',
+			'src/**/*.jsx',
+		],
 		open: false,
 	},
 	plugins: [new Dotenv()],

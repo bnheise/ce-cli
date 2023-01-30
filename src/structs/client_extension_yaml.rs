@@ -15,6 +15,30 @@ impl ClientExtensionYaml {
     pub fn add_app(&mut self, definition: ClientExtType) {
         self.apps.insert(definition.get_id(), definition);
     }
+
+    pub fn set_dev_urls(mut self, port: u16) -> Self {
+        self.apps
+            .iter_mut()
+            .map(|(key, ext)| {
+                match ext {
+                    ClientExtType::CustomElement(elem) => {
+                        elem.css_urls = elem
+                            .css_urls
+                            .iter()
+                            .map(|url| format!("http://localhost:{port}/{url}"))
+                            .collect::<Vec<_>>();
+                        elem
+                    }
+                };
+                (key, ext)
+            })
+            .fold(HashMap::new(), |mut hashmap, (key, ext)| {
+                hashmap.insert(key, ext);
+                hashmap
+            });
+
+        self
+    }
 }
 
 #[derive(Debug, Serialize, Deserialize)]
