@@ -7,7 +7,7 @@ pub mod custom_element;
 
 pub fn handle_add(extension_type: ClientExtType) -> Result<()> {
     match extension_type {
-        ClientExtType::RemoteApp {
+        ClientExtType::CustomElement {
             name,
             html_element_name,
             friendly_url_mapping,
