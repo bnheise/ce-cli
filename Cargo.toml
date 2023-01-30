@@ -10,7 +10,7 @@ readme = "README.md"
 homepage = "https://github.com/bnheise/ce-cli/"
 repository = "https://github.com/rust-lang/cargo/"
 license = "MIT OR Apache-2.0"
-keywords = ["Liferay", "Client Extensions", "cli"]
+keywords = ["Liferay", "client-extensions", "cli"]
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
