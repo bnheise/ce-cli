@@ -17,7 +17,7 @@ function getBinary() {
   const version = require("../package.json").version;
   const url = `https://github.com/bnheise/ce-cli/releases/download/v${version}/ce-cli-${platform}.tar.gz`;
   const name = "ce-cli";
-  return new Binary(url, { name });
+  return new Binary(name, url);
 }
 
 module.exports = getBinary;
