@@ -33,12 +33,12 @@ pub fn main() {
     fs::write("./distribute.sh", new_content)
         .expect("Failed to update distribute.sh with new version.");
 
-    let package_contents = fs::read_to_string("./node_install/package.json")
+    let package_contents = fs::read_to_string("./npm_dist/package.json")
         .expect("Should have been able to read the file");
 
     let package_contents = replace_version("  \"version\": ", &new_version, package_contents);
 
-    fs::write("./node_install/package.json", package_contents)
+    fs::write("./npm_dist/package.json", package_contents)
         .expect("Failed to update distribute.sh with new version.");
 }
 
