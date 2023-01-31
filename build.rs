@@ -44,7 +44,7 @@ pub fn main() {
 
 fn replace_version(matcher: &str, new_version: &str, content: String) -> String {
     let new_version = format!("{matcher}{new_version},");
-    println!("{new_version }");
+
     content
         .lines()
         .map(|line| {

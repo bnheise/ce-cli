@@ -1,5 +1,3 @@
-const getBinary = require("./getBinary");
-
 function getBinary() {
   try {
     const getBinary = require("./getBinary");
