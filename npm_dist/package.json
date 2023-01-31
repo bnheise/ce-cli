@@ -1,0 +1,24 @@
+{
+  "name": "ce-cli",
+  "version": "0.1.1",
+  "description": "A command line tool for developing Liferay Client Extensions",
+  "scripts": {
+    "postinstall": "node npm/install.js",
+    "preinstall": "node npm/uninstall.js"
+  },
+  "bin": {
+    "ce-cli": "./npm/run.js"
+  },
+  "keywords": [
+    "cli",
+    "Liferay"
+  ],
+  "author": "Brian Heise",
+  "license": "MIT",
+  "dependencies": {
+    "binary-install": "^1.0.6"
+  },
+  "files": [
+    "npm/**/*"
+  ]
+}
