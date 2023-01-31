@@ -1,7 +1,8 @@
-use std::collections::HashMap;
-
 use clap::ValueEnum;
 use serde::{Deserialize, Serialize};
+use std::{collections::HashMap, fmt::Display};
+
+use super::cet_configuration::CetConfigId;
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct ClientExtensionYaml {
@@ -25,7 +26,13 @@ impl ClientExtensionYaml {
                         elem.css_urls = elem
                             .css_urls
                             .iter()
-                            .map(|url| format!("http://localhost:{port}/{url}"))
+                            .map(|url| format!("http://localhost:{port}{url}"))
+                            .collect::<Vec<_>>();
+
+                        elem.urls = elem
+                            .urls
+                            .iter()
+                            .map(|url| format!("http://localhost:{port}{url}"))
                             .collect::<Vec<_>>();
                         elem
                     }
@@ -38,6 +45,10 @@ impl ClientExtensionYaml {
             });
 
         self
+    }
+
+    pub fn get_apps(&self) -> &HashMap<String, ClientExtType> {
+        &self.apps
     }
 }
 
@@ -55,7 +66,7 @@ pub struct CustomElementDefinition {
     css_urls: Vec<String>,
 
     #[serde(rename = "friendlyURLMapping")]
-    friendly_url_mapping: String,
+    friendly_url_mapping: Option<String>,
 
     html_element_name: String,
     instanceable: bool,
@@ -67,6 +78,8 @@ pub struct CustomElementDefinition {
 
     #[serde(rename = "useESM")]
     use_esm: bool,
+    #[serde(rename = "sourceCodeURL")]
+    source_code_url: Option<String>,
 }
 
 impl Default for CustomElementDefinition {
@@ -82,6 +95,7 @@ impl Default for CustomElementDefinition {
             description: None,
             urls: Default::default(),
             use_esm: true,
+            source_code_url: Default::default(),
         }
     }
 }
@@ -100,7 +114,7 @@ impl CustomElementDefinition {
     }
 
     pub fn set_friendly_url_mapping(&mut self, friendly_url_mapping: String) {
-        self.friendly_url_mapping = friendly_url_mapping;
+        self.friendly_url_mapping = Some(friendly_url_mapping);
     }
 
     pub fn set_html_element_name(&mut self, html_element_name: String) {
@@ -131,12 +145,24 @@ impl CustomElementDefinition {
         &self.name
     }
 
+    pub fn get_descripton(&self) -> Option<&String> {
+        self.description.as_ref()
+    }
+
     pub fn add_css_filename(&mut self, filename: String) {
-        self.css_urls.push(filename);
+        self.css_urls.push(format!("/{filename}"));
     }
 
     pub fn add_js_filename(&mut self, filename: String) {
-        self.urls.push(filename);
+        self.urls.push(format!("/{filename}"));
+    }
+
+    pub fn get_source_code_url(&self) -> Option<&String> {
+        self.source_code_url.as_ref()
+    }
+
+    pub fn get_friendly_url_mapping(&self) -> Option<&String> {
+        self.friendly_url_mapping.as_ref()
     }
 
     pub fn get_camelcase_name(&self) -> String {
@@ -145,6 +171,34 @@ impl CustomElementDefinition {
             .map(|part| part[0..1].to_uppercase() + &part[1..])
             .collect::<String>()
     }
+
+    pub fn get_properties(&self) -> Option<&HashMap<String, String>> {
+        self.properties.as_ref()
+    }
+
+    pub fn get_instanceable(&self) -> bool {
+        self.instanceable
+    }
+
+    pub fn get_js_urls(&self) -> &Vec<String> {
+        &self.urls
+    }
+
+    pub fn get_use_esm(&self) -> bool {
+        self.use_esm
+    }
+
+    pub fn get_html_element_name(&self) -> &str {
+        self.html_element_name.as_str()
+    }
+
+    pub fn get_css_urls(&self) -> &Vec<String> {
+        &self.css_urls
+    }
+
+    pub fn get_portlet_category_name(&self) -> &PortletCategoryNames {
+        &self.portlet_category_name
+    }
 }
 
 impl ClientExtId for CustomElementDefinition {
@@ -152,6 +206,8 @@ impl ClientExtId for CustomElementDefinition {
         self.name.to_lowercase().replace(' ', "-")
     }
 }
+
+impl CetConfigId for CustomElementDefinition {}
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
 #[serde(rename_all = "camelCase")]
@@ -166,6 +222,12 @@ impl ClientExtType {
             ClientExtType::CustomElement(app) => app.get_id(),
         }
     }
+
+    pub fn get_cet_config_id(&self) -> String {
+        match self {
+            ClientExtType::CustomElement(app) => app.get_cet_config_id(),
+        }
+    }
 }
 
 pub trait ClientExtId {
@@ -178,4 +240,12 @@ pub enum PortletCategoryNames {
     #[serde(rename = "category.remote-apps")]
     #[default]
     RemoteApps,
+}
+
+impl Display for PortletCategoryNames {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        match self {
+            PortletCategoryNames::RemoteApps => write!(f, "category.remote-apps"),
+        }
+    }
 }

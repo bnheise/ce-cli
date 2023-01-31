@@ -53,10 +53,10 @@ fn get_client_ext_yaml(path: &PathBuf) -> ClientExtensionYaml {
         .expect("Could not parse client-ext.yaml")
 }
 
-fn write_file_to_build_dir(filename: &str, content: String) -> Result<()> {
-    let path = Path::new(BUILD_DIR).join(filename);
-    fs::create_dir_all(BUILD_DIR)?;
-    fs::write(path, content)?;
+fn write_file_to_build_dir(filename: &str, subfolder: &str, content: String) -> Result<()> {
+    let path = Path::new("./").join(BUILD_DIR).join(subfolder);
+    fs::create_dir_all(&path)?;
+    fs::write(path.join(filename), content)?;
 
     Ok(())
 }

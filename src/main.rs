@@ -9,6 +9,7 @@ mod commands;
 mod config;
 mod structs;
 mod templates;
+mod util;
 
 fn main() -> Result<()> {
     let cli = Cli::parse();

@@ -1,17 +1,19 @@
 import { merge } from 'webpack-merge';
+import path from 'path';
 import common from './webpack.common.js';
 import Dotenv from 'dotenv-webpack';
 import fs from 'fs';
 
 const rawConfig = fs.readFileSync(path.join('./', 'workspace-config.json'));
 const workspaceConfig = JSON.parse(rawConfig);
+const port = workspaceConfig.devServerPort;
 
 export default merge(common, {
 	mode: 'development',
 	devtool: 'inline-source-map',
 	devServer: {
 		static: './public',
-		port: workspaceConfig.devServerPort,
+		port: port,
 		hot: true,
 		headers: {
 			'Access-Control-Allow-Origin': '*',
@@ -59,6 +61,6 @@ export default merge(common, {
 	},
 	output: {
 		filename: '[name].js',
-		publicPath: `http://localhost:${PORT}/`,
+		publicPath: `http://localhost:${port}/`,
 	},
 });

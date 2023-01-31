@@ -3,7 +3,7 @@
 	"version": "0.1.0",
 	"type": "module",
 	"scripts": {
-		"start": "webpack serve --open --config webpack.dev.js",
+		"start": "ce-cli dev-deploy && webpack serve --open --config webpack.dev.js",
 		"test": "echo \"no test specified\"",
 		"build": "webpack --config webpack.prod.js",
 		"deploy": "blade gw deploy"
