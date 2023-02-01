@@ -3,6 +3,8 @@ use std::io::Result;
 use self::custom_element::handle_custom_element;
 use crate::cli::ClientExtType;
 
+use super::dev_deploy::handle_dev_deploy;
+
 pub mod custom_element;
 
 pub fn handle_add(extension_type: ClientExtType) -> Result<()> {
@@ -25,6 +27,6 @@ pub fn handle_add(extension_type: ClientExtType) -> Result<()> {
             use_esm,
         )?,
     }
-
+    handle_dev_deploy()?;
     Ok(())
 }
