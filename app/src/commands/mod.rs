@@ -10,7 +10,10 @@ use yaml_rust::{YamlEmitter, YamlLoader};
 use crate::{
     config::Config,
     structs::client_extension_yaml::ClientExtensionYaml,
-    templates::{BUILD_DIR, CLIENT_EXT_YAML_FILENAME, WORKSPACE_CONFIG_FILENAME},
+    templates::{
+        configs::{CLIENT_EXT_YAML_FILENAME, WORKSPACE_CONFIG_FILENAME},
+        BUILD_DIR,
+    },
 };
 
 pub mod add;

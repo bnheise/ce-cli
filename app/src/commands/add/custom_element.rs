@@ -4,10 +4,12 @@ use crate::{
     },
     structs::client_extension_yaml::ClientExtType,
     structs::client_extension_yaml::{ClientExtId, CustomElementDefinition, PortletCategoryNames},
-    templates::{
+    templates::app_templates::custom_element::{
         CUSTOM_ELEMENT_APP, CUSTOM_ELEMENT_APP_FILENAME, CUSTOM_ELEMENT_APP_NAME,
         CUSTOM_ELEMENT_APP_NAME_CAMEL, CUSTOM_ELEMENT_CSS, CUSTOM_ELEMENT_CSS_FILENAME,
         CUSTOM_ELEMENT_INDEX, CUSTOM_ELEMENT_INDEX_FILENAME, CUSTOM_ELEMENT_NAME,
+        CUSTOM_ELEMENT_VIEW, CUSTOM_ELEMENT_VIEW_FILENAME, CUSTOM_ELEMENT_WIDGET,
+        CUSTOM_ELEMENT_WIDGET_FILENAME,
     },
 };
 use std::{
@@ -54,12 +56,19 @@ pub fn handle_custom_element(
     }
 
     let app_path = Path::new("./src").join(definition.get_id());
+
     fs::create_dir(&app_path)?;
 
     let index_path = app_path.join(CUSTOM_ELEMENT_INDEX_FILENAME);
-    create_app_file(&definition, &app_path)?;
+    let view_path = app_path.join(CUSTOM_ELEMENT_VIEW_FILENAME);
+    let widget_path = app_path.join(CUSTOM_ELEMENT_WIDGET_FILENAME);
+
+    create_custom_element_file(&definition, &app_path)?;
+
     create_css_file(&definition, &app_path)?;
     create_index_file(&definition, &index_path)?;
+    create_view_file(&definition, &view_path)?;
+    create_widget_file(&widget_path)?;
 
     update_workspace_config(|config| {
         config
@@ -107,7 +116,7 @@ fn create_css_file(definition: &CustomElementDefinition, app_path: &Path) -> Res
     Ok(())
 }
 
-fn create_app_file(definition: &CustomElementDefinition, app_path: &Path) -> Result<()> {
+fn create_custom_element_file(definition: &CustomElementDefinition, app_path: &Path) -> Result<()> {
     let app_content = CUSTOM_ELEMENT_APP
         .replace(
             CUSTOM_ELEMENT_APP_NAME_CAMEL,
@@ -116,5 +125,17 @@ fn create_app_file(definition: &CustomElementDefinition, app_path: &Path) -> Res
         .replace(CUSTOM_ELEMENT_APP_NAME, definition.get_name());
 
     fs::write(app_path.join(CUSTOM_ELEMENT_APP_FILENAME), app_content)?;
+    Ok(())
+}
+
+fn create_view_file(definition: &CustomElementDefinition, view_path: &Path) -> Result<()> {
+    let view_content = CUSTOM_ELEMENT_VIEW.replace(CUSTOM_ELEMENT_APP_NAME, definition.get_name());
+
+    fs::write(view_path, view_content)?;
+    Ok(())
+}
+
+fn create_widget_file(widget_path: &Path) -> Result<()> {
+    fs::write(widget_path, CUSTOM_ELEMENT_WIDGET)?;
     Ok(())
 }
