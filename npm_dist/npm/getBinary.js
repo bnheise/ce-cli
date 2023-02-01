@@ -2,22 +2,58 @@
 
 const { Binary } = require("binary-install");
 const os = require("os");
+const { version, name, repository } = require("./package.json");
 
-function getPlatform() {
+const error = (msg) => {
+  console.error(msg);
+  process.exit(1);
+};
+
+const supportedPlatforms = [
+  {
+    TYPE: "Windows_NT",
+    ARCHITECTURE: "x64",
+    RUST_TARGET: "x86_64-pc-windows-msvc",
+    BINARY_NAME: "ce-cli.exe",
+  },
+  {
+    TYPE: "Linux",
+    ARCHITECTURE: "x64",
+    RUST_TARGET: "x86_64-unknown-linux-musl",
+    BINARY_NAME: "ce-cli",
+  },
+  {
+    TYPE: "Darwin",
+    ARCHITECTURE: "x64",
+    RUST_TARGET: "x86_64-apple-darwin",
+    BINARY_NAME: "ce-cli",
+  },
+];
+
+const getPlatformMetadata = () => {
   const type = os.type();
-  const arch = os.arch();
+  const architecture = os.arch();
 
-  if (type === "Windows_NT" && arch === "x64") return "x86_64-pc-windows-gnu";
-  if (type === "Linux" && arch === "x64") return "aarch64-unknown-linux-gnu";
-  if (type === "Darwin" && arch === "x64") return "x86_64-apple-darwin";
+  for (let supportedPlatform of supportedPlatforms) {
+    if (
+      type === supportedPlatform.TYPE &&
+      architecture === supportedPlatform.ARCHITECTURE
+    ) {
+      return supportedPlatform;
+    }
+  }
 
-  throw new Error(`Unsupported platform: ${type} ${arch}`);
-}
+  error(
+    `Platform with type "${type}" and architecture "${architecture}" is not supported by ${name}.\nYour system must be one of the following:\n\n${cTable.getTable(
+      supportedPlatforms
+    )}`
+  );
+};
 
 function getBinary() {
-  const platform = getPlatform();
-  const version = require("../package.json").version;
-  const url = `https://github.com/bnheise/ce-cli/releases/download/v${version}/ce-cli-${platform}.tar.gz`;
+  const platformMetadata = getPlatformMetadata();
+
+  const url = `${repository.url}/releases/download/v${version}/${name}-${platformMetadata.RUST_TARGET}.tar.gz`;
   const name = "ce-cli";
   return new Binary(name, url);
 }
