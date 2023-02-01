@@ -2,34 +2,14 @@
 
 const { Binary } = require("binary-install");
 const os = require("os");
-const { version, name, repository } = require("./package.json");
+const { version, name, repository } = require("../package.json");
+const supportedPlatfroms = require("../platforms.json");
 
 const error = (msg) => {
   console.error(msg);
   process.exit(1);
 };
-
-const supportedPlatforms = [
-  {
-    TYPE: "Windows_NT",
-    ARCHITECTURE: "x64",
-    RUST_TARGET: "x86_64-pc-windows-msvc",
-    BINARY_NAME: "ce-cli.exe",
-  },
-  {
-    TYPE: "Linux",
-    ARCHITECTURE: "x64",
-    RUST_TARGET: "x86_64-unknown-linux-musl",
-    BINARY_NAME: "ce-cli",
-  },
-  {
-    TYPE: "Darwin",
-    ARCHITECTURE: "x64",
-    RUST_TARGET: "x86_64-apple-darwin",
-    BINARY_NAME: "ce-cli",
-  },
-];
-
+console.log(supportedPlatfroms);
 const getPlatformMetadata = () => {
   const type = os.type();
   const architecture = os.arch();
