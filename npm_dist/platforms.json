@@ -1,11 +1,5 @@
 [
   {
-    "TYPE": "Windows_NT",
-    "ARCHITECTURE": "x64",
-    "RUST_TARGET": "x86_64-pc-windows-msvc",
-    "BINARY_NAME": "ce-cli.exe"
-  },
-  {
     "TYPE": "Linux",
     "ARCHITECTURE": "x64",
     "RUST_TARGET": "x86_64-unknown-linux-musl",
@@ -16,5 +10,11 @@
     "ARCHITECTURE": "x64",
     "RUST_TARGET": "x86_64-apple-darwin",
     "BINARY_NAME": "ce-cli"
+  },
+  {
+    "TYPE": "Windows_NT",
+    "ARCHITECTURE": "x64",
+    "RUST_TARGET": "x86_64-pc-windows-gnu",
+    "BINARY_NAME": "ce-cli.exe"
   }
 ]

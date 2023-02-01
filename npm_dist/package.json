@@ -2,25 +2,42 @@
   "name": "ce-cli",
   "version": "0.1.1",
   "description": "A command line tool for developing Liferay Client Extensions",
-  "scripts": {
-    "postinstall": "node ./scripts/install.js"
-  },
-  "bin": {
-    "ce-cli": "./scripts/run.js"
-  },
   "keywords": [
     "cli",
     "Liferay"
   ],
-  "author": "Brian Heise",
+  "homepage": "https://github.com/bnheise/ce-cli",
+  "bugs": null,
   "license": "MIT",
-  "repository": {
-    "url": "https://github.com/bnheise/ce-cli"
-  },
+  "author": "Brian Heise",
+  "contributors": [],
   "files": [
     "scripts/**/*"
   ],
+  "main": null,
+  "browser": null,
+  "bin": {
+    "ce-cli": "./scripts/run.js"
+  },
+  "man": null,
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/bnheise/ce-cli",
+    "directory": null
+  },
+  "scripts": {
+    "postinstall": "node ./scripts/install.js"
+  },
   "dependencies": {
     "binary-install": "^1.0.6"
-  }
+  },
+  "devDependencies": {},
+  "peerDependencies": {},
+  "bundledDependencies": {},
+  "optionalDependencies": {},
+  "engines": {},
+  "private": false,
+  "os": [],
+  "cpu": [],
+  "config": null
 }
