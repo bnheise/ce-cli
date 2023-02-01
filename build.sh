@@ -5,21 +5,27 @@ rm -rf ./build
 mkdir -p ./dist
 mkdir -p ./build
 
+appname=ce-cli
+
 for i in "${targets[@]}"
 do
   echo "Building $i..."
-  cross build --release --target $i
+  cross build --manifest-path ./app/Cargo.toml --release --target $i
   mkdir build/ce-cli-$i
+
+  foldername="$appname-$i"
 
   if [[ "$i" == "x86_64-pc-windows-gnu" ]]
   then
-    cp target/$i/release/ce-cli.exe ./build/ce-cli-$i
+    cp ./target/$i/release/$appname.exe ./build/$foldername 
   else
-    cp target/$i/release/ce-cli ./build/ce-cli-$i
+    cp ./target/$i/release/$appname ./build/$foldername
   fi
 
+  tar -C ./build/$foldername/ -czvf ./dist/$foldername.tar.gz .
+
   echo "Build $i finished"
+
 done
 
-source ./distribute.sh
-# todo make git tag and upload
+# source ./distribute.sh

@@ -1,24 +1,6 @@
-[package]
-name = "ce-cli"
-description = "A command line tool for building and managing Liferay remote app projects."
-version = "0.1.4"
-edition = "2021"
-authors = ["Brian Heise <brian.heise@liferay.com>"]
-rust-version = "1.66.1"
-documentation = "https://github.com/bnheise/ce-cli/blob/main/README.md"
-readme = "README.md"
-homepage = "https://github.com/bnheise/ce-cli/"
-repository = "https://github.com/rust-lang/cargo/"
-license = "MIT OR Apache-2.0"
-keywords = ["Liferay", "client-extensions", "cli"]
+[workspace]
 
-# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
-
-[dependencies]
-clap = {  version = "4.1.4", default-features = false, features = ["derive", "std", "help", "usage"]}
-serde = { version = "1.0.152", default-features = false, features = ["derive"]}
-serde_json = { version = "1.0.91", default-features = false, features = ["std"]} 
-serde_yaml = { version = "0.9.17", default-features = false } 
-walkdir = "2.3.2"
-yaml-rust = {version = "0.4.5", default-features = false } 
-zip = { version = "0.6.3", default-features = false, features = ["deflate"]} 
+members = [
+    "app",
+    "distribution"
+]

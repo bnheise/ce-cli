@@ -15,7 +15,7 @@ pub fn main() {
     }
 
     let contents =
-        fs::read_to_string("./distribute.sh").expect("Should have been able to read the file");
+        fs::read_to_string("../distribute.sh").expect("Should have been able to read the file");
 
     let build_sh_version = format!("version=v{new_version}");
     let new_content = contents
@@ -30,15 +30,15 @@ pub fn main() {
         .collect::<Vec<&str>>()
         .join("\n");
 
-    fs::write("./distribute.sh", new_content)
+    fs::write("../distribute.sh", new_content)
         .expect("Failed to update distribute.sh with new version.");
 
-    let package_contents = fs::read_to_string("./npm_dist/package.json")
+    let package_contents = fs::read_to_string("../npm_dist/package.json")
         .expect("Should have been able to read the file");
 
     let package_contents = replace_version("  \"version\": ", &new_version, package_contents);
 
-    fs::write("./npm_dist/package.json", package_contents)
+    fs::write("../npm_dist/package.json", package_contents)
         .expect("Failed to update distribute.sh with new version.");
 }
 
