@@ -116,14 +116,16 @@ fn publish_to_github(platforms: &[PlatformtDef], version: &str) {
         .map(|platform| format!("./dist/ce-cli-{}.tar.gz", platform.rust_target))
         .collect::<Vec<String>>();
 
+    let release_file = format!("./changelogs/{version}.md");
+
     let mut args = vec![
         "release",
         "create",
         "--title",
         version,
         version,
-        "--notes",
-        "new release",
+        "--notes-file",
+        &release_file,
     ];
 
     for filename in filenames.iter() {
