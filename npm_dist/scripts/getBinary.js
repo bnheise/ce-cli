@@ -34,8 +34,8 @@ function getBinary() {
   const platformMetadata = getPlatformMetadata();
 
   const url = `${repository.url}/releases/download/v${version}/${name}-${platformMetadata.RUST_TARGET}.tar.gz`;
-  const name = "ce-cli";
+
   return new Binary(name, url);
 }
-
+getBinary();
 module.exports = getBinary;
