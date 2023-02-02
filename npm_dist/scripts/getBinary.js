@@ -33,8 +33,8 @@ const getPlatformMetadata = () => {
 function getBinary() {
   const platformMetadata = getPlatformMetadata();
 
-  const url = `${repository.url}/releases/download/v${version}/${name}-${platformMetadata.RUST_TARGET}.tar.gz`;
-
+  const url = `${repository.url}/releases/download/${version}/${name}-${platformMetadata.RUST_TARGET}.tar.gz`;
+  console.log(url);
   return new Binary(name, url);
 }
 getBinary();
