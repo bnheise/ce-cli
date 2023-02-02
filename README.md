@@ -15,7 +15,7 @@ set up local development projects for Liferay Client extensions.
 
 ## Installation
 
-Run `npm install ce-cli` to install. If your operating system or architecture isn't supported, make an issue
+Run `npm install -g ce-cli` to install. If your operating system or architecture isn't supported, make an issue
 and I'll try to add it. I can't guarantee that I'll be able to though, so if that happens, I recommend installing
 Rust and compiling the binary yourself with `cargo install -ce-cli`.
 
@@ -80,3 +80,10 @@ pick up the new files.
 - Add shared component configuration (component used by other components but not registered as a remote app)
 - Add shared dependency configuration (make a dependency in package.json deployed as it's own bundle rather than bundling everywhere its used)
 - Deploy to virtual instances
+
+## Known Issues
+
+### Windows package broken
+
+Currently the npm installer is broken for windows. It successfully downloads the .exe but tries to execute it incorrectly.
+When this happens, it automatically clears the install folder, deleting the .exe file.
