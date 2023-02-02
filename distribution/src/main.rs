@@ -122,7 +122,7 @@ fn publish_to_npm() {
 fn publish_to_github(platforms: &[PlatformtDef], version: &str, release_file_path: &str) {
     let filenames = platforms
         .iter()
-        .map(|platform| format!("./dist/ce-cli-{}.tar.gz", platform.rust_target))
+        .map(|platform| format!("../dist/ce-cli-{}.tar.gz", platform.rust_target))
         .collect::<Vec<String>>();
 
     let mut args = vec![
