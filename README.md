@@ -83,7 +83,4 @@ pick up the new files.
 
 ## Known Issues
 
-### Windows package broken
-
-Currently the npm installer is broken for windows. It successfully downloads the .exe but tries to execute it incorrectly.
-When this happens, it automatically clears the install folder, deleting the .exe file.
+Currently, none!
