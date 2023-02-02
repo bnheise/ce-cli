@@ -31,11 +31,11 @@ const getPlatformMetadata = () => {
 };
 
 function getBinary() {
-  const platformMetadata = getPlatformMetadata();
+  const { RUST_TARGET, BINARY_NAME } = getPlatformMetadata();
 
-  const url = `${repository.url}/releases/download/${version}/${name}-${platformMetadata.RUST_TARGET}.tar.gz`;
-  console.log(url);
-  return new Binary(name, url);
+  const url = `${repository.url}/releases/download/${version}/${name}-${RUST_TARGET}.tar.gz`;
+
+  return new Binary(BINARY_NAME, url);
 }
 getBinary();
 module.exports = getBinary;
