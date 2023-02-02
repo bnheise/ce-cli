@@ -3,13 +3,13 @@
 const { Binary } = require("binary-install");
 const os = require("os");
 const { version, name, repository } = require("../package.json");
-const supportedPlatfroms = require("../platforms.json");
+const supportedPlatforms = require("../platforms.json");
 
 const error = (msg) => {
   console.error(msg);
   process.exit(1);
 };
-console.log(supportedPlatfroms);
+
 const getPlatformMetadata = () => {
   const type = os.type();
   const architecture = os.arch();
