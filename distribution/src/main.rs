@@ -1,4 +1,5 @@
 use std::io::BufRead;
+use std::path::Path;
 use std::{
     fmt::Display,
     fs,
@@ -19,11 +20,19 @@ const BUILD_DIR: &str = "../build";
 
 fn main() -> Result<()> {
     let version = get_current_version()?;
+    let release_path_string = format!("../changelogs/{version}.md");
+    let release_file_path = Path::new(&release_path_string);
+    if !release_file_path.exists() {
+        return Err(io::Error::new(
+            io::ErrorKind::NotFound,
+            "Release file is missing",
+        ));
+    }
     update_package_json_version(&version)?;
     clean_previous_builds()?;
     let platforms = get_platforms()?;
     run_builds(&platforms)?;
-    publish_to_github(&platforms, &version);
+    publish_to_github(&platforms, &version, &release_path_string);
     publish_to_npm();
     Ok(())
 }
@@ -110,13 +119,11 @@ fn publish_to_npm() {
     println!("Done!");
 }
 
-fn publish_to_github(platforms: &[PlatformtDef], version: &str) {
+fn publish_to_github(platforms: &[PlatformtDef], version: &str, release_file_path: &str) {
     let filenames = platforms
         .iter()
         .map(|platform| format!("./dist/ce-cli-{}.tar.gz", platform.rust_target))
         .collect::<Vec<String>>();
-
-    let release_file = format!("./changelogs/{version}.md");
 
     let mut args = vec![
         "release",
@@ -125,7 +132,7 @@ fn publish_to_github(platforms: &[PlatformtDef], version: &str) {
         version,
         version,
         "--notes-file",
-        &release_file,
+        release_file_path,
     ];
 
     for filename in filenames.iter() {
@@ -133,14 +140,8 @@ fn publish_to_github(platforms: &[PlatformtDef], version: &str) {
     }
 
     println!("Publishing to Github...");
-    let output = Command::new("ls")
-        .current_dir("../")
-        .args(["-a"])
-        .output()
-        .expect("failed to move binary from target folder to build folder");
-    println!("{output:?}");
+
     let output = Command::new("gh")
-        .current_dir("../")
         .args(args)
         .output()
         .expect("failed to move binary from target folder to build folder");
@@ -161,6 +162,13 @@ fn update_package_json_version(version: &str) -> Result<()> {
     let raw_json = fs::read_to_string(PACKAGE_JSON_PATH).expect("Failed to load package.json");
 
     let mut package_json = serde_json::from_str::<Package>(&raw_json)?;
+
+    if package_json.version == version {
+        return Err(io::Error::new(
+            io::ErrorKind::InvalidData,
+            "Cargo.toml version is the same as Package.json. Did you forget to update the version in app/Cargo.toml?",
+        ));
+    }
 
     package_json.version = version.to_owned();
 
