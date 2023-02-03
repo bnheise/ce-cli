@@ -1,13 +1,11 @@
 use std::error::{self, Error};
 use std::fmt::Display;
-
 use zip::result::ZipError;
 
 #[derive(Debug)]
 pub enum CliError {
     NotImplemented(UpcomingFeature),
     CurrentDirectoryError(Option<std::io::Error>),
-    NoProjectName,
     WriteError((String, std::io::Error)),
     ParseJsonError(&'static str, serde_json::Error),
     SerializeJsonError(&'static str, serde_json::Error),
@@ -15,6 +13,7 @@ pub enum CliError {
     ZipError(ZipError),
     OpenFileError(String, std::io::Error),
     ReadFileError(String, std::io::Error),
+    InputError(std::io::Error),
 }
 
 impl Display for CliError {
@@ -32,7 +31,6 @@ impl Display for CliError {
                     "An error occurred when attempting to read the current directory"
                 )
             }
-            CliError::NoProjectName => write!(f, "A project name must be provided"),
             CliError::WriteError((name, ..)) => {
                 write!(f, "Failed to write a file or directory: {name}")
             }
@@ -48,6 +46,7 @@ impl Display for CliError {
             CliError::ReadFileError(filename, ..) => {
                 write!(f, "Failed to read content of file {filename}")
             }
+            CliError::InputError(..) => write!(f, "To retrieve input"),
         }
     }
 }
@@ -60,7 +59,6 @@ impl Error for CliError {
                 Some(e) => Some(e),
                 None => None,
             },
-            CliError::NoProjectName => None,
             CliError::WriteError((.., e)) => Some(e),
             CliError::ParseJsonError(.., e) => Some(e),
             CliError::SerializeJsonError(.., e) => Some(e),
@@ -68,6 +66,7 @@ impl Error for CliError {
             CliError::ZipError(e) => Some(e),
             CliError::OpenFileError(.., e) => Some(e),
             CliError::ReadFileError(.., e) => Some(e),
+            CliError::InputError(e) => Some(e),
         }
     }
 }
