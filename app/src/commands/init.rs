@@ -12,11 +12,14 @@ use crate::{
             WEBPACK_CONFIG_PROD_FILENAME, WORKSPACE_CONFIG_FILENAME,
         },
         scripts::{LIFERAY_EXTERNALS, LIFERAY_EXTERNALS_FILENAME},
+        CLIENT_EXTENSIONS, OSGI,
     },
 };
+use dialoguer::Input;
+use regex::Regex;
 use serde_json::Value;
 use std::io::Write;
-use std::{env, fs, io, path::PathBuf};
+use std::{env, fs, path::PathBuf};
 
 pub fn handle_init(
     config: ConfigBuilder,
@@ -36,7 +39,7 @@ pub fn handle_init(
 fn initialize_config(
     mut config: ConfigBuilder,
     project_name: Option<String>,
-    bundle_path: Option<PathBuf>,
+    deploy_path: Option<PathBuf>,
     config_path: Option<PathBuf>,
 ) -> Result<Config, CliError> {
     if let Some(_config_path) = config_path {
@@ -52,43 +55,45 @@ fn initialize_config(
         config.set_project_name(project_name);
     }
 
-    if let Some(bundle_path) = bundle_path {
-        config.set_bundle_path(bundle_path);
+    if let Some(deploy_path) = deploy_path {
+        config.set_deploy_path(deploy_path);
     } else {
         let bundle_path = get_bundle_path_from_environment();
-        let bundle_path = get_bundle_path_from_user(bundle_path);
-        config.set_bundle_path(bundle_path);
+        let deploy_path = get_deploy_path_from_user(bundle_path)?;
+        config.set_deploy_path(deploy_path);
     }
 
     let config = config.build();
     Ok(config)
 }
 
-fn get_bundle_path_from_user(bundle_path: Option<PathBuf>) -> PathBuf {
-    let env_bundle_path = bundle_path.unwrap_or_default();
-
-    println!(
-        "Enter the path to your local Liferay installation ({})",
-        env_bundle_path.display()
-    );
-
-    let stdin = io::stdin();
-    let mut user_input = String::new();
-
-    stdin
-        .read_line(&mut user_input)
-        .expect("Expected to get a project name from the user but failed");
-
-    if user_input.trim().is_empty() && env_bundle_path.components().count() > 0 {
-        env_bundle_path
-    } else if !user_input.trim().is_empty() {
-        user_input
-            .trim()
-            .try_into()
-            .expect("Expected a valid path but received none")
+fn get_deploy_path_from_user(bundle_path: Option<PathBuf>) -> Result<PathBuf, CliError> {
+    let default_deploy_path = if let Some(bundle_path) = bundle_path {
+        bundle_path.join(OSGI).join(CLIENT_EXTENSIONS)
     } else {
-        panic!("A project name must be provided")
-    }
+        PathBuf::new()
+    };
+
+    let user_response: String = Input::new()
+        .with_prompt("Please enter the path to your Liferay deploy folder")
+        .with_initial_text(default_deploy_path.to_str().unwrap_or_default())
+        .validate_with(|input: &String| -> Result<(), &str> {
+            let path = PathBuf::from(input);
+
+            if path.is_dir() {
+                Ok(())
+            } else if !path.exists() {
+                Err("The path you entered does not exist.")
+            } else if path.is_file() {
+                Err("The path you entered points to a file rather than a directory.")
+            } else {
+                Err("It was not possible to parse your input.")
+            }
+        })
+        .interact_text()
+        .map_err(CliError::InputError)?;
+
+    Ok(PathBuf::from(user_response))
 }
 
 pub fn get_bundle_path_from_environment() -> Option<PathBuf> {
@@ -130,25 +135,25 @@ pub fn get_project_name_from_user() -> Result<String, CliError> {
         _ => return Err(CliError::CurrentDirectoryError(None)),
     }
     .to_str()
-    .unwrap_or("")
+    .unwrap_or_default()
     .to_owned();
 
-    let stdin = io::stdin();
-    let mut user_input = String::new();
+    let user_response: String = Input::new()
+        .with_prompt("Please enter a project name")
+        .with_initial_text(folder_name.replace(' ', "-"))
+        .report(true)
+        .validate_with(|input: &String| -> Result<(), &str> {
+            let is_url_safe = Regex::new(r"^[a-zA-Z0-9_-]*$").unwrap();
+            if is_url_safe.is_match(input) {
+                Ok(())
+            } else {
+                Err("Project name must not contain characters that cannot be displayed in a url")
+            }
+        })
+        .interact_text()
+        .map_err(CliError::InputError)?;
 
-    println!("Please enter a project name ({folder_name})");
-
-    stdin
-        .read_line(&mut user_input)
-        .expect("Expected to get a project name from the user but failed");
-
-    if user_input.trim().is_empty() && !folder_name.trim().is_empty() {
-        Ok(folder_name)
-    } else if !user_input.trim().is_empty() {
-        Ok(user_input)
-    } else {
-        Err(CliError::NoProjectName)
-    }
+    Ok(user_response)
 }
 
 pub fn generate_files(config: &Config) -> Result<(), CliError> {
@@ -172,7 +177,7 @@ pub fn generate_files(config: &Config) -> Result<(), CliError> {
     }
 
     let dynamic_files = [
-        (PACKAGEJSON_FILENAME, prepare_package_json(config)?),
+        (PACKAGEJSON_FILENAME, prepare_package_json(config)),
         (LCP_JSON_FILENAME, prepare_lcp_json(config)?),
         (WORKSPACE_CONFIG_FILENAME, prepare_config_file(config)?),
     ];
@@ -194,9 +199,9 @@ fn generate_file(filname: &'static str, content: &str) -> Result<(), CliError> {
     Ok(())
 }
 
-fn prepare_package_json(config: &Config) -> Result<String, CliError> {
+fn prepare_package_json(config: &Config) -> String {
     let mut v = match serde_json::from_str(PACKAGEJSON)
-        .map_err(|e| CliError::ParseJsonError(PACKAGEJSON_FILENAME, e))?
+        .expect("The package.json template was not parseable")
     {
         Value::Object(package) => package,
         _ => panic!("Should have gotten an Object from Package.json"),
@@ -209,7 +214,8 @@ fn prepare_package_json(config: &Config) -> Result<String, CliError> {
         };
     });
 
-    Ok(serde_json::to_string_pretty(&v).unwrap())
+    serde_json::to_string_pretty(&v)
+        .expect("Could not convert the package.json template back to a string")
 }
 
 fn prepare_lcp_json(config: &Config) -> Result<String, CliError> {

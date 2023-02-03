@@ -5,7 +5,7 @@ use super::{
 use crate::{
     error::CliError,
     structs::cet_configuration::CetConfiguration,
-    templates::{BUILD_DIR, CET_CONFIG_FILENAME_BASE, CLIENT_EXTENSION, CLIENT_EXTENSIONS, OSGI},
+    templates::{BUILD_DIR, CET_CONFIG_FILENAME_BASE, CLIENT_EXTENSION},
     util::zip::zip_directory,
 };
 use std::path::Path;
@@ -15,7 +15,7 @@ pub fn handle_dev_deploy() -> Result<(), CliError> {
     let config = get_config(&path);
     let port = config.dev_server_port;
     let project_name = config.project_name;
-    let bundle_path = config.bundle_path;
+    let deploy_path = config.deploy_path;
     let path = get_client_extension_yaml_path();
     let client_ext_yaml = get_client_ext_yaml(&path).set_dev_urls(port);
     let cet_config = CetConfiguration::from(client_ext_yaml);
@@ -28,10 +28,7 @@ pub fn handle_dev_deploy() -> Result<(), CliError> {
 
     write_file_to_build_dir(&filename, CLIENT_EXTENSION, raw)?;
 
-    let zip_dest = bundle_path
-        .join(OSGI)
-        .join(CLIENT_EXTENSIONS)
-        .join(format!("{project_name}.zip"));
+    let zip_dest = deploy_path.join(format!("{project_name}.zip"));
 
     let src_dir = Path::new("./").join(BUILD_DIR).join(output_dir);
     zip_directory(src_dir, zip_dest)?;

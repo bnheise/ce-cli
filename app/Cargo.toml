@@ -16,6 +16,8 @@ keywords = ["Liferay", "client-extensions", "cli"]
 
 [dependencies]
 clap = {  version = "4.1.4", default-features = false, features = ["derive", "std", "help", "usage"]}
+dialoguer = "0.10.3"
+regex = "1.7.1"
 serde = { version = "1.0.152", default-features = false, features = ["derive", "std"]}
 serde_json = { version = "1.0.91", default-features = false, features = ["std"]} 
 serde_yaml = { version = "0.9.17", default-features = false } 
