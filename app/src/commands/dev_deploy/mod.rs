@@ -1,17 +1,16 @@
-use std::{io::Result, path::Path};
-
-use crate::{
-    structs::cet_configuration::CetConfiguration,
-    templates::{BUILD_DIR, CET_CONFIG_FILENAME_BASE, CLIENT_EXTENSION, CLIENT_EXTENSIONS, OSGI},
-    util::zip::zip_directory,
-};
-
 use super::{
     get_client_ext_yaml, get_client_extension_yaml_path, get_config, get_config_path,
     write_file_to_build_dir,
 };
+use crate::{
+    error::CliError,
+    structs::cet_configuration::CetConfiguration,
+    templates::{BUILD_DIR, CET_CONFIG_FILENAME_BASE, CLIENT_EXTENSION, CLIENT_EXTENSIONS, OSGI},
+    util::zip::zip_directory,
+};
+use std::path::Path;
 
-pub fn handle_dev_deploy() -> Result<()> {
+pub fn handle_dev_deploy() -> Result<(), CliError> {
     let path = get_config_path();
     let config = get_config(&path);
     let port = config.dev_server_port;
