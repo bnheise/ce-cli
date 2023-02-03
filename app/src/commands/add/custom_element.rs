@@ -2,19 +2,22 @@ use crate::{
     commands::{
         format_yaml, get_client_ext_yaml, get_client_extension_yaml_path, update_workspace_config,
     },
+    error::CliError,
     structs::client_extension_yaml::ClientExtType,
     structs::client_extension_yaml::{ClientExtId, CustomElementDefinition, PortletCategoryNames},
-    templates::app_templates::custom_element::{
-        CUSTOM_ELEMENT_APP, CUSTOM_ELEMENT_APP_FILENAME, CUSTOM_ELEMENT_APP_NAME,
-        CUSTOM_ELEMENT_APP_NAME_CAMEL, CUSTOM_ELEMENT_CSS, CUSTOM_ELEMENT_CSS_FILENAME,
-        CUSTOM_ELEMENT_INDEX, CUSTOM_ELEMENT_INDEX_FILENAME, CUSTOM_ELEMENT_NAME,
-        CUSTOM_ELEMENT_VIEW, CUSTOM_ELEMENT_VIEW_FILENAME, CUSTOM_ELEMENT_WIDGET,
-        CUSTOM_ELEMENT_WIDGET_FILENAME,
+    templates::{
+        app_templates::custom_element::{
+            CUSTOM_ELEMENT_APP, CUSTOM_ELEMENT_APP_FILENAME, CUSTOM_ELEMENT_APP_NAME,
+            CUSTOM_ELEMENT_APP_NAME_CAMEL, CUSTOM_ELEMENT_CSS, CUSTOM_ELEMENT_CSS_FILENAME,
+            CUSTOM_ELEMENT_INDEX, CUSTOM_ELEMENT_INDEX_FILENAME, CUSTOM_ELEMENT_NAME,
+            CUSTOM_ELEMENT_VIEW, CUSTOM_ELEMENT_VIEW_FILENAME, CUSTOM_ELEMENT_WIDGET,
+            CUSTOM_ELEMENT_WIDGET_FILENAME,
+        },
+        configs::CLIENT_EXT_YAML_FILENAME,
     },
 };
 use std::{
     fs,
-    io::Result,
     path::{Path, PathBuf},
 };
 
@@ -26,7 +29,7 @@ pub fn handle_custom_element(
     portlet_category_name: Option<PortletCategoryNames>,
     description: Option<String>,
     use_esm: Option<bool>,
-) -> Result<()> {
+) -> Result<(), CliError> {
     let mut definition = CustomElementDefinition::new(name);
 
     if let Some(friendly_url_mapping) = friendly_url_mapping {
@@ -57,7 +60,7 @@ pub fn handle_custom_element(
 
     let app_path = Path::new("./src").join(definition.get_id());
 
-    fs::create_dir(&app_path)?;
+    fs::create_dir(&app_path).map_err(|e| CliError::WriteError(("./src".to_owned(), e)))?;
 
     let index_path = app_path.join(CUSTOM_ELEMENT_INDEX_FILENAME);
     let view_path = app_path.join(CUSTOM_ELEMENT_VIEW_FILENAME);
@@ -81,7 +84,7 @@ pub fn handle_custom_element(
     Ok(())
 }
 
-fn update_client_ext_yaml(definition: CustomElementDefinition) -> Result<()> {
+fn update_client_ext_yaml(definition: CustomElementDefinition) -> Result<(), CliError> {
     let path = get_client_extension_yaml_path();
 
     let mut deserialized = get_client_ext_yaml(&path);
@@ -90,12 +93,16 @@ fn update_client_ext_yaml(definition: CustomElementDefinition) -> Result<()> {
 
     let yaml = format_yaml(deserialized);
 
-    fs::write(path, yaml)?;
+    fs::write(path, yaml)
+        .map_err(|e| CliError::WriteError((CLIENT_EXT_YAML_FILENAME.to_owned(), e)))?;
 
     Ok(())
 }
 
-fn create_index_file(definition: &CustomElementDefinition, index_path: &PathBuf) -> Result<()> {
+fn create_index_file(
+    definition: &CustomElementDefinition,
+    index_path: &PathBuf,
+) -> Result<(), CliError> {
     let index_content = CUSTOM_ELEMENT_INDEX
         .replace(
             CUSTOM_ELEMENT_APP_NAME_CAMEL,
@@ -103,20 +110,25 @@ fn create_index_file(definition: &CustomElementDefinition, index_path: &PathBuf)
         )
         .replace(CUSTOM_ELEMENT_NAME, definition.get_custom_element_name());
 
-    fs::write(index_path, index_content)?;
+    fs::write(index_path, index_content)
+        .map_err(|e| CliError::WriteError((CUSTOM_ELEMENT_INDEX_FILENAME.to_owned(), e)))?;
 
     Ok(())
 }
 
-fn create_css_file(definition: &CustomElementDefinition, app_path: &Path) -> Result<()> {
+fn create_css_file(definition: &CustomElementDefinition, app_path: &Path) -> Result<(), CliError> {
     let css_content =
         CUSTOM_ELEMENT_CSS.replace(CUSTOM_ELEMENT_NAME, definition.get_custom_element_name());
 
-    fs::write(app_path.join(CUSTOM_ELEMENT_CSS_FILENAME), css_content)?;
+    fs::write(app_path.join(CUSTOM_ELEMENT_CSS_FILENAME), css_content)
+        .map_err(|e| CliError::WriteError((CUSTOM_ELEMENT_CSS_FILENAME.to_owned(), e)))?;
     Ok(())
 }
 
-fn create_custom_element_file(definition: &CustomElementDefinition, app_path: &Path) -> Result<()> {
+fn create_custom_element_file(
+    definition: &CustomElementDefinition,
+    app_path: &Path,
+) -> Result<(), CliError> {
     let app_content = CUSTOM_ELEMENT_APP
         .replace(
             CUSTOM_ELEMENT_APP_NAME_CAMEL,
@@ -124,18 +136,24 @@ fn create_custom_element_file(definition: &CustomElementDefinition, app_path: &P
         )
         .replace(CUSTOM_ELEMENT_APP_NAME, definition.get_name());
 
-    fs::write(app_path.join(CUSTOM_ELEMENT_APP_FILENAME), app_content)?;
+    fs::write(app_path.join(CUSTOM_ELEMENT_APP_FILENAME), app_content)
+        .map_err(|e| CliError::WriteError((CUSTOM_ELEMENT_APP_FILENAME.to_owned(), e)))?;
     Ok(())
 }
 
-fn create_view_file(definition: &CustomElementDefinition, view_path: &Path) -> Result<()> {
+fn create_view_file(
+    definition: &CustomElementDefinition,
+    view_path: &Path,
+) -> Result<(), CliError> {
     let view_content = CUSTOM_ELEMENT_VIEW.replace(CUSTOM_ELEMENT_APP_NAME, definition.get_name());
 
-    fs::write(view_path, view_content)?;
+    fs::write(view_path, view_content)
+        .map_err(|e| CliError::WriteError((CUSTOM_ELEMENT_VIEW_FILENAME.to_owned(), e)))?;
     Ok(())
 }
 
-fn create_widget_file(widget_path: &Path) -> Result<()> {
-    fs::write(widget_path, CUSTOM_ELEMENT_WIDGET)?;
+fn create_widget_file(widget_path: &Path) -> Result<(), CliError> {
+    fs::write(widget_path, CUSTOM_ELEMENT_WIDGET)
+        .map_err(|e| CliError::WriteError((CUSTOM_ELEMENT_WIDGET_FILENAME.to_owned(), e)))?;
     Ok(())
 }

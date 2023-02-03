@@ -1,14 +1,6 @@
-use std::{
-    env,
-    fs::{self, File},
-    io::{self, Result, Write},
-    path::PathBuf,
-};
-
-use serde_json::Value;
-
 use crate::{
     config::{Config, ConfigBuilder},
+    error::CliError,
     templates::{
         configs::{
             CLIENT_EXT_YAML, CLIENT_EXT_YAML_FILENAME, DOCKERFILE, DOCKERFILE_FILENAME, ESLINTRC,
@@ -22,15 +14,35 @@ use crate::{
         scripts::{LIFERAY_EXTERNALS, LIFERAY_EXTERNALS_FILENAME},
     },
 };
+use serde_json::Value;
+use std::io::Write;
+use std::{env, fs, io, path::PathBuf};
 
 pub fn handle_init(
+    config: ConfigBuilder,
+    project_name: Option<String>,
+    bundle_path: Option<PathBuf>,
+    config_path: Option<PathBuf>,
+) -> Result<(), CliError> {
+    let config = initialize_config(config, project_name, bundle_path, config_path)?;
+    fs::create_dir("./util").map_err(|e| CliError::WriteError(("./util".to_owned(), e)))?;
+    fs::create_dir("./src").map_err(|e| CliError::WriteError(("./src".to_owned(), e)))?;
+
+    generate_files(&config)?;
+
+    Ok(())
+}
+
+fn initialize_config(
     mut config: ConfigBuilder,
     project_name: Option<String>,
     bundle_path: Option<PathBuf>,
     config_path: Option<PathBuf>,
-) -> Result<()> {
+) -> Result<Config, CliError> {
     if let Some(_config_path) = config_path {
-        todo!("Handle config path and ignore other arguments");
+        return Err(CliError::NotImplemented(
+            crate::error::UpcomingFeature::SetConfigPathOnInit,
+        ));
     }
 
     if let Some(project_name) = project_name {
@@ -49,16 +61,10 @@ pub fn handle_init(
     }
 
     let config = config.build();
-
-    fs::create_dir("./util")?;
-    fs::create_dir("./src")?;
-
-    generate_files(&config)?;
-
-    Ok(())
+    Ok(config)
 }
 
-pub fn get_bundle_path_from_user(bundle_path: Option<PathBuf>) -> PathBuf {
+fn get_bundle_path_from_user(bundle_path: Option<PathBuf>) -> PathBuf {
     let env_bundle_path = bundle_path.unwrap_or_default();
 
     println!(
@@ -113,10 +119,15 @@ pub fn get_bundle_path_from_environment() -> Option<PathBuf> {
     None
 }
 
-pub fn get_project_name_from_user() -> Result<String> {
-    let folder_name = match env::current_dir()?.components().last().unwrap() {
+pub fn get_project_name_from_user() -> Result<String, CliError> {
+    let folder_name = match env::current_dir()
+        .map_err(|e| CliError::CurrentDirectoryError(Some(e)))?
+        .components()
+        .last()
+        .ok_or(CliError::CurrentDirectoryError(None))?
+    {
         std::path::Component::Normal(dirname) => dirname,
-        _ => panic!("Expected to get the current directory name didn't"),
+        _ => return Err(CliError::CurrentDirectoryError(None)),
     }
     .to_str()
     .unwrap_or("")
@@ -136,11 +147,11 @@ pub fn get_project_name_from_user() -> Result<String> {
     } else if !user_input.trim().is_empty() {
         Ok(user_input)
     } else {
-        panic!("A project name must be provided")
+        Err(CliError::NoProjectName)
     }
 }
 
-pub fn generate_files(config: &Config) -> Result<()> {
+pub fn generate_files(config: &Config) -> Result<(), CliError> {
     let static_files = [
         (ESLINTRC_FILENAME, ESLINTRC),
         (GITIGNORE_FILENAME, GITIGNORE),
@@ -173,15 +184,20 @@ pub fn generate_files(config: &Config) -> Result<()> {
     Ok(())
 }
 
-fn generate_file(filname: &'static str, content: &str) -> Result<()> {
-    let mut output = File::create(filname)?;
-    output.write_all(content.as_bytes())?;
+fn generate_file(filname: &'static str, content: &str) -> Result<(), CliError> {
+    let mut output =
+        fs::File::create(filname).map_err(|e| CliError::WriteError((filname.to_owned(), e)))?;
+    output
+        .write_all(content.as_bytes())
+        .map_err(|e| CliError::WriteError((filname.to_owned(), e)))?;
 
     Ok(())
 }
 
-fn prepare_package_json(config: &Config) -> Result<String> {
-    let mut v = match serde_json::from_str(PACKAGEJSON)? {
+fn prepare_package_json(config: &Config) -> Result<String, CliError> {
+    let mut v = match serde_json::from_str(PACKAGEJSON)
+        .map_err(|e| CliError::ParseJsonError(PACKAGEJSON_FILENAME, e))?
+    {
         Value::Object(package) => package,
         _ => panic!("Should have gotten an Object from Package.json"),
     };
@@ -196,8 +212,10 @@ fn prepare_package_json(config: &Config) -> Result<String> {
     Ok(serde_json::to_string_pretty(&v).unwrap())
 }
 
-fn prepare_lcp_json(config: &Config) -> Result<String> {
-    let mut v = match serde_json::from_str(LCP_JSON)? {
+fn prepare_lcp_json(config: &Config) -> Result<String, CliError> {
+    let mut v = match serde_json::from_str(LCP_JSON)
+        .map_err(|e| CliError::ParseJsonError(LCP_JSON_FILENAME, e))?
+    {
         Value::Object(package) => package,
         _ => panic!("Should have gotten an Object from LCP.json"),
     };
@@ -212,6 +230,6 @@ fn prepare_lcp_json(config: &Config) -> Result<String> {
     Ok(serde_json::to_string_pretty(&v).unwrap())
 }
 
-fn prepare_config_file(config: &Config) -> Result<String> {
+fn prepare_config_file(config: &Config) -> Result<String, CliError> {
     Ok(serde_json::to_string_pretty(&config).unwrap())
 }

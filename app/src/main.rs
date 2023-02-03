@@ -7,6 +7,7 @@ use std::io::Result;
 mod cli;
 mod commands;
 mod config;
+mod error;
 mod structs;
 mod templates;
 mod util;
@@ -15,15 +16,19 @@ fn main() -> Result<()> {
     let cli = Cli::parse();
     let config = ConfigBuilder::new();
 
-    match cli.command {
+    let result = match cli.command {
         cli::Commands::Init {
             project_name,
             bundle_path,
             config_path,
-        } => handle_init(config, project_name, bundle_path, config_path)?,
-        cli::Commands::Add { extension_type } => handle_add(extension_type)?,
-        cli::Commands::DevDeploy => handle_dev_deploy()?,
+        } => handle_init(config, project_name, bundle_path, config_path),
+        cli::Commands::Add { extension_type } => handle_add(extension_type),
+        cli::Commands::DevDeploy => handle_dev_deploy(),
     };
+
+    if let Err(error) = result {
+        println!("{error}")
+    }
 
     Ok(())
 }

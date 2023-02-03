@@ -1,14 +1,13 @@
+use serde::Serialize;
 use std::{
     fs,
-    io::Result,
     path::{Path, PathBuf},
 };
-
-use serde::Serialize;
 use yaml_rust::{YamlEmitter, YamlLoader};
 
 use crate::{
     config::Config,
+    error::CliError,
     structs::client_extension_yaml::ClientExtensionYaml,
     templates::{
         configs::{CLIENT_EXT_YAML_FILENAME, WORKSPACE_CONFIG_FILENAME},
@@ -30,7 +29,7 @@ fn get_config(path: &PathBuf) -> Config {
     serde_json::from_str::<Config>(&raw).expect("Could not deserialize config")
 }
 
-fn update_workspace_config(cb: impl Fn(&mut Config)) -> Result<()> {
+fn update_workspace_config(cb: impl Fn(&mut Config)) -> Result<(), CliError> {
     let path = get_config_path();
     let mut config = get_config(&path);
 
@@ -38,8 +37,10 @@ fn update_workspace_config(cb: impl Fn(&mut Config)) -> Result<()> {
 
     fs::write(
         path,
-        serde_json::to_string_pretty(&config).expect("Failed to write workspace-config.json"),
-    )?;
+        serde_json::to_string_pretty(&config)
+            .map_err(|e| CliError::SerializeJsonError(WORKSPACE_CONFIG_FILENAME, e))?,
+    )
+    .map_err(|e| CliError::WriteError((WORKSPACE_CONFIG_FILENAME.to_owned(), e)))?;
 
     Ok(())
 }
@@ -56,10 +57,16 @@ fn get_client_ext_yaml(path: &PathBuf) -> ClientExtensionYaml {
         .expect("Could not parse client-ext.yaml")
 }
 
-fn write_file_to_build_dir(filename: &str, subfolder: &str, content: String) -> Result<()> {
+fn write_file_to_build_dir(
+    filename: &str,
+    subfolder: &str,
+    content: String,
+) -> Result<(), CliError> {
     let path = Path::new("./").join(BUILD_DIR).join(subfolder);
-    fs::create_dir_all(&path)?;
-    fs::write(path.join(filename), content)?;
+    fs::create_dir_all(&path)
+        .map_err(|e| CliError::WriteError((path.to_string_lossy().to_string(), e)))?;
+    fs::write(path.join(filename), content)
+        .map_err(|e| CliError::WriteError((filename.to_owned(), e)))?;
 
     Ok(())
 }
