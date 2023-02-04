@@ -3,11 +3,12 @@
 	"version": "0.1.0",
 	"type": "module",
 	"scripts": {
-		"start": "ce-cli dev-deploy && webpack serve --open --config webpack.dev.js",
-		"test:unit": "jest",
-		"build": "yarn test:unit && yarn test:component && webpack --config webpack.prod.js",
+		"build": "yarn test && webpack --config webpack.prod.js",
 		"deploy": "blade gw deploy",
-		"test:component": "cypress run --component --headless"
+		"start": "ce-cli dev-deploy && webpack serve --open --config webpack.dev.js",
+		"test:component": "cypress run",
+		"test:unit": "jest",
+		"test": "concurrently yarn:test:unit \"yarn:test:component --component --headless --browser chrome \""
 	},
 	"license": "ISC",
 	"devDependencies": {
@@ -21,6 +22,7 @@
 		"@typescript-eslint/eslint-plugin": "^5.49.0",
 		"@typescript-eslint/parser": "^5.49.0",
 		"babel-loader": "^9.1.2",
+		"concurrently": "^7.6.0",
 		"css-loader": "^6.7.3",
 		"cypress": "^12.5.1",
 		"dotenv-webpack": "^8.0.1",
