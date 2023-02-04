@@ -14,9 +14,12 @@ use serde::Deserialize;
 
 const CLI_CARGO_TOML_PATH: &str = "../app/Cargo.toml";
 const PACKAGE_JSON_PATH: &str = "../npm_dist/package.json";
-const PLATFORMS_PATH: &str = "../npm_dist/platforms.json";
+const MAIN_PLATFORMS_PATH: &str = "../npm_dist/platforms.json";
+const NPM_PLATFORMS_PATH: &str = "../platforms.json";
 const DIST_DIR: &str = "../dist";
 const BUILD_DIR: &str = "../build";
+const NPM_README_PATH: &str = "../npm_dist/README.md";
+const MAIN_README_PATH: &str = "../README.md";
 
 fn main() -> Result<()> {
     let version = get_current_version()?;
@@ -33,6 +36,8 @@ fn main() -> Result<()> {
     let platforms = get_platforms()?;
     run_builds(&platforms)?;
     publish_to_github(&platforms, &version, &release_path_string);
+    update_npm_readme();
+    update_npm_platforms();
     publish_to_npm();
     Ok(())
 }
@@ -181,7 +186,7 @@ fn update_package_json_version(version: &str) -> Result<()> {
 }
 
 fn get_platforms() -> Result<Vec<PlatformtDef>> {
-    let raw_json = fs::read_to_string(PLATFORMS_PATH).expect("Failed to load platforms.json");
+    let raw_json = fs::read_to_string(MAIN_PLATFORMS_PATH).expect("Failed to load platforms.json");
     Ok(serde_json::from_str::<Vec<PlatformtDef>>(&raw_json)?)
 }
 
@@ -231,9 +236,11 @@ impl Display for RustTarget {
         }
     }
 }
-// {
-//   "TYPE": "Windows_NT",
-//   "ARCHITECTURE": "x64",
-//   "RUST_TARGET": "x86_64-pc-windows-msvc",
-//   "BINARY_NAME": "ce-cli.exe"
-// },
+
+fn update_npm_readme() {
+    fs::copy(MAIN_README_PATH, NPM_README_PATH).expect("Failed to copy the file");
+}
+
+fn update_npm_platforms() {
+    fs::copy(MAIN_PLATFORMS_PATH, NPM_PLATFORMS_PATH).expect("Failed to copy the file");
+}
