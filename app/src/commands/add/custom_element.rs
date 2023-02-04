@@ -12,7 +12,7 @@ use crate::{
             CUSTOM_ELEMENT_INDEX, CUSTOM_ELEMENT_INDEX_FILENAME, CUSTOM_ELEMENT_NAME,
             CUSTOM_ELEMENT_UTIL, CUSTOM_ELEMENT_UTIL_FILENAME, CUSTOM_ELEMENT_UTIL_SPEC,
             CUSTOM_ELEMENT_UTIL_SPEC_FILENAME, CUSTOM_ELEMENT_VIEW, CUSTOM_ELEMENT_VIEW_FILENAME,
-            CUSTOM_ELEMENT_WIDGET, CUSTOM_ELEMENT_WIDGET_FILENAME,
+            CUSTOM_ELEMENT_WIDGET, CUSTOM_ELEMENT_WIDGET_FILENAME, VIEW_CY_TS, VIEW_CY_TS_FILENAME,
         },
         configs::CLIENT_EXT_YAML_FILENAME,
     },
@@ -70,9 +70,17 @@ pub fn handle_custom_element(
     create_css_file(&definition, &app_path)?;
     create_index_file(&definition, &index_path)?;
     create_view_file(&definition, &app_path)?;
-    create_widget_file(&app_path)?;
-    create_util_ts_file(&app_path)?;
-    create_util_spec_ts_file(&app_path)?;
+
+    let static_files = [
+        (CUSTOM_ELEMENT_WIDGET_FILENAME, CUSTOM_ELEMENT_WIDGET),
+        (CUSTOM_ELEMENT_UTIL_FILENAME, CUSTOM_ELEMENT_UTIL),
+        (CUSTOM_ELEMENT_UTIL_SPEC_FILENAME, CUSTOM_ELEMENT_UTIL_SPEC),
+        (VIEW_CY_TS_FILENAME, VIEW_CY_TS),
+    ];
+
+    for (filename, content) in static_files.iter() {
+        create_file(&app_path, filename, content)?;
+    }
 
     update_workspace_config(|config| {
         config
@@ -150,23 +158,12 @@ fn create_view_file(definition: &CustomElementDefinition, app_path: &Path) -> Re
     Ok(())
 }
 
-fn create_widget_file(app_path: &Path) -> Result<(), CliError> {
-    let widget_path = app_path.join(CUSTOM_ELEMENT_WIDGET_FILENAME);
-    fs::write(widget_path, CUSTOM_ELEMENT_WIDGET)
-        .map_err(|e| CliError::WriteError((CUSTOM_ELEMENT_WIDGET_FILENAME.to_owned(), e)))?;
-    Ok(())
-}
-
-fn create_util_ts_file(app_path: &Path) -> Result<(), CliError> {
-    let util_path = app_path.join(CUSTOM_ELEMENT_UTIL_FILENAME);
-    fs::write(util_path, CUSTOM_ELEMENT_UTIL)
-        .map_err(|e| CliError::WriteError((CUSTOM_ELEMENT_UTIL_FILENAME.to_owned(), e)))?;
-    Ok(())
-}
-
-fn create_util_spec_ts_file(app_path: &Path) -> Result<(), CliError> {
-    let util_path = app_path.join(CUSTOM_ELEMENT_UTIL_SPEC_FILENAME);
-    fs::write(util_path, CUSTOM_ELEMENT_UTIL_SPEC)
-        .map_err(|e| CliError::WriteError((CUSTOM_ELEMENT_UTIL_SPEC_FILENAME.to_owned(), e)))?;
+fn create_file(
+    base_path: &Path,
+    filename: &'static str,
+    content: &'static str,
+) -> Result<(), CliError> {
+    let util_path = base_path.join(filename);
+    fs::write(util_path, content).map_err(|e| CliError::WriteError((filename.to_owned(), e)))?;
     Ok(())
 }

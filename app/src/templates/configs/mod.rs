@@ -1,3 +1,5 @@
+pub mod cypress;
+
 pub const ESLINTRC_FILENAME: &str = ".eslintrc.yml";
 pub const ESLINTRC: &str = include_str!("./.eslintrc.yml");
 
@@ -41,3 +43,6 @@ pub const WORKSPACE_CONFIG_FILENAME: &str = "workspace-config.json";
 
 pub const JEST_CONFIG_JSON_FILENAME: &str = "jest.config.json";
 pub const JEST_CONFIG: &str = include_str!("./jest.config.json");
+
+pub const CYPRESS_CONFIG_JSON_FILENAME: &str = "cypress.config.js";
+pub const CYPRESS_CONFIG_JSON: &str = include_str!("./cypress.config.js");
