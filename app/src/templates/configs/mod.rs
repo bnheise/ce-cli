@@ -38,3 +38,6 @@ pub const LCP_JSON_FILENAME: &str = "LCP.json";
 pub const LCP_JSON: &str = include_str!("./LCP.json");
 
 pub const WORKSPACE_CONFIG_FILENAME: &str = "workspace-config.json";
+
+pub const JEST_CONFIG_JSON_FILENAME: &str = "jest.config.json";
+pub const JEST_CONFIG: &str = include_str!("./jest.config.json");
