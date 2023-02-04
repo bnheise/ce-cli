@@ -3,7 +3,13 @@ use crate::{
     error::CliError,
     templates::{
         configs::{
-            CLIENT_EXT_YAML, CLIENT_EXT_YAML_FILENAME, DOCKERFILE, DOCKERFILE_FILENAME, ESLINTRC,
+            cypress::support::{
+                CYPRESS_COMMANDS, CYPRESS_COMMANDS_FILENAME, CYPRESS_COMPONENT,
+                CYPRESS_COMPONENT_FILENAME, CYPRESS_COMPONENT_INDEX,
+                CYPRESS_COMPONENT_INDEX_FILENAME, CYPRESS_SUPPORT_PATH,
+            },
+            CLIENT_EXT_YAML, CLIENT_EXT_YAML_FILENAME, CYPRESS_CONFIG_JSON,
+            CYPRESS_CONFIG_JSON_FILENAME, DOCKERFILE, DOCKERFILE_FILENAME, ESLINTRC,
             ESLINTRC_FILENAME, GITIGNORE, GITIGNORE_FILENAME, JEST_CONFIG,
             JEST_CONFIG_JSON_FILENAME, LCP_JSON, LCP_JSON_FILENAME, PACKAGEJSON,
             PACKAGEJSON_FILENAME, PRETTIERRC, PRETTIERRCE_FILENAME, TSCONFIG_BASE,
@@ -172,10 +178,24 @@ pub fn generate_files(config: &Config) -> Result<(), CliError> {
         (CLIENT_EXT_YAML_FILENAME, CLIENT_EXT_YAML),
         (LIFERAY_EXTERNALS_FILENAME, LIFERAY_EXTERNALS),
         (JEST_CONFIG_JSON_FILENAME, JEST_CONFIG),
+        (CYPRESS_CONFIG_JSON_FILENAME, CYPRESS_CONFIG_JSON),
     ];
 
-    for (filname, content) in static_files.iter() {
-        generate_file(filname, content)?;
+    for (filename, content) in static_files.iter() {
+        generate_file(filename, content, PathBuf::from("./"))?;
+    }
+
+    fs::create_dir_all(CYPRESS_SUPPORT_PATH)
+        .map_err(|e| CliError::WriteError((CYPRESS_SUPPORT_PATH.into(), e)))?;
+
+    let cypress_configs = [
+        (CYPRESS_COMMANDS_FILENAME, CYPRESS_COMMANDS),
+        (CYPRESS_COMPONENT_FILENAME, CYPRESS_COMPONENT),
+        (CYPRESS_COMPONENT_INDEX_FILENAME, CYPRESS_COMPONENT_INDEX),
+    ];
+
+    for (filename, content) in cypress_configs.iter() {
+        generate_file(filename, content, PathBuf::from(CYPRESS_SUPPORT_PATH))?;
     }
 
     let dynamic_files = [
@@ -185,15 +205,15 @@ pub fn generate_files(config: &Config) -> Result<(), CliError> {
     ];
 
     for (filname, content) in dynamic_files.iter() {
-        generate_file(filname, content)?;
+        generate_file(filname, content, PathBuf::from("./"))?;
     }
 
     Ok(())
 }
 
-fn generate_file(filname: &'static str, content: &str) -> Result<(), CliError> {
-    let mut output =
-        fs::File::create(filname).map_err(|e| CliError::WriteError((filname.to_owned(), e)))?;
+fn generate_file(filname: &'static str, content: &str, root_path: PathBuf) -> Result<(), CliError> {
+    let mut output = fs::File::create(root_path.join(filname))
+        .map_err(|e| CliError::WriteError((filname.to_owned(), e)))?;
     output
         .write_all(content.as_bytes())
         .map_err(|e| CliError::WriteError((filname.to_owned(), e)))?;

@@ -22,3 +22,6 @@ pub const CUSTOM_ELEMENT_UTIL_FILENAME: &str = "util.ts";
 
 pub const CUSTOM_ELEMENT_UTIL_SPEC: &str = include_str!("./util.spec.ts");
 pub const CUSTOM_ELEMENT_UTIL_SPEC_FILENAME: &str = "util.spec.ts";
+
+pub const VIEW_CY_TS: &str = include_str!("./View.cy.tsx");
+pub const VIEW_CY_TS_FILENAME: &str = "View.cy.tsx";
