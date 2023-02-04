@@ -16,3 +16,9 @@ pub const CUSTOM_ELEMENT_WIDGET_FILENAME: &str = "Widget.tsx";
 pub const CUSTOM_ELEMENT_APP_NAME_CAMEL: &str = "{{app-name-camelcase}}";
 pub const CUSTOM_ELEMENT_NAME: &str = "{{custom-element-name}}";
 pub const CUSTOM_ELEMENT_APP_NAME: &str = "{{custom-element-app-name}}";
+
+pub const CUSTOM_ELEMENT_UTIL: &str = include_str!("./util.ts");
+pub const CUSTOM_ELEMENT_UTIL_FILENAME: &str = "util.ts";
+
+pub const CUSTOM_ELEMENT_UTIL_SPEC: &str = include_str!("./util.spec.ts");
+pub const CUSTOM_ELEMENT_UTIL_SPEC_FILENAME: &str = "util.spec.ts";

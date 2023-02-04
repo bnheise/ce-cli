@@ -10,8 +10,9 @@ use crate::{
             CUSTOM_ELEMENT_APP, CUSTOM_ELEMENT_APP_FILENAME, CUSTOM_ELEMENT_APP_NAME,
             CUSTOM_ELEMENT_APP_NAME_CAMEL, CUSTOM_ELEMENT_CSS, CUSTOM_ELEMENT_CSS_FILENAME,
             CUSTOM_ELEMENT_INDEX, CUSTOM_ELEMENT_INDEX_FILENAME, CUSTOM_ELEMENT_NAME,
-            CUSTOM_ELEMENT_VIEW, CUSTOM_ELEMENT_VIEW_FILENAME, CUSTOM_ELEMENT_WIDGET,
-            CUSTOM_ELEMENT_WIDGET_FILENAME,
+            CUSTOM_ELEMENT_UTIL, CUSTOM_ELEMENT_UTIL_FILENAME, CUSTOM_ELEMENT_UTIL_SPEC,
+            CUSTOM_ELEMENT_UTIL_SPEC_FILENAME, CUSTOM_ELEMENT_VIEW, CUSTOM_ELEMENT_VIEW_FILENAME,
+            CUSTOM_ELEMENT_WIDGET, CUSTOM_ELEMENT_WIDGET_FILENAME,
         },
         configs::CLIENT_EXT_YAML_FILENAME,
     },
@@ -63,15 +64,15 @@ pub fn handle_custom_element(
     fs::create_dir(&app_path).map_err(|e| CliError::WriteError(("./src".to_owned(), e)))?;
 
     let index_path = app_path.join(CUSTOM_ELEMENT_INDEX_FILENAME);
-    let view_path = app_path.join(CUSTOM_ELEMENT_VIEW_FILENAME);
-    let widget_path = app_path.join(CUSTOM_ELEMENT_WIDGET_FILENAME);
 
     create_custom_element_file(&definition, &app_path)?;
 
     create_css_file(&definition, &app_path)?;
     create_index_file(&definition, &index_path)?;
-    create_view_file(&definition, &view_path)?;
-    create_widget_file(&widget_path)?;
+    create_view_file(&definition, &app_path)?;
+    create_widget_file(&app_path)?;
+    create_util_ts_file(&app_path)?;
+    create_util_spec_ts_file(&app_path)?;
 
     update_workspace_config(|config| {
         config
@@ -141,19 +142,31 @@ fn create_custom_element_file(
     Ok(())
 }
 
-fn create_view_file(
-    definition: &CustomElementDefinition,
-    view_path: &Path,
-) -> Result<(), CliError> {
+fn create_view_file(definition: &CustomElementDefinition, app_path: &Path) -> Result<(), CliError> {
     let view_content = CUSTOM_ELEMENT_VIEW.replace(CUSTOM_ELEMENT_APP_NAME, definition.get_name());
-
+    let view_path = app_path.join(CUSTOM_ELEMENT_VIEW_FILENAME);
     fs::write(view_path, view_content)
         .map_err(|e| CliError::WriteError((CUSTOM_ELEMENT_VIEW_FILENAME.to_owned(), e)))?;
     Ok(())
 }
 
-fn create_widget_file(widget_path: &Path) -> Result<(), CliError> {
+fn create_widget_file(app_path: &Path) -> Result<(), CliError> {
+    let widget_path = app_path.join(CUSTOM_ELEMENT_WIDGET_FILENAME);
     fs::write(widget_path, CUSTOM_ELEMENT_WIDGET)
         .map_err(|e| CliError::WriteError((CUSTOM_ELEMENT_WIDGET_FILENAME.to_owned(), e)))?;
+    Ok(())
+}
+
+fn create_util_ts_file(app_path: &Path) -> Result<(), CliError> {
+    let util_path = app_path.join(CUSTOM_ELEMENT_UTIL_FILENAME);
+    fs::write(util_path, CUSTOM_ELEMENT_UTIL)
+        .map_err(|e| CliError::WriteError((CUSTOM_ELEMENT_UTIL_FILENAME.to_owned(), e)))?;
+    Ok(())
+}
+
+fn create_util_spec_ts_file(app_path: &Path) -> Result<(), CliError> {
+    let util_path = app_path.join(CUSTOM_ELEMENT_UTIL_SPEC_FILENAME);
+    fs::write(util_path, CUSTOM_ELEMENT_UTIL_SPEC)
+        .map_err(|e| CliError::WriteError((CUSTOM_ELEMENT_UTIL_SPEC_FILENAME.to_owned(), e)))?;
     Ok(())
 }
