@@ -3,9 +3,7 @@ use crate::{
         format_yaml, get_client_ext_yaml, get_client_extension_yaml_path, update_workspace_config,
     },
     error::CliError,
-    structs::client_extension_yaml::ClientExtType,
-    structs::client_extension_yaml::{ClientExtId, CustomElementDefinition, PortletCategoryNames},
-    templates::{
+    files::{
         app_templates::custom_element::{
             CUSTOM_ELEMENT_APP, CUSTOM_ELEMENT_APP_FILENAME, CUSTOM_ELEMENT_APP_NAME,
             CUSTOM_ELEMENT_APP_NAME_CAMEL, CUSTOM_ELEMENT_CSS, CUSTOM_ELEMENT_CSS_FILENAME,
@@ -16,6 +14,8 @@ use crate::{
         },
         configs::CLIENT_EXT_YAML_FILENAME,
     },
+    structs::client_extension_yaml::ClientExtType,
+    structs::client_extension_yaml::{ClientExtId, CustomElementDefinition, PortletCategoryNames},
 };
 use std::{
     fs,

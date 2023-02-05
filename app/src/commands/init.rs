@@ -1,7 +1,8 @@
 use crate::{
+    cli::FrameworkOption,
     config::{Config, ConfigBuilder},
     error::CliError,
-    templates::{
+    files::{
         configs::{
             cypress::{
                 e2e::{
@@ -29,19 +30,20 @@ use crate::{
         CLIENT_EXTENSIONS, OSGI,
     },
 };
-use dialoguer::Input;
+use dialoguer::{Input, Select};
 use regex::Regex;
 use serde_json::Value;
-use std::io::Write;
 use std::{env, fs, path::PathBuf};
+use std::{io::Write, vec};
 
 pub fn handle_init(
     config: ConfigBuilder,
     project_name: Option<String>,
     bundle_path: Option<PathBuf>,
     config_path: Option<PathBuf>,
+    framework: Option<FrameworkOption>,
 ) -> Result<(), CliError> {
-    let config = initialize_config(config, project_name, bundle_path, config_path)?;
+    let config = initialize_config(config, project_name, bundle_path, config_path, framework)?;
     fs::create_dir("./util").map_err(|e| CliError::WriteError(("./util".to_owned(), e)))?;
     fs::create_dir("./src").map_err(|e| CliError::WriteError(("./src".to_owned(), e)))?;
 
@@ -55,6 +57,7 @@ fn initialize_config(
     project_name: Option<String>,
     deploy_path: Option<PathBuf>,
     config_path: Option<PathBuf>,
+    framework: Option<FrameworkOption>,
 ) -> Result<Config, CliError> {
     if let Some(_config_path) = config_path {
         return Err(CliError::NotImplemented(
@@ -77,8 +80,31 @@ fn initialize_config(
         config.set_deploy_path(deploy_path);
     }
 
+    if let Some(framework) = framework {
+        config.set_framework(framework);
+    } else {
+        let framework = get_framework_from_user()?;
+        config.set_framework(framework);
+    }
+
     let config = config.build();
     Ok(config)
+}
+
+fn get_framework_from_user() -> Result<FrameworkOption, CliError> {
+    let options = vec![
+        FrameworkOption::React,
+        // FrameworkOption::Angular,
+        // FrameworkOption::Vue,
+    ];
+    let user_response = Select::new()
+        .with_prompt("Please enter the framework that you wish to use")
+        .items(&options)
+        .default(0)
+        .interact()
+        .map_err(CliError::InputError)?;
+
+    Ok(options[user_response])
 }
 
 fn get_deploy_path_from_user(bundle_path: Option<PathBuf>) -> Result<PathBuf, CliError> {

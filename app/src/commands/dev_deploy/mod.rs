@@ -4,8 +4,8 @@ use super::{
 };
 use crate::{
     error::CliError,
+    files::{BUILD_DIR, CET_CONFIG_FILENAME_BASE, CLIENT_EXTENSION},
     structs::cet_configuration::CetConfiguration,
-    templates::{BUILD_DIR, CET_CONFIG_FILENAME_BASE, CLIENT_EXTENSION},
     util::zip::zip_directory,
 };
 use std::path::Path;

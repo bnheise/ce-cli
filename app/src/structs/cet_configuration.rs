@@ -2,7 +2,7 @@ use std::collections::HashMap;
 
 use serde::Serialize;
 
-use crate::templates::CET_CONFIG_FULLY_QUALIFIED_PATH;
+use crate::files::CET_CONFIG_FULLY_QUALIFIED_PATH;
 
 use super::client_extension_yaml::{ClientExtId, ClientExtensionYaml, CustomElementDefinition};
 

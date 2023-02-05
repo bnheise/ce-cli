@@ -8,8 +8,8 @@ mod cli;
 mod commands;
 mod config;
 mod error;
+mod files;
 mod structs;
-mod templates;
 mod util;
 
 fn main() -> Result<()> {
@@ -21,7 +21,8 @@ fn main() -> Result<()> {
             project_name,
             bundle_path,
             config_path,
-        } => handle_init(config, project_name, bundle_path, config_path),
+            framework,
+        } => handle_init(config, project_name, bundle_path, config_path, framework),
         cli::Commands::Add { extension_type } => handle_add(extension_type),
         cli::Commands::DevDeploy => handle_dev_deploy(),
     };

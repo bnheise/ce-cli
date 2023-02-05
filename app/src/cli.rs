@@ -1,6 +1,7 @@
 use crate::structs::client_extension_yaml::PortletCategoryNames;
-use clap::{Parser, Subcommand};
-use std::path::PathBuf;
+use clap::{Parser, Subcommand, ValueEnum};
+use serde::{Deserialize, Serialize};
+use std::{fmt::Display, path::PathBuf};
 
 #[derive(Parser)]
 #[command(
@@ -45,6 +46,14 @@ pub enum Commands {
             help = "Specify a path to an existing workspace-config.json file."
         )]
         config_path: Option<PathBuf>,
+
+        #[arg(
+            short,
+            long,
+            value_enum,
+            help = "The framework to use. Currently only React is supported but Vue and Angular are on the roadmap."
+        )]
+        framework: Option<FrameworkOption>,
     },
 
     #[command(
@@ -112,4 +121,21 @@ only Remote Apps is supported."
         )]
         use_esm: Option<bool>,
     },
+}
+
+#[derive(Debug, Clone, ValueEnum, Serialize, Deserialize, Copy)]
+pub enum FrameworkOption {
+    React,
+    Angular,
+    Vue,
+}
+
+impl Display for FrameworkOption {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        match self {
+            FrameworkOption::React => write!(f, "react"),
+            FrameworkOption::Angular => write!(f, "angular"),
+            FrameworkOption::Vue => write!(f, "vue"),
+        }
+    }
 }

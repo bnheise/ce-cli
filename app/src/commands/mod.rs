@@ -8,11 +8,11 @@ use yaml_rust::{YamlEmitter, YamlLoader};
 use crate::{
     config::Config,
     error::CliError,
-    structs::client_extension_yaml::ClientExtensionYaml,
-    templates::{
+    files::{
         configs::{CLIENT_EXT_YAML_FILENAME, WORKSPACE_CONFIG_FILENAME},
         BUILD_DIR,
     },
+    structs::client_extension_yaml::ClientExtensionYaml,
 };
 
 pub mod add;
