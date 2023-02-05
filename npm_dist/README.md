@@ -17,7 +17,16 @@ set up local development projects for Liferay Client extensions.
 
 Run `npm install -g ce-cli` to install. If your operating system or architecture isn't supported, make an issue
 and I'll try to add it. I can't guarantee that I'll be able to though, so if that happens, I recommend installing
-Rust and compiling the binary yourself with `cargo install ce-cli`.
+Rust and compiling the binary yourself with `cargo install -ce-cli`.
+
+Get the binary [here](https://github.com/bnheise/ce-cli/releases/tag/v0.1.0).
+Add it to the PATH in your machine or just copy it into your workspace folder if you want it quick and dirty.
+
+As the project is built in Rust, you can also install it using `cargo`:
+
+```bash
+cargo install ce-cli
+```
 
 ## Usage
 
@@ -41,8 +50,6 @@ Next, initialize the workspace:
 ce-cli init
 ```
 
-The above command will generate various configuration files, like Webpack, TypeScript, eslint, prettier, Jest, Cypress, etc.
-
 Next, add your first custom element remote app:
 
 ```bash
@@ -50,16 +57,17 @@ ce-cli add custom-element "My New App"
 ```
 
 This will generate a scaffold for a custom element remote app and add a default configuration to the client-extension.yaml file.
-
 To get started developing, just run `npm run start` to start the dev server. This will automatically deploy the configuration
 for your remote apps to your local instance with the js and css urls directed at your dev server. No need to update the values
-using in client-extension.yaml.
+using in client-extension.yaml!
 
 Note that if you add any additional apps using the cli after the dev server is running, you'll have to restart it so it can
 pick up the new files.
 
 ## Roadmap
 
+- Add OOTB unit testing configuration with Jasmine
+- Add OOTB component testing configuration with Cypress
 - Add additional templates for other kinds of remote apps
   - CSS extension
   - JS extension
