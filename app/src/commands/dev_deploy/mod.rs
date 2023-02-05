@@ -1,36 +1,34 @@
-use super::{
-    get_client_ext_yaml, get_client_extension_yaml_path, get_config, get_config_path,
-    write_file_to_build_dir,
-};
 use crate::{
     error::CliError,
-    structs::cet_configuration::CetConfiguration,
-    templates::{BUILD_DIR, CET_CONFIG_FILENAME_BASE, CLIENT_EXTENSION},
+    structs::{
+        cet_configuration::CetConfiguration, client_extension_yaml::ClientExtensionYaml,
+        config::Config, AppDir, BuildDir, ConfigFile,
+    },
     util::zip::zip_directory,
 };
 use std::path::Path;
 
 pub fn handle_dev_deploy() -> Result<(), CliError> {
-    let path = get_config_path();
-    let config = get_config(&path);
+    let raw = Config::try_open()?;
+    let config = Config::try_parse(&raw)?;
     let port = config.dev_server_port;
     let project_name = config.project_name;
     let deploy_path = config.deploy_path;
-    let path = get_client_extension_yaml_path();
-    let client_ext_yaml = get_client_ext_yaml(&path).set_dev_urls(port);
+
+    let raw = ClientExtensionYaml::try_open()?;
+    let client_ext_yaml = ClientExtensionYaml::try_parse(&raw)?.set_dev_urls(port);
     let cet_config = CetConfiguration::from(client_ext_yaml);
-    let raw =
+
+    let content =
         serde_json::to_string_pretty(&cet_config).expect("Could not serialize CET Configuration");
 
-    let filename = format!("{project_name}.{CET_CONFIG_FILENAME_BASE}");
+    let filename = format!("{project_name}.client-extension-config.json");
 
-    let output_dir = Path::new("./").join(CLIENT_EXTENSION);
-
-    write_file_to_build_dir(&filename, CLIENT_EXTENSION, raw)?;
+    BuildDir::write_file(&filename, &content, Some("clientExtension"))?;
 
     let zip_dest = deploy_path.join(format!("{project_name}.zip"));
 
-    let src_dir = Path::new("./").join(BUILD_DIR).join(output_dir);
+    let src_dir = Path::new("./").join("build").join("clientExtension");
     zip_directory(src_dir, zip_dest)?;
     Ok(())
 }

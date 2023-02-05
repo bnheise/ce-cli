@@ -1,6 +1,10 @@
 use serde::{Deserialize, Serialize};
 use std::{collections::HashMap, path::PathBuf};
 
+use crate::cli::FrameworkOption;
+
+use super::{ConfigFile, ConfigFormat};
+
 #[derive(Debug, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct Config {
@@ -8,12 +12,19 @@ pub struct Config {
     pub deploy_path: PathBuf,
     pub entrypoints: HashMap<String, PathBuf>,
     pub dev_server_port: u16,
+    pub framework: FrameworkOption,
+}
+
+impl<'a> ConfigFile<'a> for Config {
+    const FILENAME: &'static str = "workspace-config.json";
+    const FORMAT: super::ConfigFormat = ConfigFormat::Json;
 }
 
 #[derive(Debug, Default)]
 pub struct ConfigBuilder {
     project_name: Option<String>,
     deploy_path: Option<PathBuf>,
+    framework: Option<FrameworkOption>,
 }
 
 impl ConfigBuilder {
@@ -29,6 +40,10 @@ impl ConfigBuilder {
         self.deploy_path = Some(deploy_path);
     }
 
+    pub fn set_framework(&mut self, framework: FrameworkOption) {
+        self.framework = Some(framework);
+    }
+
     pub fn build(self) -> Config {
         Config {
             project_name: self
@@ -39,6 +54,7 @@ impl ConfigBuilder {
                 .expect("Expected to get a bundle path but got None"),
             entrypoints: HashMap::new(),
             dev_server_port: 3000,
+            framework: self.framework.unwrap_or(FrameworkOption::React),
         }
     }
 }

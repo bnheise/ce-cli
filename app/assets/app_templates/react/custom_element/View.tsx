@@ -4,7 +4,7 @@ import React from 'react';
 // It will make your components harder to test.
 
 const View = () => {
-	return <h1>Hello {{custom-element-app-name}}</h1>;
+	return <h1>Hello {{ customElementAppName }}</h1>;
 };
 
 export default View;

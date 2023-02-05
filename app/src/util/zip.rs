@@ -37,13 +37,12 @@ where
             f.read_to_end(&mut buffer)
                 .map_err(|e| CliError::ReadFileError(path.to_string_lossy().to_string(), e))?;
             zip.write_all(&buffer)
-                .map_err(|e| CliError::WriteError((path.to_string_lossy().to_string(), e)))?;
+                .map_err(|e| CliError::WriteError(path.to_string_lossy().to_string(), e))?;
             buffer.clear();
         } else if !name.as_os_str().is_empty() {
             #[allow(deprecated)]
-            zip.add_directory_from_path(name, options).map_err(|e| {
-                CliError::WriteError((name.to_string_lossy().to_string(), e.into()))
-            })?;
+            zip.add_directory_from_path(name, options)
+                .map_err(|e| CliError::WriteError(name.to_string_lossy().to_string(), e.into()))?;
         }
     }
     zip.finish().map_err(CliError::ZipError)?;
