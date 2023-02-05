@@ -46,3 +46,6 @@ pub const JEST_CONFIG: &str = include_str!("./jest.config.json");
 
 pub const CYPRESS_CONFIG_JSON_FILENAME: &str = "cypress.config.js";
 pub const CYPRESS_CONFIG_JSON: &str = include_str!("./cypress.config.js");
+
+pub const ENV_FILENAME: &str = ".env";
+pub const ENV_FILE: &str = include_str!("./.env");

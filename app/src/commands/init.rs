@@ -3,14 +3,21 @@ use crate::{
     error::CliError,
     templates::{
         configs::{
-            cypress::support::{
-                CYPRESS_COMMANDS, CYPRESS_COMMANDS_FILENAME, CYPRESS_COMPONENT,
-                CYPRESS_COMPONENT_FILENAME, CYPRESS_COMPONENT_INDEX,
-                CYPRESS_COMPONENT_INDEX_FILENAME, CYPRESS_SUPPORT_PATH,
+            cypress::{
+                e2e::{
+                    CYPRESS_E2E_PATH, CYPRESS_E2E_STARTER, CYPRESS_E2E_STARTER_FILENAME,
+                    CYPRESS_E2E_UTIL, CYPRESS_E2E_UTIL_FILENAME,
+                },
+                support::{
+                    CYPRESS_COMMANDS, CYPRESS_COMMANDS_FILENAME, CYPRESS_COMPONENT,
+                    CYPRESS_COMPONENT_FILENAME, CYPRESS_COMPONENT_INDEX,
+                    CYPRESS_COMPONENT_INDEX_FILENAME, CYPRESS_E2E_SUPPORT,
+                    CYPRESS_E2E_SUPPORT_FILENAME, CYPRESS_SUPPORT_PATH,
+                },
             },
             CLIENT_EXT_YAML, CLIENT_EXT_YAML_FILENAME, CYPRESS_CONFIG_JSON,
-            CYPRESS_CONFIG_JSON_FILENAME, DOCKERFILE, DOCKERFILE_FILENAME, ESLINTRC,
-            ESLINTRC_FILENAME, GITIGNORE, GITIGNORE_FILENAME, JEST_CONFIG,
+            CYPRESS_CONFIG_JSON_FILENAME, DOCKERFILE, DOCKERFILE_FILENAME, ENV_FILE, ENV_FILENAME,
+            ESLINTRC, ESLINTRC_FILENAME, GITIGNORE, GITIGNORE_FILENAME, JEST_CONFIG,
             JEST_CONFIG_JSON_FILENAME, LCP_JSON, LCP_JSON_FILENAME, PACKAGEJSON,
             PACKAGEJSON_FILENAME, PRETTIERRC, PRETTIERRCE_FILENAME, TSCONFIG_BASE,
             TSCONFIG_BASE_FILENAME, TSCONFIG_DEV, TSCONFIG_DEV_FILENAME, TSCONFIG_PROD,
@@ -179,6 +186,7 @@ pub fn generate_files(config: &Config) -> Result<(), CliError> {
         (LIFERAY_EXTERNALS_FILENAME, LIFERAY_EXTERNALS),
         (JEST_CONFIG_JSON_FILENAME, JEST_CONFIG),
         (CYPRESS_CONFIG_JSON_FILENAME, CYPRESS_CONFIG_JSON),
+        (ENV_FILENAME, ENV_FILE),
     ];
 
     for (filename, content) in static_files.iter() {
@@ -192,10 +200,23 @@ pub fn generate_files(config: &Config) -> Result<(), CliError> {
         (CYPRESS_COMMANDS_FILENAME, CYPRESS_COMMANDS),
         (CYPRESS_COMPONENT_FILENAME, CYPRESS_COMPONENT),
         (CYPRESS_COMPONENT_INDEX_FILENAME, CYPRESS_COMPONENT_INDEX),
+        (CYPRESS_E2E_SUPPORT_FILENAME, CYPRESS_E2E_SUPPORT),
     ];
 
     for (filename, content) in cypress_configs.iter() {
         generate_file(filename, content, PathBuf::from(CYPRESS_SUPPORT_PATH))?;
+    }
+
+    fs::create_dir_all(CYPRESS_E2E_PATH)
+        .map_err(|e| CliError::WriteError((CYPRESS_SUPPORT_PATH.into(), e)))?;
+
+    let cypress_e2e = [
+        (CYPRESS_E2E_STARTER_FILENAME, CYPRESS_E2E_STARTER),
+        (CYPRESS_E2E_UTIL_FILENAME, CYPRESS_E2E_UTIL),
+    ];
+
+    for (filename, content) in cypress_e2e.iter() {
+        generate_file(filename, content, PathBuf::from(CYPRESS_E2E_PATH))?;
     }
 
     let dynamic_files = [
