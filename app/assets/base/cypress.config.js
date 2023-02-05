@@ -9,7 +9,7 @@ const CYPRESS_PREFIX = 'CYPRESS_';
 export default defineConfig({
 	component: {
 		devServer: {
-			framework: 'react',
+			framework: '{{ framework }}',
 			bundler: 'webpack',
 			webpackConfig: WebpackProdConfig,
 		},

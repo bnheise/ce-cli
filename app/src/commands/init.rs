@@ -8,6 +8,7 @@ use crate::ASSETS;
 use dialoguer::{Input, Select};
 use include_dir::Dir;
 use regex::Regex;
+use std::path::Path;
 use std::vec;
 use std::{env, fs, path::PathBuf};
 
@@ -199,6 +200,7 @@ pub fn generate_static_files(dir: &Dir) -> Result<(), CliError> {
 
 pub fn generate_framework_files(config: &Config) -> Result<(), CliError> {
     let base: &str = "base";
+    let cypres_config_filename = "cypress.config.js";
     let base_dir = ASSETS.get_dir(base).expect("Base directory was not found");
 
     let eslintrc_raw = base_dir
@@ -215,6 +217,13 @@ pub fn generate_framework_files(config: &Config) -> Result<(), CliError> {
         .expect("Couldn't read package.json as utf-8")
         .to_owned();
 
+    let mut cypress_config = base_dir
+        .get_file(PathBuf::from(base).join(cypres_config_filename))
+        .expect("Didn't find cypress.config.js")
+        .contents_utf8()
+        .expect("Cound't read cypres.conifg.js as utf-8")
+        .to_owned();
+
     match config.framework {
         FrameworkOption::React => {
             let mut eslint = EslintRc::try_parse(&eslintrc_raw)?;
@@ -227,6 +236,12 @@ pub fn generate_framework_files(config: &Config) -> Result<(), CliError> {
             package_json.name = config.project_name.clone();
             let raw = PackageJson::try_serialize(package_json)?;
             PackageJson::write(raw)?;
+
+            cypress_config =
+                cypress_config.replace("{{ framework }}", &config.framework.to_string());
+
+            fs::write(Path::new("./").join(cypres_config_filename), cypress_config)
+                .map_err(|e| CliError::WriteError(cypres_config_filename.to_owned(), e))?;
         }
         FrameworkOption::Angular => unimplemented!(),
         FrameworkOption::Vue => unimplemented!(),
