@@ -6,7 +6,7 @@ use zip::result::ZipError;
 pub enum CliError {
     NotImplemented(UpcomingFeature),
     CurrentDirectoryError(Option<std::io::Error>),
-    WriteError((String, std::io::Error)),
+    WriteError(String, std::io::Error),
     ParseJsonError(&'static str, serde_json::Error),
     SerializeJsonError(&'static str, serde_json::Error),
     NotADirectoryError(String),
@@ -14,6 +14,8 @@ pub enum CliError {
     OpenFileError(String, std::io::Error),
     ReadFileError(String, std::io::Error),
     InputError(std::io::Error),
+    SerializeYamlError(String, serde_yaml::Error),
+    ParseYamlError(&'static str, serde_yaml::Error),
 }
 
 impl Display for CliError {
@@ -31,7 +33,7 @@ impl Display for CliError {
                     "An error occurred when attempting to read the current directory"
                 )
             }
-            CliError::WriteError((name, ..)) => {
+            CliError::WriteError(name, ..) => {
                 write!(f, "Failed to write a file or directory: {name}")
             }
             CliError::ParseJsonError(filename, ..) => write!(f, "Failed to parse json: {filename}"),
@@ -47,6 +49,10 @@ impl Display for CliError {
                 write!(f, "Failed to read content of file {filename}")
             }
             CliError::InputError(..) => write!(f, "To retrieve input"),
+            CliError::SerializeYamlError(filename, ..) => {
+                write!(f, "Failed to serialize yaml: {filename}")
+            }
+            CliError::ParseYamlError(filename, ..) => write!(f, "Failed to parse yaml: {filename}"),
         }
     }
 }
@@ -59,7 +65,7 @@ impl Error for CliError {
                 Some(e) => Some(e),
                 None => None,
             },
-            CliError::WriteError((.., e)) => Some(e),
+            CliError::WriteError(.., e) => Some(e),
             CliError::ParseJsonError(.., e) => Some(e),
             CliError::SerializeJsonError(.., e) => Some(e),
             CliError::NotADirectoryError(..) => None,
@@ -67,6 +73,8 @@ impl Error for CliError {
             CliError::OpenFileError(.., e) => Some(e),
             CliError::ReadFileError(.., e) => Some(e),
             CliError::InputError(e) => Some(e),
+            CliError::SerializeYamlError(_, e) => Some(e),
+            CliError::ParseYamlError(.., e) => Some(e),
         }
     }
 }

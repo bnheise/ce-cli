@@ -1,40 +1,15 @@
-use crate::{
-    cli::FrameworkOption,
-    config::{Config, ConfigBuilder},
-    error::CliError,
-    files::{
-        configs::{
-            cypress::{
-                e2e::{
-                    CYPRESS_E2E_PATH, CYPRESS_E2E_STARTER, CYPRESS_E2E_STARTER_FILENAME,
-                    CYPRESS_E2E_UTIL, CYPRESS_E2E_UTIL_FILENAME,
-                },
-                support::{
-                    CYPRESS_COMMANDS, CYPRESS_COMMANDS_FILENAME, CYPRESS_COMPONENT,
-                    CYPRESS_COMPONENT_FILENAME, CYPRESS_COMPONENT_INDEX,
-                    CYPRESS_COMPONENT_INDEX_FILENAME, CYPRESS_E2E_SUPPORT,
-                    CYPRESS_E2E_SUPPORT_FILENAME, CYPRESS_SUPPORT_PATH,
-                },
-            },
-            CLIENT_EXT_YAML, CLIENT_EXT_YAML_FILENAME, CYPRESS_CONFIG_JSON,
-            CYPRESS_CONFIG_JSON_FILENAME, DOCKERFILE, DOCKERFILE_FILENAME, ENV_FILE, ENV_FILENAME,
-            ESLINTRC, ESLINTRC_FILENAME, GITIGNORE, GITIGNORE_FILENAME, JEST_CONFIG,
-            JEST_CONFIG_JSON_FILENAME, LCP_JSON, LCP_JSON_FILENAME, PACKAGEJSON,
-            PACKAGEJSON_FILENAME, PRETTIERRC, PRETTIERRCE_FILENAME, TSCONFIG_BASE,
-            TSCONFIG_BASE_FILENAME, TSCONFIG_DEV, TSCONFIG_DEV_FILENAME, TSCONFIG_PROD,
-            TSCONFIG_PROD_FILENAME, WEBPACK_CONFIG_COMMON, WEBPACK_CONFIG_COMMON_FILENAME,
-            WEBPACK_CONFIG_DEV, WEBPACK_CONFIG_DEV_FILENAME, WEBPACK_CONFIG_PROD,
-            WEBPACK_CONFIG_PROD_FILENAME, WORKSPACE_CONFIG_FILENAME,
-        },
-        scripts::{LIFERAY_EXTERNALS, LIFERAY_EXTERNALS_FILENAME},
-        CLIENT_EXTENSIONS, OSGI,
-    },
-};
+use crate::cli::FrameworkOption;
+use crate::error::CliError;
+use crate::structs::config::{Config, ConfigBuilder};
+use crate::structs::eslintrc::EslintRc;
+use crate::structs::package_json::PackageJson;
+use crate::structs::ConfigFile;
+use crate::ASSETS;
 use dialoguer::{Input, Select};
+use include_dir::Dir;
 use regex::Regex;
-use serde_json::Value;
+use std::vec;
 use std::{env, fs, path::PathBuf};
-use std::{io::Write, vec};
 
 pub fn handle_init(
     config: ConfigBuilder,
@@ -44,10 +19,16 @@ pub fn handle_init(
     framework: Option<FrameworkOption>,
 ) -> Result<(), CliError> {
     let config = initialize_config(config, project_name, bundle_path, config_path, framework)?;
-    fs::create_dir("./util").map_err(|e| CliError::WriteError(("./util".to_owned(), e)))?;
-    fs::create_dir("./src").map_err(|e| CliError::WriteError(("./src".to_owned(), e)))?;
 
-    generate_files(&config)?;
+    generate_framework_files(&config)?;
+    generate_static_files(
+        ASSETS
+            .get_dir("common")
+            .expect("Failed to find common directory"),
+    )?;
+
+    let raw = Config::try_serialize(config)?;
+    Config::write(raw)?;
 
     Ok(())
 }
@@ -109,7 +90,7 @@ fn get_framework_from_user() -> Result<FrameworkOption, CliError> {
 
 fn get_deploy_path_from_user(bundle_path: Option<PathBuf>) -> Result<PathBuf, CliError> {
     let default_deploy_path = if let Some(bundle_path) = bundle_path {
-        bundle_path.join(OSGI).join(CLIENT_EXTENSIONS)
+        bundle_path.join("osgi").join("client-extensions")
     } else {
         PathBuf::new()
     };
@@ -196,115 +177,60 @@ pub fn get_project_name_from_user() -> Result<String, CliError> {
     Ok(user_response)
 }
 
-pub fn generate_files(config: &Config) -> Result<(), CliError> {
-    let static_files = [
-        (ESLINTRC_FILENAME, ESLINTRC),
-        (GITIGNORE_FILENAME, GITIGNORE),
-        (PRETTIERRCE_FILENAME, PRETTIERRC),
-        (TSCONFIG_PROD_FILENAME, TSCONFIG_PROD),
-        (TSCONFIG_BASE_FILENAME, TSCONFIG_BASE),
-        (TSCONFIG_DEV_FILENAME, TSCONFIG_DEV),
-        (WEBPACK_CONFIG_COMMON_FILENAME, WEBPACK_CONFIG_COMMON),
-        (WEBPACK_CONFIG_PROD_FILENAME, WEBPACK_CONFIG_PROD),
-        (WEBPACK_CONFIG_DEV_FILENAME, WEBPACK_CONFIG_DEV),
-        (DOCKERFILE_FILENAME, DOCKERFILE),
-        (CLIENT_EXT_YAML_FILENAME, CLIENT_EXT_YAML),
-        (LIFERAY_EXTERNALS_FILENAME, LIFERAY_EXTERNALS),
-        (JEST_CONFIG_JSON_FILENAME, JEST_CONFIG),
-        (CYPRESS_CONFIG_JSON_FILENAME, CYPRESS_CONFIG_JSON),
-        (ENV_FILENAME, ENV_FILE),
-    ];
-
-    for (filename, content) in static_files.iter() {
-        generate_file(filename, content, PathBuf::from("./"))?;
+pub fn generate_static_files(dir: &Dir) -> Result<(), CliError> {
+    let path = dir.path().components().skip(1).collect::<PathBuf>();
+    fs::create_dir_all(&path)
+        .map_err(|e| CliError::WriteError(path.to_str().unwrap_or_default().to_owned(), e))?;
+    for entry in dir.entries() {
+        match entry {
+            include_dir::DirEntry::Dir(dir) => {
+                generate_static_files(dir)?;
+            }
+            include_dir::DirEntry::File(file) => {
+                let path = file.path().components().skip(1).collect::<PathBuf>();
+                fs::write(&path, file.contents()).map_err(|e| {
+                    CliError::WriteError(path.to_str().unwrap_or_default().to_owned(), e)
+                })?;
+            }
+        }
     }
-
-    fs::create_dir_all(CYPRESS_SUPPORT_PATH)
-        .map_err(|e| CliError::WriteError((CYPRESS_SUPPORT_PATH.into(), e)))?;
-
-    let cypress_configs = [
-        (CYPRESS_COMMANDS_FILENAME, CYPRESS_COMMANDS),
-        (CYPRESS_COMPONENT_FILENAME, CYPRESS_COMPONENT),
-        (CYPRESS_COMPONENT_INDEX_FILENAME, CYPRESS_COMPONENT_INDEX),
-        (CYPRESS_E2E_SUPPORT_FILENAME, CYPRESS_E2E_SUPPORT),
-    ];
-
-    for (filename, content) in cypress_configs.iter() {
-        generate_file(filename, content, PathBuf::from(CYPRESS_SUPPORT_PATH))?;
-    }
-
-    fs::create_dir_all(CYPRESS_E2E_PATH)
-        .map_err(|e| CliError::WriteError((CYPRESS_SUPPORT_PATH.into(), e)))?;
-
-    let cypress_e2e = [
-        (CYPRESS_E2E_STARTER_FILENAME, CYPRESS_E2E_STARTER),
-        (CYPRESS_E2E_UTIL_FILENAME, CYPRESS_E2E_UTIL),
-    ];
-
-    for (filename, content) in cypress_e2e.iter() {
-        generate_file(filename, content, PathBuf::from(CYPRESS_E2E_PATH))?;
-    }
-
-    let dynamic_files = [
-        (PACKAGEJSON_FILENAME, prepare_package_json(config)),
-        (LCP_JSON_FILENAME, prepare_lcp_json(config)?),
-        (WORKSPACE_CONFIG_FILENAME, prepare_config_file(config)?),
-    ];
-
-    for (filname, content) in dynamic_files.iter() {
-        generate_file(filname, content, PathBuf::from("./"))?;
-    }
-
     Ok(())
 }
 
-fn generate_file(filname: &'static str, content: &str, root_path: PathBuf) -> Result<(), CliError> {
-    let mut output = fs::File::create(root_path.join(filname))
-        .map_err(|e| CliError::WriteError((filname.to_owned(), e)))?;
-    output
-        .write_all(content.as_bytes())
-        .map_err(|e| CliError::WriteError((filname.to_owned(), e)))?;
+pub fn generate_framework_files(config: &Config) -> Result<(), CliError> {
+    let base: &str = "base";
+    let base_dir = ASSETS.get_dir(base).expect("Base directory was not found");
+
+    let eslintrc_raw = base_dir
+        .get_file(PathBuf::from(base).join(EslintRc::FILENAME))
+        .expect("Didn't find eslintrc")
+        .contents_utf8()
+        .expect("Couldn't read eslintrc as utf-8")
+        .to_owned();
+
+    let package_json_raw = base_dir
+        .get_file(PathBuf::from(base).join(PackageJson::FILENAME))
+        .expect("Didn't find package.json")
+        .contents_utf8()
+        .expect("Couldn't read package.json as utf-8")
+        .to_owned();
+
+    match config.framework {
+        FrameworkOption::React => {
+            let mut eslint = EslintRc::try_parse(&eslintrc_raw)?;
+            eslint.set_framework_settings(config.framework);
+            let raw = EslintRc::try_serialize(eslint)?;
+            EslintRc::write(raw)?;
+
+            let mut package_json = PackageJson::try_parse(&package_json_raw)?;
+            package_json.set_framework_settings(config.framework);
+            package_json.name = config.project_name.clone();
+            let raw = PackageJson::try_serialize(package_json)?;
+            PackageJson::write(raw)?;
+        }
+        FrameworkOption::Angular => unimplemented!(),
+        FrameworkOption::Vue => unimplemented!(),
+    }
 
     Ok(())
-}
-
-fn prepare_package_json(config: &Config) -> String {
-    let mut v = match serde_json::from_str(PACKAGEJSON)
-        .expect("The package.json template was not parseable")
-    {
-        Value::Object(package) => package,
-        _ => panic!("Should have gotten an Object from Package.json"),
-    };
-
-    v.entry("name").and_modify(|value| {
-        match value {
-            Value::String(val) => *val = config.project_name.clone(),
-            _ => panic!("Should have gotten a string from 'name' field of package.json"),
-        };
-    });
-
-    serde_json::to_string_pretty(&v)
-        .expect("Could not convert the package.json template back to a string")
-}
-
-fn prepare_lcp_json(config: &Config) -> Result<String, CliError> {
-    let mut v = match serde_json::from_str(LCP_JSON)
-        .map_err(|e| CliError::ParseJsonError(LCP_JSON_FILENAME, e))?
-    {
-        Value::Object(package) => package,
-        _ => panic!("Should have gotten an Object from LCP.json"),
-    };
-
-    v.entry("id").and_modify(|value| {
-        match value {
-            Value::String(val) => *val = config.project_name.clone().replace('-', ""),
-            _ => panic!("Should have gotten a string from 'id' field of package.json"),
-        };
-    });
-
-    Ok(serde_json::to_string_pretty(&v).unwrap())
-}
-
-fn prepare_config_file(config: &Config) -> Result<String, CliError> {
-    Ok(serde_json::to_string_pretty(&config).unwrap())
 }

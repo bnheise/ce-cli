@@ -1,8 +1,7 @@
+use super::{cet_configuration::CetConfigId, ConfigFile, ConfigFormat};
 use clap::ValueEnum;
 use serde::{Deserialize, Serialize};
 use std::{collections::HashMap, fmt::Display};
-
-use super::cet_configuration::CetConfigId;
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct ClientExtensionYaml {
@@ -50,6 +49,11 @@ impl ClientExtensionYaml {
     pub fn get_apps(&self) -> &HashMap<String, ClientExtType> {
         &self.apps
     }
+}
+
+impl<'a> ConfigFile<'a> for ClientExtensionYaml {
+    const FILENAME: &'static str = "client-extension.yaml";
+    const FORMAT: ConfigFormat = ConfigFormat::Yaml;
 }
 
 #[derive(Debug, Serialize, Deserialize)]

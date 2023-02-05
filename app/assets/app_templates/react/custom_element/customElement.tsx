@@ -3,7 +3,7 @@ import React from 'react';
 import Widget from './Widget';
 
 // Reference: https://developer.mozilla.org/en-US/docs/Web/Web_Components/Using_custom_elements
-export class {{app-name-camelcase}} extends HTMLElement {
+export class {{ appNameCamelcase }} extends HTMLElement {
 	constructor() {
     super();
   }

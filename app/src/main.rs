@@ -1,16 +1,17 @@
-use crate::{commands::init::handle_init, config::ConfigBuilder};
+use crate::{commands::init::handle_init, structs::config::ConfigBuilder};
 use clap::Parser;
 use cli::Cli;
 use commands::{add::handle_add, dev_deploy::handle_dev_deploy};
+use include_dir::{include_dir, Dir};
 use std::io::Result;
 
 mod cli;
 mod commands;
-mod config;
 mod error;
-mod files;
 mod structs;
 mod util;
+
+static ASSETS: Dir<'_> = include_dir!("$CARGO_MANIFEST_DIR/assets");
 
 fn main() -> Result<()> {
     let cli = Cli::parse();

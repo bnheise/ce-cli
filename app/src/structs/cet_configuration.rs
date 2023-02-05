@@ -1,10 +1,9 @@
+use super::client_extension_yaml::{ClientExtId, ClientExtensionYaml, CustomElementDefinition};
+use serde::Serialize;
 use std::collections::HashMap;
 
-use serde::Serialize;
-
-use crate::files::CET_CONFIG_FULLY_QUALIFIED_PATH;
-
-use super::client_extension_yaml::{ClientExtId, ClientExtensionYaml, CustomElementDefinition};
+pub const CET_CONFIG_FULLY_QUALIFIED_PATH: &str =
+    "com.liferay.client.extension.type.configuration.CETConfiguration";
 
 #[derive(Debug, Serialize)]
 pub struct CetConfiguration {

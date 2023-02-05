@@ -3,6 +3,8 @@ use std::{collections::HashMap, path::PathBuf};
 
 use crate::cli::FrameworkOption;
 
+use super::{ConfigFile, ConfigFormat};
+
 #[derive(Debug, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct Config {
@@ -11,6 +13,11 @@ pub struct Config {
     pub entrypoints: HashMap<String, PathBuf>,
     pub dev_server_port: u16,
     pub framework: FrameworkOption,
+}
+
+impl<'a> ConfigFile<'a> for Config {
+    const FILENAME: &'static str = "workspace-config.json";
+    const FORMAT: super::ConfigFormat = ConfigFormat::Json;
 }
 
 #[derive(Debug, Default)]
