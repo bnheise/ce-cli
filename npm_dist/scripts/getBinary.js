@@ -1,7 +1,10 @@
 #!/usr/bin/env node
 
-const { Binary } = require("binary-install");
-const os = require("os");
+import { Binary } from "binary-install";
+import * as os from "os";
+import { createRequire } from "module";
+
+const require = createRequire(import.meta.url);
 const { version, name, repository } = require("../package.json");
 const supportedPlatforms = require("../platforms.json");
 
@@ -30,12 +33,10 @@ const getPlatformMetadata = () => {
   );
 };
 
-function getBinary() {
+const getBinary = () => {
   const { RUST_TARGET, BINARY_NAME } = getPlatformMetadata();
-
   const url = `${repository.url}/releases/download/${version}/${name}-${RUST_TARGET}.tar.gz`;
-
   return new Binary(BINARY_NAME, url);
-}
-getBinary();
-module.exports = getBinary;
+};
+
+export default getBinary;
