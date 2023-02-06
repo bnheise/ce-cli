@@ -15,6 +15,7 @@ use std::{
     path::{Path, PathBuf},
 };
 
+#[allow(clippy::too_many_arguments)]
 pub fn handle_custom_element(
     name: String,
     html_element_name: Option<String>,
@@ -23,6 +24,7 @@ pub fn handle_custom_element(
     portlet_category_name: Option<PortletCategoryNames>,
     description: Option<String>,
     use_esm: Option<bool>,
+    source_code_url: Option<String>,
 ) -> Result<(), CliError> {
     let raw = Config::try_open()?;
     let mut config = Config::try_parse(&raw)?;
@@ -52,6 +54,12 @@ pub fn handle_custom_element(
 
     if let Some(use_esm) = use_esm {
         definition.set_use_esm(use_esm);
+    }
+
+    if let Some(source_code_url) = source_code_url {
+        definition.set_source_code_url(source_code_url);
+    } else {
+        definition.set_source_code_url("".to_string());
     }
 
     let app_path = Path::new("./src").join(definition.get_id());

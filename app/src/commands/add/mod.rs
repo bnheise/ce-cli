@@ -14,6 +14,7 @@ pub fn handle_add(extension_type: ClientExtType) -> Result<(), CliError> {
             portlet_category_name,
             description,
             use_esm,
+            source_code_url,
         } => handle_custom_element(
             name,
             html_element_name,
@@ -22,6 +23,7 @@ pub fn handle_add(extension_type: ClientExtType) -> Result<(), CliError> {
             portlet_category_name,
             description,
             use_esm,
+            source_code_url,
         )?,
     }
     handle_dev_deploy()?;

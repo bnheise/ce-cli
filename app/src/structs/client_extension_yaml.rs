@@ -117,6 +117,10 @@ impl CustomElementDefinition {
         new
     }
 
+    pub fn set_source_code_url(&mut self, source_code_url: String) {
+        self.source_code_url = Some(source_code_url);
+    }
+
     pub fn set_friendly_url_mapping(&mut self, friendly_url_mapping: String) {
         self.friendly_url_mapping = Some(friendly_url_mapping);
     }
@@ -241,15 +245,15 @@ pub trait ClientExtId {
 #[derive(Debug, Serialize, Deserialize, Default, Clone, ValueEnum)]
 #[serde(rename_all = "camelCase")]
 pub enum PortletCategoryNames {
-    #[serde(rename = "category.remote-apps")]
+    #[serde(rename = "category.client-extensions")]
     #[default]
-    RemoteApps,
+    ClientExtensions,
 }
 
 impl Display for PortletCategoryNames {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         match self {
-            PortletCategoryNames::RemoteApps => write!(f, "category.remote-apps"),
+            PortletCategoryNames::ClientExtensions => write!(f, "category.client-extensions"),
         }
     }
 }

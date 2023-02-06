@@ -120,6 +120,12 @@ only Remote Apps is supported."
             help = "Determines whether ECMAScript modules will be used or not. Defaults to true."
         )]
         use_esm: Option<bool>,
+        #[arg(
+            short,
+            long,
+            help = "A link to the repository where the sourcecode resides. This is purely for documentation purposes."
+        )]
+        source_code_url: Option<String>,
     },
 }
 
