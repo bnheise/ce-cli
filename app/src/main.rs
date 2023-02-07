@@ -10,6 +10,7 @@ mod commands;
 mod error;
 mod structs;
 mod util;
+mod version_check;
 
 static ASSETS: Dir<'_> = include_dir!("$CARGO_MANIFEST_DIR/assets");
 

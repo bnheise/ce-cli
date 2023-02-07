@@ -4,6 +4,7 @@ use crate::structs::config::{Config, ConfigBuilder};
 use crate::structs::eslintrc::EslintRc;
 use crate::structs::package_json::PackageJson;
 use crate::structs::ConfigFile;
+use crate::version_check::run_version_check;
 use crate::ASSETS;
 use dialoguer::{Input, Select};
 use include_dir::Dir;
@@ -30,6 +31,8 @@ pub fn handle_init(
 
     let raw = Config::try_serialize(config)?;
     Config::write(raw)?;
+
+    run_version_check()?;
 
     Ok(())
 }

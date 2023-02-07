@@ -16,6 +16,7 @@ pub enum CliError {
     InputError(std::io::Error),
     SerializeYamlError(String, serde_yaml::Error),
     ParseYamlError(&'static str, serde_yaml::Error),
+    HttpError(String, reqwest::Error),
 }
 
 impl Display for CliError {
@@ -53,6 +54,7 @@ impl Display for CliError {
                 write!(f, "Failed to serialize yaml: {filename}")
             }
             CliError::ParseYamlError(filename, ..) => write!(f, "Failed to parse yaml: {filename}"),
+            CliError::HttpError(message, _) => write!(f, "{message}"),
         }
     }
 }
@@ -75,6 +77,7 @@ impl Error for CliError {
             CliError::InputError(e) => Some(e),
             CliError::SerializeYamlError(_, e) => Some(e),
             CliError::ParseYamlError(.., e) => Some(e),
+            CliError::HttpError(.., e) => Some(e),
         }
     }
 }
