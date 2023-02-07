@@ -1,3 +1,6 @@
+use cargo_toml::Manifest;
+use npm_package_json::Package;
+use serde::Deserialize;
 use std::io::BufRead;
 use std::path::Path;
 use std::{
@@ -8,14 +11,10 @@ use std::{
     thread,
 };
 
-use cargo_toml::Manifest;
-use npm_package_json::Package;
-use serde::Deserialize;
-
 const CLI_CARGO_TOML_PATH: &str = "../app/Cargo.toml";
 const PACKAGE_JSON_PATH: &str = "../npm_dist/package.json";
-const MAIN_PLATFORMS_PATH: &str = "../npm_dist/platforms.json";
-const NPM_PLATFORMS_PATH: &str = "../platforms.json";
+const MAIN_PLATFORMS_PATH: &str = "../platforms.json";
+const NPM_PLATFORMS_PATH: &str = "../npm_dist/platforms.json";
 const DIST_DIR: &str = "../dist";
 const BUILD_DIR: &str = "../build";
 const NPM_README_PATH: &str = "../npm_dist/README.md";
@@ -31,10 +30,16 @@ fn main() -> Result<()> {
             "Release file is missing",
         ));
     }
-    update_package_json_version(&version)?;
+    let raw_json = fs::read_to_string(PACKAGE_JSON_PATH).expect("Failed to load package.json");
+
+    let package_json = serde_json::from_str::<Package>(&raw_json)?;
+
+    validate_version(&version, &package_json)?;
+
     clean_previous_builds()?;
     let platforms = get_platforms()?;
     run_builds(&platforms)?;
+    update_package_json_version(&version, package_json)?;
     publish_to_github(&platforms, &version, &release_path_string);
     update_npm_readme();
     update_npm_platforms();
@@ -51,7 +56,7 @@ fn clean_previous_builds() -> Result<()> {
     Ok(())
 }
 
-fn run_builds(platforms: &Vec<PlatformtDef>) -> Result<()> {
+fn run_builds(platforms: &[PlatformtDef]) -> Result<()> {
     let mut handles = Vec::with_capacity(platforms.len());
 
     for platform in platforms.iter() {
@@ -92,13 +97,20 @@ fn run_builds(platforms: &Vec<PlatformtDef>) -> Result<()> {
                 .args([&target_dir, &build_dir])
                 .output()
                 .expect("failed to move binary from target folder to build folder");
+            if !output.stderr.is_empty() {
+                println!("{:?}", output.stderr.to_ascii_lowercase());
+                panic!("Failed to copy file");
+            }
             println!("{output:?}");
             let output_tar_name = format!("../dist/{output_foldername}.tar.gz");
             let output = Command::new("tar")
                 .args(["-C", &build_dir, "-czvf", &output_tar_name, "."])
                 .output()
                 .expect("failed to make tarball");
-            println!("{output:?}");
+            if !output.stderr.is_empty() {
+                println!("{:?}", output.stderr.to_ascii_lowercase());
+                panic!("Failed make tarball")
+            }
         });
         handles.push((platform.rust_target.to_string(), handle));
     }
@@ -163,11 +175,18 @@ fn get_current_version() -> Result<String> {
     Ok(package.version().to_owned())
 }
 
-fn update_package_json_version(version: &str) -> Result<()> {
-    let raw_json = fs::read_to_string(PACKAGE_JSON_PATH).expect("Failed to load package.json");
+fn validate_version(version: &str, package_json: &Package) -> Result<()> {
+    if package_json.version == version {
+        return Err(io::Error::new(
+            io::ErrorKind::InvalidData,
+            "Cargo.toml version is the same as Package.json. Did you forget to update the version in app/Cargo.toml?",
+        ));
+    }
 
-    let mut package_json = serde_json::from_str::<Package>(&raw_json)?;
+    Ok(())
+}
 
+fn update_package_json_version(version: &str, mut package_json: Package) -> Result<()> {
     if package_json.version == version {
         return Err(io::Error::new(
             io::ErrorKind::InvalidData,
@@ -221,10 +240,14 @@ enum OsArchitecture {
 enum RustTarget {
     #[serde(rename = "x86_64-pc-windows-gnu")]
     X86_64PcWindowsGnu,
+    #[serde(rename = "x86_64-unknown-linux-gnu")]
+    X86_64UnknownLinuxGnu,
     #[serde(rename = "x86_64-unknown-linux-musl")]
     X86_64UnknownLinuxMusl,
     #[serde(rename = "x86_64-apple-darwin")]
     X86_64AppleDarwin,
+    #[serde(rename = "x86_64-pc-windows-msvc")]
+    X86_64PcWindowsMsvc,
 }
 
 impl Display for RustTarget {
@@ -233,6 +256,8 @@ impl Display for RustTarget {
             RustTarget::X86_64PcWindowsGnu => write!(f, "x86_64-pc-windows-gnu"),
             RustTarget::X86_64UnknownLinuxMusl => write!(f, "x86_64-unknown-linux-musl"),
             RustTarget::X86_64AppleDarwin => write!(f, "x86_64-apple-darwin"),
+            RustTarget::X86_64UnknownLinuxGnu => write!(f, "x86_64-unknown-linux-gnu"),
+            RustTarget::X86_64PcWindowsMsvc => write!(f, "x86_64-pc-windows-msvc"),
         }
     }
 }
