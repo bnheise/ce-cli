@@ -2,6 +2,7 @@
   "name": "ce-cli",
   "version": "0.2.1",
   "description": "A command line tool for developing Liferay Client Extensions",
+  "type": "module",
   "keywords": [
     "cli",
     "Liferay"
