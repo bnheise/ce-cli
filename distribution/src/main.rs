@@ -97,20 +97,15 @@ fn run_builds(platforms: &[PlatformtDef]) -> Result<()> {
                 .args([&target_dir, &build_dir])
                 .output()
                 .expect("failed to move binary from target folder to build folder");
-            if !output.stderr.is_empty() {
-                println!("{:?}", output.stderr.to_ascii_lowercase());
-                panic!("Failed to copy file");
-            }
+
             println!("{output:?}");
             let output_tar_name = format!("../dist/{output_foldername}.tar.gz");
             let output = Command::new("tar")
                 .args(["-C", &build_dir, "-czvf", &output_tar_name, "."])
                 .output()
                 .expect("failed to make tarball");
-            if !output.stderr.is_empty() {
-                println!("{:?}", output.stderr.to_ascii_lowercase());
-                panic!("Failed make tarball")
-            }
+
+            println!("{output:?}");
         });
         handles.push((platform.rust_target.to_string(), handle));
     }
