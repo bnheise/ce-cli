@@ -1,4 +1,4 @@
-use crate::cli::FrameworkOption;
+use crate::cli::{Cli, FrameworkOption};
 use crate::error::CliError;
 use crate::structs::config::{Config, ConfigBuilder};
 use crate::structs::eslintrc::EslintRc;
@@ -20,6 +20,10 @@ pub fn handle_init(
     config_path: Option<PathBuf>,
     framework: Option<FrameworkOption>,
 ) -> Result<(), CliError> {
+    if !current_dir_empty()? {
+        return Err(CliError::InitError("Current directory is not empty".into()));
+    }
+
     let config = initialize_config(config, project_name, bundle_path, config_path, framework)?;
 
     generate_framework_files(&config)?;
@@ -35,6 +39,15 @@ pub fn handle_init(
     run_version_check()?;
 
     Ok(())
+}
+
+fn current_dir_empty() -> Result<bool, CliError> {
+    Ok(env::current_dir()
+        .map_err(|e| CliError::CurrentDirectoryError(Some(e)))?
+        .read_dir()
+        .map_err(|e| CliError::CurrentDirectoryError(Some(e)))?
+        .next()
+        .is_none())
 }
 
 fn initialize_config(

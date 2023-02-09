@@ -17,6 +17,7 @@ pub enum CliError {
     SerializeYamlError(String, serde_yaml::Error),
     ParseYamlError(&'static str, serde_yaml::Error),
     HttpError(String, reqwest::Error),
+    InitError(String),
 }
 
 impl Display for CliError {
@@ -54,7 +55,10 @@ impl Display for CliError {
                 write!(f, "Failed to serialize yaml: {filename}")
             }
             CliError::ParseYamlError(filename, ..) => write!(f, "Failed to parse yaml: {filename}"),
-            CliError::HttpError(message, _) => write!(f, "{message}"),
+            CliError::HttpError(message, _) => {
+                write!(f, "{message}")
+            }
+            CliError::InitError(message) => write!(f, "Error initializting project: {message}"),
         }
     }
 }
@@ -78,6 +82,7 @@ impl Error for CliError {
             CliError::SerializeYamlError(_, e) => Some(e),
             CliError::ParseYamlError(.., e) => Some(e),
             CliError::HttpError(.., e) => Some(e),
+            CliError::InitError(_) => None,
         }
     }
 }

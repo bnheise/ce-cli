@@ -103,6 +103,7 @@ pub fn handle_custom_element(
         };
 
         for (key, val) in context.iter() {
+            println!("{key} {val}");
             content = content.replace(key, val);
         }
 
