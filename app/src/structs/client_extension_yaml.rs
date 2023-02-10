@@ -1,5 +1,7 @@
 use super::{cet_configuration::CetConfigId, ConfigFile, ConfigFormat};
 use clap::ValueEnum;
+use lazy_static::lazy_static;
+use regex::Regex;
 use serde::{Deserialize, Serialize};
 use std::{collections::HashMap, fmt::Display};
 
@@ -174,8 +176,11 @@ impl CustomElementDefinition {
     }
 
     pub fn get_camelcase_name(&self) -> String {
-        self.get_name()
-            .split(' ')
+        lazy_static! {
+            static ref RE: Regex = Regex::new(r" -").expect("Failed to parse regex");
+        }
+        let name = self.get_name();
+        RE.split(name)
             .map(|part| part[0..1].to_uppercase() + &part[1..])
             .collect::<String>()
     }
