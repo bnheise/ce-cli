@@ -79,6 +79,7 @@ dependencies = [
  "colored",
  "dialoguer",
  "include_dir",
+ "lazy_static",
  "regex",
  "reqwest",
  "serde",

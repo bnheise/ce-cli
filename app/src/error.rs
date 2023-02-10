@@ -18,6 +18,9 @@ pub enum CliError {
     ParseYamlError(&'static str, serde_yaml::Error),
     HttpError(String, reqwest::Error),
     InitError(String),
+    InvalidDirectoryError(String),
+    InvalidExtensionNameError,
+    ExtensionExistsError
 }
 
 impl Display for CliError {
@@ -58,7 +61,13 @@ impl Display for CliError {
             CliError::HttpError(message, _) => {
                 write!(f, "{message}")
             }
-            CliError::InitError(message) => write!(f, "Error initializting project: {message}"),
+            CliError::InitError(message) => write!(f, "Error initializing project: {message}"),
+            
+            CliError::InvalidDirectoryError(message) => {
+                write!(f, "Action performed in invalid directory: {message}")
+            }
+            CliError::InvalidExtensionNameError =>  write!(f, "The extension name you entered is invalid. The name must start with an alphabet character and may not contain special symbols other than -"),
+            CliError::ExtensionExistsError => write!(f, "The extension you are trying to create already exists!"),
         }
     }
 }
@@ -83,6 +92,9 @@ impl Error for CliError {
             CliError::ParseYamlError(.., e) => Some(e),
             CliError::HttpError(.., e) => Some(e),
             CliError::InitError(_) => None,
+            CliError::InvalidDirectoryError(_) => None,
+            CliError::InvalidExtensionNameError => None,
+            CliError::ExtensionExistsError => None,
         }
     }
 }

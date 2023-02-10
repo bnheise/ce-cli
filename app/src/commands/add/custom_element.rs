@@ -15,6 +15,8 @@ use std::{
     path::{Path, PathBuf},
 };
 
+use super::is_extension_name_valid;
+
 #[allow(clippy::too_many_arguments)]
 pub fn handle_custom_element(
     name: String,
@@ -26,8 +28,12 @@ pub fn handle_custom_element(
     use_esm: Option<bool>,
     source_code_url: Option<String>,
 ) -> Result<(), CliError> {
+    if !is_extension_name_valid(&name) {
+        return Err(CliError::InvalidExtensionNameError);
+    }
+
     let raw = Config::try_open()?;
-    let mut config = Config::try_parse(&raw)?;
+    let mut config = Config::try_parse(&raw).map_err(|_e| CliError::InvalidDirectoryError("Could not load workspace-config.json. Are you in the root directory of a ce-cli workspace project?".into()))?;
     let mut definition = CustomElementDefinition::new(name);
 
     if let Some(friendly_url_mapping) = friendly_url_mapping {
@@ -63,6 +69,10 @@ pub fn handle_custom_element(
     }
 
     let app_path = Path::new("./src").join(definition.get_id());
+
+    if app_path.exists() {
+        return Err(CliError::ExtensionExistsError);
+    }
 
     config
         .entrypoints
@@ -103,7 +113,6 @@ pub fn handle_custom_element(
         };
 
         for (key, val) in context.iter() {
-            println!("{key} {val}");
             content = content.replace(key, val);
         }
 

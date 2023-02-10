@@ -1,4 +1,4 @@
-use crate::cli::{Cli, FrameworkOption};
+use crate::cli::FrameworkOption;
 use crate::error::CliError;
 use crate::structs::config::{Config, ConfigBuilder};
 use crate::structs::eslintrc::EslintRc;
