@@ -1,10 +1,12 @@
-use self::custom_element::handle_custom_element;
+use self::{custom_element::handle_custom_element, shared_component::handle_shared_component};
 use super::dev_deploy::handle_dev_deploy;
 use crate::{cli::ClientExtType, error::CliError};
 use lazy_static::lazy_static;
 use regex::Regex;
 
-pub mod custom_element;
+mod custom_element;
+mod shared_component;
+mod shared_dependency;
 
 pub fn handle_add(extension_type: ClientExtType) -> Result<(), CliError> {
     match extension_type {
@@ -27,6 +29,7 @@ pub fn handle_add(extension_type: ClientExtType) -> Result<(), CliError> {
             use_esm,
             source_code_url,
         )?,
+        ClientExtType::SharedComponent { name } => handle_shared_component(name)?,
     }
     handle_dev_deploy()?;
     Ok(())

@@ -37,5 +37,5 @@ impl PackageJson {
 
 impl<'a> ConfigFile<'a> for PackageJson {
     const FILENAME: &'static str = "package.json";
-    const FORMAT: super::ConfigFormat = ConfigFormat::Json;
+    const FORMAT: ConfigFormat = ConfigFormat::Json;
 }

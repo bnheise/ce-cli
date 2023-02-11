@@ -1,12 +1,21 @@
 import ESLintWebpackPlugin from 'eslint-webpack-plugin';
 import path, { dirname } from 'path';
 import { fileURLToPath } from 'url';
-import fs from 'fs';
+import { createRequire } from 'module';
 
-const rawConfig = fs.readFileSync(path.join('./', 'workspace-config.json'));
-const workspaceConfig = JSON.parse(rawConfig);
-
+const require = createRequire(import.meta.url);
+const workspaceConfig = require('./workspace-config.json');
 const __dirname = dirname(fileURLToPath(import.meta.url));
+
+const aliasResolved = Object.entries(workspaceConfig.alias)
+	.map(([key, pathArray]) => [
+		key,
+		pathArray.map(filepath => path.resolve(__dirname, filepath)),
+	])
+	.reduce((obj, [key, pathArray]) => {
+		obj[key] = pathArray;
+		return obj;
+	}, {});
 
 export default {
 	entry: workspaceConfig.entrypoints,
@@ -24,6 +33,7 @@ export default {
 	},
 	resolve: {
 		extensions: ['.tsx', '.ts', '.js'],
+		alias: { ...aliasResolved },
 	},
 	experiments: {
 		outputModule: true,

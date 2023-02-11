@@ -1,17 +1,19 @@
 import { merge } from 'webpack-merge';
 import common from './webpack.common.js';
 import MiniCssExtractPlugin from 'mini-css-extract-plugin';
-import { BundleAnalyzerPlugin } from 'webpack-bundle-analyzer';
 import { liferayExteranls } from './util/liferayExternals.js';
+import { createRequire } from 'module';
 
-const plugins = [new MiniCssExtractPlugin()];
+const require = createRequire(import.meta.url);
+const workspaceConfig = require('./workspace-config.json');
 
 export default env =>
 	merge(common, {
 		mode: 'production',
-		plugins: env?.analyze ? [...plugins, new BundleAnalyzerPlugin()] : plugins,
+		plugins: [new MiniCssExtractPlugin()],
 		externals: {
 			...liferayExteranls,
+			...workspaceConfig.externals,
 		},
 		module: {
 			rules: [
@@ -43,5 +45,10 @@ export default env =>
 		},
 		output: {
 			filename: '[name].js',
+			module: true,
+			libraryTarget: 'module',
+		},
+		experiments: {
+			outputModule: true,
 		},
 	});

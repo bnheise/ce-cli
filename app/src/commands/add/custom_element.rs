@@ -1,18 +1,13 @@
 use crate::{
+    assets_dir::AssetsDir,
     error::CliError,
     structs::{
         client_extension_yaml::{
-            ClientExtId, ClientExtType, ClientExtensionYaml, CustomElementDefinition,
-            PortletCategoryNames,
+            ClientExtType, ClientExtensionYaml, CustomElementDefinition, PortletCategoryNames,
         },
         config::Config,
-        ConfigFile,
+        ClientExt, ConfigFile,
     },
-    ASSETS,
-};
-use std::{
-    fs,
-    path::{Path, PathBuf},
 };
 
 use super::is_extension_name_valid;
@@ -68,57 +63,11 @@ pub fn handle_custom_element(
         definition.set_source_code_url("".to_string());
     }
 
-    let app_path = Path::new("./src").join(definition.get_id());
+    definition.add_to_entrypoints(&mut config);
 
-    if app_path.exists() {
-        return Err(CliError::ExtensionExistsError);
-    }
+    definition.initialize_directories()?;
 
-    config
-        .entrypoints
-        .insert(definition.get_id(), app_path.to_owned());
-
-    fs::create_dir_all(&app_path).map_err(|e| CliError::WriteError("./src".to_owned(), e))?;
-
-    let custom_element_templates = ASSETS
-        .get_dir(
-            PathBuf::new()
-                .join("app_templates")
-                .join(config.framework.to_string())
-                .join("custom_element"),
-        )
-        .expect("Failed to load the custom_element templates folder");
-
-    let context = vec![
-        ("{{ appNameCamelcase }}", definition.get_camelcase_name()),
-        (
-            "{{ customElementAppName }}",
-            definition.get_name().to_owned(),
-        ),
-        (
-            "{{ customElementName }}",
-            definition.get_custom_element_name().to_owned(),
-        ),
-    ];
-
-    for file in custom_element_templates.files() {
-        let mut content = file
-            .contents_utf8()
-            .expect("Could not parse template file as utf-8")
-            .to_owned();
-
-        let name = match file.path().components().last().unwrap() {
-            std::path::Component::Normal(filename) => filename.to_str().unwrap_or_default(),
-            _ => unreachable!(),
-        };
-
-        for (key, val) in context.iter() {
-            content = content.replace(key, val);
-        }
-
-        fs::write(app_path.join(name), content)
-            .map_err(|e| CliError::WriteError(name.to_owned(), e))?;
-    }
+    AssetsDir::initialize_templates(&config, &definition)?;
 
     let raw = ClientExtensionYaml::try_open()?;
     let mut client_ext_yaml = ClientExtensionYaml::try_parse(&raw)?;

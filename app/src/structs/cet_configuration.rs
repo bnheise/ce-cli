@@ -1,4 +1,7 @@
-use super::client_extension_yaml::{ClientExtId, ClientExtensionYaml, CustomElementDefinition};
+use super::{
+    client_extension_yaml::{ClientExtensionYaml, CustomElementDefinition},
+    ClientExt,
+};
 use serde::Serialize;
 use std::collections::HashMap;
 
@@ -37,6 +40,7 @@ pub struct CetDefinition {
     properties: Vec<Attribute>,
     #[serde(rename = "sourceCodeURL")]
     sourcecode_url: String,
+    #[serde(rename = "type")]
     _type: ClientExtType,
     type_settings: Vec<Attribute>,
 }
@@ -164,7 +168,7 @@ impl Serialize for Attribute {
     }
 }
 
-pub trait CetConfigId: ClientExtId {
+pub trait CetConfigId: ClientExt {
     fn get_cet_config_id(&self) -> String {
         format!("{CET_CONFIG_FULLY_QUALIFIED_PATH}~{}", self.get_id())
     }

@@ -5,7 +5,7 @@ use crate::cli::FrameworkOption;
 
 use super::{ConfigFile, ConfigFormat};
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, Serialize, Deserialize, Default)]
 #[serde(rename_all = "camelCase")]
 pub struct Config {
     pub project_name: String,
@@ -13,6 +13,8 @@ pub struct Config {
     pub entrypoints: HashMap<String, PathBuf>,
     pub dev_server_port: u16,
     pub framework: FrameworkOption,
+    pub externals: HashMap<String, String>,
+    pub alias: HashMap<String, Vec<PathBuf>>,
 }
 
 impl<'a> ConfigFile<'a> for Config {
@@ -52,9 +54,9 @@ impl ConfigBuilder {
             deploy_path: self
                 .deploy_path
                 .expect("Expected to get a bundle path but got None"),
-            entrypoints: HashMap::new(),
             dev_server_port: 3000,
             framework: self.framework.unwrap_or(FrameworkOption::React),
+            ..Default::default()
         }
     }
 }

@@ -127,10 +127,21 @@ only Remote Apps is supported."
         )]
         source_code_url: Option<String>,
     },
+    #[command(
+        about = r#"A shared component is a component that will be shared between two or more of your Custom Element extensions
+It will be bundled separately, so only use this for non-trivial components."#
+    )]
+    SharedComponent {
+        #[arg(
+            help = "The human readable name of your app. This is what users will see in the Page Editor"
+        )]
+        name: String,
+    },
 }
 
-#[derive(Debug, Clone, ValueEnum, Serialize, Deserialize, Copy)]
+#[derive(Debug, Clone, ValueEnum, Serialize, Deserialize, Copy, Default)]
 pub enum FrameworkOption {
+    #[default]
     React,
     Angular,
     Vue,

@@ -1,6 +1,12 @@
+use self::config::Config;
 use crate::error::CliError;
+use lazy_static::lazy_static;
+use regex::Regex;
 use serde::{Deserialize, Serialize};
-use std::{fs, path::PathBuf};
+use std::{
+    fs,
+    path::{Path, PathBuf},
+};
 use yaml_rust::{YamlEmitter, YamlLoader};
 
 pub mod cet_configuration;
@@ -8,6 +14,8 @@ pub mod client_extension_yaml;
 pub mod config;
 pub mod eslintrc;
 pub mod package_json;
+pub mod shared_component;
+pub mod typescript_config_json;
 
 #[derive(Debug, PartialEq)]
 pub enum ConfigFormat {
@@ -142,4 +150,72 @@ fn format_yaml(raw: &str) -> Result<String, CliError> {
     }
 
     Ok(out_str)
+}
+
+pub trait ClientExt {
+    fn get_name(&self) -> &str;
+
+    fn get_id(&self) -> String;
+
+    fn get_ext_path(&self) -> PathBuf {
+        Path::new("./src").join(self.get_id())
+    }
+
+    fn get_server_path(&self, config: &Config) -> String {
+        let filename = [&self.get_id(), "js"].join(".");
+        let parts = ["/o", &config.project_name, &filename];
+
+        parts.join("/")
+    }
+
+    fn add_to_entrypoints(&self, config: &mut Config) {
+        config
+            .entrypoints
+            .insert(self.get_id(), self.get_ext_path());
+    }
+
+    fn add_to_externals(&self, config: &mut Config) {
+        config
+            .externals
+            .insert(self.get_id(), self.get_server_path(config));
+    }
+
+    fn initialize_directories(&self) -> Result<(), CliError> {
+        let path = self.get_ext_path();
+        if path.exists() {
+            return Err(CliError::ExtensionExistsError);
+        }
+        fs::create_dir_all(path).map_err(|e| CliError::WriteError("./src".to_owned(), e))?;
+
+        Ok(())
+    }
+
+    fn get_context(&self) -> Vec<(String, String)>;
+
+    fn get_camelcase_name(&self) -> String {
+        lazy_static! {
+            static ref RE: Regex = Regex::new(r"[ -]").expect("Failed to parse regex");
+        }
+        let name = self.get_name();
+        RE.split(name)
+            .map(|part| part[0..1].to_uppercase() + &part[1..])
+            .collect::<String>()
+    }
+
+    fn get_type_name(&self) -> &'static str;
+}
+
+pub struct TemplateContext;
+
+impl TemplateContext {
+    const NAME_CAMELCASE: &'static str = "name-camelcase";
+    const OPENING_DELIM: &'static str = "{{";
+    const CLOSING_DELIM: &'static str = "}}";
+    const EXT_NAME: &'static str = "ext-name";
+    const ELEMENT_NAME: &'static str = "element-name";
+    pub const FRAMEWORK: &'static str = "framework";
+
+    pub fn format_key(key: &str) -> String {
+        format!("{} {} {}", Self::OPENING_DELIM, key, Self::CLOSING_DELIM)
+    }
 }

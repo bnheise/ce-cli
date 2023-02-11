@@ -1,10 +1,10 @@
 // Do not modify this file;
 
-import { {{ appNameCamelcase }} } from './customElement';
+import { {{ name-camelcase }} } from './customElement';
 import "./widget.scss";
 
-export const ELEMENT_ID = '{{ customElementName }}';
+export const ELEMENT_ID = '{{ element-name }}';
 
 if (!customElements.get(ELEMENT_ID)) {
-	customElements.define(ELEMENT_ID, {{ appNameCamelcase }});
+	customElements.define(ELEMENT_ID, {{ name-camelcase }});
 }

@@ -2,17 +2,15 @@ use crate::{commands::init::handle_init, structs::config::ConfigBuilder};
 use clap::Parser;
 use cli::Cli;
 use commands::{add::handle_add, dev_deploy::handle_dev_deploy};
-use include_dir::{include_dir, Dir};
-use std::io::Result;
+use std::{error::Error, io::Result};
 
+mod assets_dir;
 mod cli;
 mod commands;
 mod error;
 mod structs;
 mod util;
 mod version_check;
-
-static ASSETS: Dir<'_> = include_dir!("$CARGO_MANIFEST_DIR/assets");
 
 fn main() -> Result<()> {
     let cli = Cli::parse();
@@ -30,7 +28,12 @@ fn main() -> Result<()> {
     };
 
     if let Err(error) = result {
-        println!("{error}")
+        println!("{error}");
+
+        #[cfg(debug_assertions)]
+        if let Some(source) = error.source() {
+            println!("{source}")
+        }
     }
 
     Ok(())

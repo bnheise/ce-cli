@@ -1,16 +1,15 @@
-use super::{cet_configuration::CetConfigId, ConfigFile, ConfigFormat};
+use super::{cet_configuration::CetConfigId, ClientExt, ConfigFile, ConfigFormat, TemplateContext};
 use clap::ValueEnum;
-use lazy_static::lazy_static;
-use regex::Regex;
 use serde::{Deserialize, Serialize};
 use std::{collections::HashMap, fmt::Display};
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct ClientExtensionYaml {
     assemble: Vec<AssembleMember>,
-
     #[serde(flatten)]
     apps: HashMap<String, ClientExtType>,
+    #[serde(flatten)]
+    other: HashMap<String, serde_yaml::Value>,
 }
 
 impl ClientExtensionYaml {
@@ -151,10 +150,6 @@ impl CustomElementDefinition {
         &self.html_element_name
     }
 
-    pub fn get_name(&self) -> &str {
-        &self.name
-    }
-
     pub fn get_descripton(&self) -> Option<&String> {
         self.description.as_ref()
     }
@@ -173,16 +168,6 @@ impl CustomElementDefinition {
 
     pub fn get_friendly_url_mapping(&self) -> Option<&String> {
         self.friendly_url_mapping.as_ref()
-    }
-
-    pub fn get_camelcase_name(&self) -> String {
-        lazy_static! {
-            static ref RE: Regex = Regex::new(r" -").expect("Failed to parse regex");
-        }
-        let name = self.get_name();
-        RE.split(name)
-            .map(|part| part[0..1].to_uppercase() + &part[1..])
-            .collect::<String>()
     }
 
     pub fn get_properties(&self) -> Option<&HashMap<String, String>> {
@@ -214,9 +199,31 @@ impl CustomElementDefinition {
     }
 }
 
-impl ClientExtId for CustomElementDefinition {
+impl ClientExt for CustomElementDefinition {
+    fn get_name(&self) -> &str {
+        &self.name
+    }
+
     fn get_id(&self) -> String {
         self.name.to_lowercase().replace(' ', "-")
+    }
+
+    fn get_context(&self) -> Vec<(String, String)> {
+        vec![
+            (
+                TemplateContext::NAME_CAMELCASE.into(),
+                self.get_camelcase_name(),
+            ),
+            (TemplateContext::EXT_NAME.into(), self.get_name().into()),
+            (
+                TemplateContext::ELEMENT_NAME.into(),
+                self.get_custom_element_name().into(),
+            ),
+        ]
+    }
+
+    fn get_type_name(&self) -> &'static str {
+        "custom_element"
     }
 }
 
@@ -241,10 +248,6 @@ impl ClientExtType {
             ClientExtType::CustomElement(app) => app.get_cet_config_id(),
         }
     }
-}
-
-pub trait ClientExtId {
-    fn get_id(&self) -> String;
 }
 
 #[derive(Debug, Serialize, Deserialize, Default, Clone, ValueEnum)]
