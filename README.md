@@ -22,6 +22,13 @@ Run `npm install -g ce-cli` to install. If your operating system or architecture
 and I'll try to add it. I can't guarantee that I'll be able to though, so if that happens, I recommend installing
 Rust and compiling the binary yourself with `cargo install ce-cli`.
 
+Note on installing with `yarn`. Currently there is a bug which causes installation to fail with yarn. Install using npm as a workaround.
+
+Note on installing with `pnpm`. Currently pnpm has a bug where when you try to install a new version of ce-cli, it will
+hold binary even if you uninstall and install again. Youll have to delete your pnpm cache to clear it. Just running
+`pnpm cache prune` is not enough. An issue has been filed with pnpm, but for now this is the only way to get the new version
+by pnpm.
+
 ## Usage
 
 This CLI expects its workspace to be hosted in a Liferay Workspace.
