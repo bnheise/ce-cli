@@ -1,6 +1,6 @@
-use crate::{commands::init::handle_init, structs::config::ConfigBuilder};
+use crate::commands::init::handle_init;
 use clap::Parser;
-use cli::{Cli, InitArgs};
+use cli::Cli;
 use commands::{add::handle_add, dev_deploy::handle_dev_deploy};
 use std::{error::Error, io::Result};
 

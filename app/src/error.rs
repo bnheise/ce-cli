@@ -90,16 +90,3 @@ impl Error for CliError {
         }
     }
 }
-
-#[derive(Debug)]
-pub enum UpcomingFeature {
-    SetConfigPathOnInit,
-}
-
-impl Display for UpcomingFeature {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        match self {
-            UpcomingFeature::SetConfigPathOnInit => write!(f, "SetConfigPathOnInit"),
-        }
-    }
-}
