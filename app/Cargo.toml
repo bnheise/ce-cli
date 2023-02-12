@@ -1,7 +1,7 @@
 [package]
 name = "ce-cli"
 description = "A command line tool for building and managing Liferay remote app projects."
-version = "0.2.5"
+version = "0.2.6"
 edition = "2021"
 authors = ["Brian Heise <brian.heise@liferay.com>"]
 rust-version = "1.67.0"
