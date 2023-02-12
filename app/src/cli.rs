@@ -45,7 +45,7 @@ pub struct InitArgs {
     /// Liferay bundle. ce-cli uses this to point Liferay to your dev     {n}
     /// server.
     #[arg(short, long)]
-    pub bundle_path: Option<PathBuf>,
+    pub deploy_path: Option<PathBuf>,
 
     /// The framework to use. Currently only React is supported  but Vue  {n}
     /// and Angular are on the roadmap.
@@ -55,7 +55,7 @@ pub struct InitArgs {
     /// The instance id that your apps will deploy to by default. Using   {n}
     /// the default value will deploy to your root instance.              {n}
     #[arg(short, long, value_enum)]
-    pub default_instance_id: Option<String>,
+    pub instance_id: Option<String>,
 }
 
 /// Add a new component to your workspace. Components are items that will {n}

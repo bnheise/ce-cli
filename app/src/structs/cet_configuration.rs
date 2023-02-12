@@ -7,6 +7,7 @@ use std::collections::HashMap;
 
 pub const CET_CONFIG_FULLY_QUALIFIED_PATH: &str =
     "com.liferay.client.extension.type.configuration.CETConfiguration";
+pub const DEFAULT_VIRTUAL_INSTANCE_ID: &str = "default";
 
 #[derive(Debug, Serialize)]
 pub struct CetConfiguration {
@@ -50,7 +51,7 @@ impl Default for CetDefinition {
         Self {
             base_url: Default::default(),
             description: Default::default(),
-            virtual_instance_id: "default".to_string(),
+            virtual_instance_id: String::from(DEFAULT_VIRTUAL_INSTANCE_ID),
             name: Default::default(),
             properties: Default::default(),
             sourcecode_url: Default::default(),
@@ -112,6 +113,10 @@ impl From<CustomElementDefinition> for CetDefinition {
                 .unwrap_or(&"".to_string())
                 .to_owned(),
             _type: ClientExtType::CustomElement,
+            virtual_instance_id: value
+                .get_instance_id()
+                .unwrap_or(&Self::default().virtual_instance_id)
+                .to_owned(),
             type_settings: vec![
                 friendly_url_mapping,
                 instanceable,
@@ -124,7 +129,6 @@ impl From<CustomElementDefinition> for CetDefinition {
             .into_iter()
             .flatten()
             .collect::<Vec<_>>(),
-            ..Default::default()
         }
     }
 }

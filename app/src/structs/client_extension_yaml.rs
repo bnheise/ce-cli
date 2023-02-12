@@ -1,4 +1,7 @@
-use super::{cet_configuration::CetConfigId, ClientExt, ConfigFile, ConfigFormat, TemplateContext};
+use super::{
+    cet_configuration::{CetConfigId, DEFAULT_VIRTUAL_INSTANCE_ID},
+    ClientExt, ConfigFile, ConfigFormat, TemplateContext,
+};
 use clap::ValueEnum;
 use serde::{Deserialize, Serialize};
 use std::{collections::HashMap, fmt::Display};
@@ -85,6 +88,9 @@ pub struct CustomElementDefinition {
     use_esm: bool,
     #[serde(rename = "sourceCodeURL")]
     source_code_url: Option<String>,
+
+    #[serde(rename = "dxp.lxc.liferay.com.virtualInstanceId")]
+    instance_id: Option<String>,
 }
 
 impl Default for CustomElementDefinition {
@@ -97,10 +103,11 @@ impl Default for CustomElementDefinition {
             name: Default::default(),
             portlet_category_name: Default::default(),
             properties: Some(HashMap::new()),
-            description: None,
+            description: Some(String::new()),
             urls: Default::default(),
             use_esm: true,
             source_code_url: Default::default(),
+            instance_id: Some(String::from(DEFAULT_VIRTUAL_INSTANCE_ID)),
         }
     }
 }
@@ -116,6 +123,14 @@ impl CustomElementDefinition {
         new.add_css_filename(format!("{}.css", new.get_id()));
         new.add_js_filename(format!("{}.js", new.get_id()));
         new
+    }
+
+    pub fn set_instance_id(&mut self, instance_id: &str) {
+        self.instance_id = Some(instance_id.to_owned());
+    }
+
+    pub fn get_instance_id(&self) -> Option<&String> {
+        self.instance_id.as_ref()
     }
 
     pub fn set_source_code_url(&mut self, source_code_url: String) {

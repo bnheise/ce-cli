@@ -75,8 +75,8 @@ impl ConfigBuilder {
             deploy_path: self
                 .deploy_path
                 .expect("Expected to get a bundle path but got None"),
-            dev_server_port: 3000,
             framework: self.framework.unwrap_or(FrameworkOption::React),
+            default_instance_id: self.instance_id.unwrap_or_default(),
             ..Default::default()
         }
     }

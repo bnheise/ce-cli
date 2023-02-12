@@ -10,25 +10,13 @@ use std::vec;
 use std::{env, fs, path::PathBuf};
 
 pub fn handle_init(args: InitArgs) -> Result<(), CliError> {
-    let InitArgs {
-        project_name,
-        bundle_path,
-        framework,
-        default_instance_id,
-        ..
-    } = args;
     let config = ConfigBuilder::new();
+
     if !current_dir_empty()? {
         return Err(CliError::Init("Current directory is not empty".into()));
     }
 
-    let config = initialize_config(
-        config,
-        project_name,
-        bundle_path,
-        framework,
-        default_instance_id,
-    )?;
+    let config = initialize_config(config, args)?;
 
     AssetsDir::generate_static_files()?;
     AssetsDir::generate_framework_files(&config)?;
@@ -50,13 +38,15 @@ fn current_dir_empty() -> Result<bool, CliError> {
         .is_none())
 }
 
-fn initialize_config(
-    mut config: ConfigBuilder,
-    project_name: Option<String>,
-    deploy_path: Option<PathBuf>,
-    framework: Option<FrameworkOption>,
-    default_instance_id: Option<String>,
-) -> Result<Config, CliError> {
+fn initialize_config(mut config: ConfigBuilder, args: InitArgs) -> Result<Config, CliError> {
+    let InitArgs {
+        project_name,
+        deploy_path,
+        framework,
+        instance_id,
+        ..
+    } = args;
+
     if let Some(project_name) = project_name {
         config.set_project_name(project_name);
     } else {
@@ -79,7 +69,7 @@ fn initialize_config(
         config.set_framework(framework);
     }
 
-    if let Some(instance_id) = default_instance_id {
+    if let Some(instance_id) = instance_id {
         config.set_instance_id(instance_id)
     } else {
         let instance_id = get_instance_id_from_user()?;
@@ -92,7 +82,7 @@ fn initialize_config(
 
 fn get_instance_id_from_user() -> Result<String, CliError> {
     let instance_id = Input::new()
-        .with_prompt("Please enter the web id for the virtual instance that you want to deploy to.")
+        .with_prompt("Please enter the web id for the virtual instance that you want to deploy to")
         .with_initial_text(Config::default().default_instance_id)
         .interact_text()
         .map_err(CliError::Input)?;

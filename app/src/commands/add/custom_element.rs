@@ -63,6 +63,8 @@ pub fn handle_custom_element(args: CustomElementArgs) -> Result<(), CliError> {
         definition.set_source_code_url("".to_string());
     }
 
+    definition.set_instance_id(&config.default_instance_id);
+
     definition.add_to_entrypoints(&mut config);
 
     definition.initialize_directories()?;
