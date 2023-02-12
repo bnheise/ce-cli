@@ -41,6 +41,7 @@ fn main() -> Result<()> {
     run_builds(&platforms)?;
     update_package_json_version(&version, package_json)?;
     publish_to_github(&platforms, &version, &release_path_string);
+    publish_to_cargo();
     update_npm_readme();
     update_npm_platforms();
     publish_to_npm();
@@ -126,7 +127,18 @@ fn publish_to_npm() {
         .current_dir("../npm_dist")
         .args(["publish"])
         .output()
-        .expect("failed to move binary from target folder to build folder");
+        .expect("failed to publish to npm");
+    println!("{output:?}",);
+    println!("Done!");
+}
+
+fn publish_to_cargo() {
+    println!("Publishing to cargo...");
+    let output = Command::new("cargo")
+        .current_dir("../app")
+        .args(["publish"])
+        .output()
+        .expect("failed to publish to cargo");
     println!("{output:?}",);
     println!("Done!");
 }
