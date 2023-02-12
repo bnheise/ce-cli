@@ -2,7 +2,7 @@ use crate::commands::init::handle_init;
 use clap::Parser;
 use cli::Cli;
 use commands::{add::handle_add, dev_deploy::handle_dev_deploy};
-use std::{error::Error, io::Result};
+use std::io::Result;
 
 mod assets_dir;
 mod cli;
@@ -25,8 +25,11 @@ fn main() -> Result<()> {
         println!("{error}");
 
         #[cfg(debug_assertions)]
-        if let Some(source) = error.source() {
-            println!("{source}")
+        {
+            use std::error::Error;
+            if let Some(source) = error.source() {
+                println!("{source}")
+            }
         }
     }
 
