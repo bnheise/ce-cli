@@ -1,5 +1,5 @@
 use crate::assets_dir::AssetsDir;
-use crate::cli::FrameworkOption;
+use crate::cli::{FrameworkOption, InitArgs};
 use crate::error::CliError;
 use crate::structs::config::{Config, ConfigBuilder};
 use crate::structs::ConfigFile;
@@ -9,18 +9,26 @@ use regex::Regex;
 use std::vec;
 use std::{env, fs, path::PathBuf};
 
-pub fn handle_init(
-    config: ConfigBuilder,
-    project_name: Option<String>,
-    bundle_path: Option<PathBuf>,
-    config_path: Option<PathBuf>,
-    framework: Option<FrameworkOption>,
-) -> Result<(), CliError> {
+pub fn handle_init(args: InitArgs) -> Result<(), CliError> {
+    let InitArgs {
+        project_name,
+        bundle_path,
+        framework,
+        default_instance_id,
+        ..
+    } = args;
+    let config = ConfigBuilder::new();
     if !current_dir_empty()? {
-        return Err(CliError::InitError("Current directory is not empty".into()));
+        return Err(CliError::Init("Current directory is not empty".into()));
     }
 
-    let config = initialize_config(config, project_name, bundle_path, config_path, framework)?;
+    let config = initialize_config(
+        config,
+        project_name,
+        bundle_path,
+        framework,
+        default_instance_id,
+    )?;
 
     AssetsDir::generate_static_files()?;
     AssetsDir::generate_framework_files(&config)?;
@@ -35,9 +43,9 @@ pub fn handle_init(
 
 fn current_dir_empty() -> Result<bool, CliError> {
     Ok(env::current_dir()
-        .map_err(|e| CliError::CurrentDirectoryError(Some(e)))?
+        .map_err(|e| CliError::CurrentDirectory(Some(e)))?
         .read_dir()
-        .map_err(|e| CliError::CurrentDirectoryError(Some(e)))?
+        .map_err(|e| CliError::CurrentDirectory(Some(e)))?
         .next()
         .is_none())
 }
@@ -46,15 +54,9 @@ fn initialize_config(
     mut config: ConfigBuilder,
     project_name: Option<String>,
     deploy_path: Option<PathBuf>,
-    config_path: Option<PathBuf>,
     framework: Option<FrameworkOption>,
+    default_instance_id: Option<String>,
 ) -> Result<Config, CliError> {
-    if let Some(_config_path) = config_path {
-        return Err(CliError::NotImplemented(
-            crate::error::UpcomingFeature::SetConfigPathOnInit,
-        ));
-    }
-
     if let Some(project_name) = project_name {
         config.set_project_name(project_name);
     } else {
@@ -77,8 +79,25 @@ fn initialize_config(
         config.set_framework(framework);
     }
 
+    if let Some(instance_id) = default_instance_id {
+        config.set_instance_id(instance_id)
+    } else {
+        let instance_id = get_instance_id_from_user()?;
+        config.set_instance_id(instance_id)
+    }
+
     let config = config.build();
     Ok(config)
+}
+
+fn get_instance_id_from_user() -> Result<String, CliError> {
+    let instance_id = Input::new()
+        .with_prompt("Please enter the web id for the virtual instance that you want to deploy to.")
+        .with_initial_text(Config::default().default_instance_id)
+        .interact_text()
+        .map_err(CliError::Input)?;
+
+    Ok(instance_id)
 }
 
 fn get_framework_from_user() -> Result<FrameworkOption, CliError> {
@@ -92,7 +111,7 @@ fn get_framework_from_user() -> Result<FrameworkOption, CliError> {
         .items(&options)
         .default(0)
         .interact()
-        .map_err(CliError::InputError)?;
+        .map_err(CliError::Input)?;
 
     Ok(options[user_response])
 }
@@ -121,7 +140,7 @@ fn get_deploy_path_from_user(bundle_path: Option<PathBuf>) -> Result<PathBuf, Cl
             }
         })
         .interact_text()
-        .map_err(CliError::InputError)?;
+        .map_err(CliError::Input)?;
 
     Ok(PathBuf::from(user_response))
 }
@@ -156,13 +175,13 @@ pub fn get_bundle_path_from_environment() -> Option<PathBuf> {
 
 pub fn get_project_name_from_user() -> Result<String, CliError> {
     let folder_name = match env::current_dir()
-        .map_err(|e| CliError::CurrentDirectoryError(Some(e)))?
+        .map_err(|e| CliError::CurrentDirectory(Some(e)))?
         .components()
         .last()
-        .ok_or(CliError::CurrentDirectoryError(None))?
+        .ok_or(CliError::CurrentDirectory(None))?
     {
         std::path::Component::Normal(dirname) => dirname,
-        _ => return Err(CliError::CurrentDirectoryError(None)),
+        _ => return Err(CliError::CurrentDirectory(None)),
     }
     .to_str()
     .unwrap_or_default()
@@ -181,7 +200,7 @@ pub fn get_project_name_from_user() -> Result<String, CliError> {
             }
         })
         .interact_text()
-        .map_err(CliError::InputError)?;
+        .map_err(CliError::Input)?;
 
     Ok(user_response)
 }

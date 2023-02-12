@@ -7,7 +7,7 @@ use crate::{error::CliError, structs::config::Config};
 
 pub fn handle_shared_component(name: String) -> Result<(), CliError> {
     if !is_extension_name_valid(&name) {
-        return Err(CliError::InvalidExtensionNameError);
+        return Err(CliError::InvalidExtensionName);
     }
 
     let raw = Config::try_open()?;

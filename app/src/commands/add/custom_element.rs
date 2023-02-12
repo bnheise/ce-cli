@@ -1,34 +1,34 @@
+use super::is_extension_name_valid;
 use crate::{
     assets_dir::AssetsDir,
+    cli::CustomElementArgs,
     error::CliError,
     structs::{
-        client_extension_yaml::{
-            ClientExtType, ClientExtensionYaml, CustomElementDefinition, PortletCategoryNames,
-        },
+        client_extension_yaml::{ClientExtType, ClientExtensionYaml, CustomElementDefinition},
         config::Config,
         ClientExt, ConfigFile,
     },
 };
 
-use super::is_extension_name_valid;
-
 #[allow(clippy::too_many_arguments)]
-pub fn handle_custom_element(
-    name: String,
-    html_element_name: Option<String>,
-    friendly_url_mapping: Option<String>,
-    instanceable: Option<bool>,
-    portlet_category_name: Option<PortletCategoryNames>,
-    description: Option<String>,
-    use_esm: Option<bool>,
-    source_code_url: Option<String>,
-) -> Result<(), CliError> {
+pub fn handle_custom_element(args: CustomElementArgs) -> Result<(), CliError> {
+    let CustomElementArgs {
+        name,
+        friendly_url_mapping,
+        html_element_name,
+        instanceable,
+        portlet_category_name,
+        description,
+        use_esm,
+        source_code_url,
+        ..
+    } = args;
     if !is_extension_name_valid(&name) {
-        return Err(CliError::InvalidExtensionNameError);
+        return Err(CliError::InvalidExtensionName);
     }
 
     let raw = Config::try_open()?;
-    let mut config = Config::try_parse(&raw).map_err(|_e| CliError::InvalidDirectoryError("Could not load workspace-config.json. Are you in the root directory of a ce-cli workspace project?".into()))?;
+    let mut config = Config::try_parse(&raw).map_err(|_e| CliError::InvalidDirectory("Could not load workspace-config.json. Are you in the root directory of a ce-cli workspace project?".into()))?;
     let mut definition = CustomElementDefinition::new(name);
 
     if let Some(friendly_url_mapping) = friendly_url_mapping {

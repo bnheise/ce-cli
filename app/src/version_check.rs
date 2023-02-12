@@ -32,10 +32,10 @@ fn fetch_package_metadata() -> Result<PackageMetadata, CliError> {
 
     let resp = reqwest::blocking::get(fetch_url)
         .map_err(|e| {
-            return CliError::HttpError(format!("Failed to get latest {PACKAGE_NAME} version"), e);
+            return CliError::Http(format!("Failed to get latest {PACKAGE_NAME} version"), e);
         })?
         .json::<PackageMetadata>()
-        .map_err(|e| CliError::HttpError("Failed to deserialized ce-cli npm metadata".into(), e))?;
+        .map_err(|e| CliError::Http("Failed to deserialized ce-cli npm metadata".into(), e))?;
     Ok(resp)
 }
 

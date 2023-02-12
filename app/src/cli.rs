@@ -1,19 +1,16 @@
 use crate::structs::client_extension_yaml::PortletCategoryNames;
-use clap::{Parser, Subcommand, ValueEnum};
+use clap::{Args, Parser, Subcommand, ValueEnum};
 use serde::{Deserialize, Serialize};
 use std::{fmt::Display, path::PathBuf};
 
+/// ce-cli helps you bootstrap new frontend Client Extension projects {n}
+/// for Liferay DXP and Liferay Experience Cloud (LXC). Automatically {n}
+/// generate the required configuration files with a few keystrokes.  {n}
+/// New projets come pre-configured with a variety of tools including {n}
+/// webpack, eslint, prettier, Jest, Cypress, and TypeScript so you   {n}
+/// can focus on what matters most: writing your extension.           {n}
 #[derive(Parser)]
-#[command(
-    author,
-    version,
-    about,
-    long_about = "
-ce-cli reduces the amount of technical frontend knowldge required to develop Liferay Client Extensions.
-Currently, quite a lot of technical knowledge is required to get started, and beginners are apt to put together 
-a suboptimal solution. This CLI automatically generates Client Extension projects so that frontend devs can focus
-on developing their solution without having to worry about whether or not they're getting the setup right."
-)]
+#[command(author, version, about, long_about)]
 pub struct Cli {
     #[command(subcommand)]
     pub command: Commands,
@@ -21,122 +18,111 @@ pub struct Cli {
 
 #[derive(Debug, Subcommand)]
 pub enum Commands {
-    #[command(
-        about = "Initializes a new workspace. This should be carried out inside a Liferay workspace for deployment to work"
-    )]
-    Init {
-        #[arg(
-            short,
-            long,
-            help = "The name of the project. The default value is the name of the current folder"
-        )]
-        project_name: Option<String>,
+    Init(InitArgs),
 
-        #[arg(
-            short,
-            long,
-            help = "The path to your local Liferay bundle. Currently this value does nothing."
-        )]
-        bundle_path: Option<PathBuf>,
-
-        #[arg(
-            short,
-            long,
-            value_name = "CONFIG",
-            help = "Specify a path to an existing workspace-config.json file."
-        )]
-        config_path: Option<PathBuf>,
-
-        #[arg(
-            short,
-            long,
-            value_enum,
-            help = "The framework to use. Currently only React is supported but Vue and Angular are on the roadmap."
-        )]
-        framework: Option<FrameworkOption>,
-    },
-
-    #[command(
-        about = "Add a Client Extension to the project. Currently only Custom Element apps are supported."
-    )]
     Add {
         #[command(subcommand)]
-        extension_type: ClientExtType,
+        component: AddOption,
     },
 
-    #[command(
-        about = "Deploy with urls pointing to your dev server. No need to remember to switch the port back in client-extension.yaml."
-    )]
+    /// Deploy with urls pointing to your dev server. No need to remember to  {n}
+    /// switch the port back in client-extension.yaml.
+    #[command()]
     DevDeploy,
 }
 
+/// Initializes a new workspace. This should be carried out inside a  {n}
+/// Liferay workspace for deployment to work.
+#[derive(Debug, Args)]
+pub struct InitArgs {
+    /// Initializes a new workspace. This should be carried out inside a  {n}
+    /// The name of the project. The default value is the name of the     {n}
+    /// current folder
+    #[arg(short, long)]
+    pub project_name: Option<String>,
+
+    /// The path to the client extension deploy folder in your local      {n}
+    /// Liferay bundle. ce-cli uses this to point Liferay to your dev     {n}
+    /// server.
+    #[arg(short, long)]
+    pub bundle_path: Option<PathBuf>,
+
+    /// The framework to use. Currently only React is supported  but Vue  {n}
+    /// and Angular are on the roadmap.
+    #[arg(short, long, value_enum)]
+    pub framework: Option<FrameworkOption>,
+
+    /// The instance id that your apps will deploy to by default. Using   {n}
+    /// the default value will deploy to your root instance.              {n}
+    #[arg(short, long, value_enum)]
+    pub default_instance_id: Option<String>,
+}
+
+/// Add a new component to your workspace. Components are items that will {n}
+/// be deployed to your Liferay instance.
 #[derive(Debug, Subcommand)]
-pub enum ClientExtType {
-    #[command(
-        about = "Add a Custom Element Client Extension to the project. Other types will be added in the future."
-    )]
-    CustomElement {
-        #[arg(
-            help = "The human readable name of your app. This is what users will see in the Page Editor"
-        )]
-        name: String,
-        #[arg(
-            short = 'n',
-            long,
-            help = "The name of the custom html element that will host your app. If not present,
-it will be generated from the 'name' parameter"
-        )]
-        html_element_name: Option<String>,
-        #[arg(
-            short,
-            long,
-            help = "Liferay uses this for directing route params to your app. Prefer to avoid
-using this and instead use query params. If not present, it will be generated from the 'name' parameter"
-        )]
-        friendly_url_mapping: Option<String>,
-        #[arg(
-            short,
-            long,
-            help = "Indicated whether or not your app can be used multiple times on the same page.
-Defaults to false."
-        )]
-        instanceable: Option<bool>,
-        #[arg(
-            short,
-            long,
-            help = "Indicates under what menu in the page edtior your app will be found. Currently
-only Remote Apps is supported."
-        )]
-        portlet_category_name: Option<PortletCategoryNames>,
-        #[arg(
-            short,
-            long,
-            help = "Human readable description of your app. Will be displayed in the admin panel for reference."
-        )]
-        description: Option<String>,
-        #[arg(
-            short,
-            long,
-            help = "Determines whether ECMAScript modules will be used or not. Defaults to true."
-        )]
-        use_esm: Option<bool>,
-        #[arg(
-            short,
-            long,
-            help = "A link to the repository where the sourcecode resides. This is purely for documentation purposes."
-        )]
-        source_code_url: Option<String>,
-    },
-    #[command(
-        about = r#"A shared component is a component that will be shared between two or more of your Custom Element extensions
-It will be bundled separately, so only use this for non-trivial components."#
-    )]
+pub enum AddOption {
+    /// Add a Custom Element Client Extension to the project.
+    #[command()]
+    CustomElement(CustomElementArgs),
+
+    /// A shared component is a component that will be shared between two {n}
+    /// or more of your Custom Element extensions. You can configure it to{n}
+    /// be bundled within your extension or separately.
+    #[command()]
     SharedComponent {
-        #[arg(
-            help = "The human readable name of your app. This is what users will see in the Page Editor"
-        )]
+        /// The human readable name of your app. This is what users will see  {n}
+        /// in the Page Editor.
+        #[arg()]
         name: String,
     },
+}
+
+#[derive(Debug, Args)]
+pub struct CustomElementArgs {
+    /// The human readable name of your app. This is what users will see  {n}
+    /// in the Page Editor. If you don't specificy html-element-name and  {n}
+    /// friendly-url-mapping, they will be genrated from what you enter   {n}
+    /// here.
+    #[arg()]
+    pub name: String,
+
+    /// The name of the custom html element that will host your app. If   {n}
+    /// not present it will be generated from the 'name' parameter"
+    #[arg(short = 'n', long)]
+    pub html_element_name: Option<String>,
+
+    /// Liferay uses this for directing route params to your app. Prefer  {n}
+    /// to avoid using this and instead use query params. If not present, {n}
+    /// it will be generated from the 'name' parameter"
+    #[arg(short, long)]
+    pub friendly_url_mapping: Option<String>,
+
+    /// Indicated whether or not your app can be used multiple times on   {n}
+    /// the same page. Defaults to false.
+    #[arg(short, long)]
+    pub instanceable: Option<bool>,
+
+    /// Indicates under what menu in the page edtior your app will be     {n}
+    /// found. Currently only Remote Apps is supported.
+    #[arg(short, long)]
+    pub portlet_category_name: Option<PortletCategoryNames>,
+
+    /// Human readable description of your app. Will be displayed in the  {n}
+    /// admin panel for reference.
+    #[arg(short, long)]
+    pub description: Option<String>,
+
+    /// Determines whether ECMAScript modules will be used or not. This   {n}
+    /// workspace's bundling strategy relies on ECMAScript modules, so    {n}
+    /// setting this to false will break your build.
+    #[arg(short, long)]
+    pub use_esm: Option<bool>,
+
+    /// A link to the repository where the sourcecode resides. This is    {n}
+    /// only for documentation purposes.
+    #[arg(short, long)]
+    pub source_code_url: Option<String>,
 }
 
 #[derive(Debug, Clone, ValueEnum, Serialize, Deserialize, Copy, Default)]

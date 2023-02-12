@@ -5,7 +5,7 @@ use crate::cli::FrameworkOption;
 
 use super::{ConfigFile, ConfigFormat};
 
-#[derive(Debug, Serialize, Deserialize, Default)]
+#[derive(Debug, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct Config {
     pub project_name: String,
@@ -15,6 +15,22 @@ pub struct Config {
     pub framework: FrameworkOption,
     pub externals: HashMap<String, String>,
     pub alias: HashMap<String, Vec<PathBuf>>,
+    pub default_instance_id: String,
+}
+
+impl Default for Config {
+    fn default() -> Self {
+        Self {
+            project_name: Default::default(),
+            deploy_path: Default::default(),
+            entrypoints: Default::default(),
+            dev_server_port: 3000,
+            framework: Default::default(),
+            externals: Default::default(),
+            alias: Default::default(),
+            default_instance_id: String::from("default"),
+        }
+    }
 }
 
 impl<'a> ConfigFile<'a> for Config {
@@ -27,6 +43,7 @@ pub struct ConfigBuilder {
     project_name: Option<String>,
     deploy_path: Option<PathBuf>,
     framework: Option<FrameworkOption>,
+    instance_id: Option<String>,
 }
 
 impl ConfigBuilder {
@@ -44,6 +61,10 @@ impl ConfigBuilder {
 
     pub fn set_framework(&mut self, framework: FrameworkOption) {
         self.framework = Some(framework);
+    }
+
+    pub fn set_instance_id(&mut self, instance_id: String) {
+        self.instance_id = Some(instance_id)
     }
 
     pub fn build(self) -> Config {

@@ -8,7 +8,7 @@ set up local development projects for Liferay Client extensions.
 - Automatically initialize a Client Extension workspace
 - eslint and prettier configs OOTB for consistent code style
 - TypeScript configured OOTB
-- Production build strips out packages that Liferay makes available
+- Production build strips out packages available on the Liferay, reducing your bundle sizes!
 - Dev build leaves packages in so the dev server doesn't break
 - Integration with Liferay Workspace and Blade CLI -- use `blade gw deploy` to deploy your apps
 - Scaffold new Client Extensions automatically

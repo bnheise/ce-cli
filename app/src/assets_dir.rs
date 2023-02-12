@@ -50,7 +50,7 @@ impl AssetsDir {
             }
 
             fs::write(ext_path.join(name), content)
-                .map_err(|e| CliError::WriteError(name.to_owned(), e))?;
+                .map_err(|e| CliError::Write(name.to_owned(), e))?;
         }
 
         Ok(())
@@ -67,7 +67,7 @@ impl AssetsDir {
     fn generate_static_recurse(dir: &Dir) -> Result<(), CliError> {
         let path = dir.path().components().skip(1).collect::<PathBuf>();
         fs::create_dir_all(&path)
-            .map_err(|e| CliError::WriteError(path.to_str().unwrap_or_default().to_owned(), e))?;
+            .map_err(|e| CliError::Write(path.to_str().unwrap_or_default().to_owned(), e))?;
         for entry in dir.entries() {
             match entry {
                 include_dir::DirEntry::Dir(dir) => {
@@ -76,7 +76,7 @@ impl AssetsDir {
                 include_dir::DirEntry::File(file) => {
                     let path = file.path().components().skip(1).collect::<PathBuf>();
                     fs::write(&path, file.contents()).map_err(|e| {
-                        CliError::WriteError(path.to_str().unwrap_or_default().to_owned(), e)
+                        CliError::Write(path.to_str().unwrap_or_default().to_owned(), e)
                     })?;
                 }
             }
@@ -131,7 +131,7 @@ impl AssetsDir {
                 );
 
                 fs::write(Path::new("./").join(cypres_config_filename), cypress_config)
-                    .map_err(|e| CliError::WriteError(cypres_config_filename.to_owned(), e))?;
+                    .map_err(|e| CliError::Write(cypres_config_filename.to_owned(), e))?;
             }
             FrameworkOption::Angular => unimplemented!(),
             FrameworkOption::Vue => unimplemented!(),

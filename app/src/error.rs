@@ -4,70 +4,63 @@ use zip::result::ZipError;
 
 #[derive(Debug)]
 pub enum CliError {
-    NotImplemented(UpcomingFeature),
-    CurrentDirectoryError(Option<std::io::Error>),
-    WriteError(String, std::io::Error),
-    ParseJsonError(&'static str, serde_json::Error),
-    SerializeJsonError(&'static str, serde_json::Error),
-    NotADirectoryError(String),
-    ZipError(ZipError),
-    OpenFileError(String, std::io::Error),
-    ReadFileError(String, std::io::Error),
-    InputError(std::io::Error),
-    SerializeYamlError(String, serde_yaml::Error),
-    ParseYamlError(&'static str, serde_yaml::Error),
-    HttpError(String, reqwest::Error),
-    InitError(String),
-    InvalidDirectoryError(String),
-    InvalidExtensionNameError,
-    ExtensionExistsError
+    CurrentDirectory(Option<std::io::Error>),
+    Write(String, std::io::Error),
+    ParseJson(&'static str, serde_json::Error),
+    SerializeJson(&'static str, serde_json::Error),
+    NotADirectory(String),
+    Zip(ZipError),
+    OpenFile(String, std::io::Error),
+    ReadFile(String, std::io::Error),
+    Input(std::io::Error),
+    SerializeYaml(String, serde_yaml::Error),
+    ParseYaml(&'static str, serde_yaml::Error),
+    Http(String, reqwest::Error),
+    Init(String),
+    InvalidDirectory(String),
+    InvalidExtensionName,
+    ExtensionExists
 }
 
 impl Display for CliError {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         match self {
-            CliError::NotImplemented(feature_name) => {
-                write!(
-                    f,
-                    "The feature you attemped to use ({feature_name}) is still under development."
-                )
-            }
-            CliError::CurrentDirectoryError(..) => {
+            CliError::CurrentDirectory(..) => {
                 write!(
                     f,
                     "An error occurred when attempting to read the current directory"
                 )
             }
-            CliError::WriteError(name, ..) => {
+            CliError::Write(name, ..) => {
                 write!(f, "Failed to write a file or directory: {name}")
             }
-            CliError::ParseJsonError(filename, ..) => write!(f, "Failed to parse json: {filename}"),
-            CliError::SerializeJsonError(filename, ..) => {
+            CliError::ParseJson(filename, ..) => write!(f, "Failed to parse json: {filename}"),
+            CliError::SerializeJson(filename, ..) => {
                 write!(f, "Failed to serialize json: {filename}")
             }
-            CliError::NotADirectoryError(path) => {
+            CliError::NotADirectory(path) => {
                 write!(f, "Expected at path {path} but found a file instead")
             }
-            CliError::ZipError(..) => write!(f, "Failed to write zip file"),
-            CliError::OpenFileError(filename, ..) => write!(f, "Failed to open file {filename}"),
-            CliError::ReadFileError(filename, ..) => {
+            CliError::Zip(..) => write!(f, "Failed to write zip file"),
+            CliError::OpenFile(filename, ..) => write!(f, "Failed to open file {filename}"),
+            CliError::ReadFile(filename, ..) => {
                 write!(f, "Failed to read content of file {filename}")
             }
-            CliError::InputError(..) => write!(f, "To retrieve input"),
-            CliError::SerializeYamlError(filename, ..) => {
+            CliError::Input(..) => write!(f, "To retrieve input"),
+            CliError::SerializeYaml(filename, ..) => {
                 write!(f, "Failed to serialize yaml: {filename}")
             }
-            CliError::ParseYamlError(filename, ..) => write!(f, "Failed to parse yaml: {filename}"),
-            CliError::HttpError(message, _) => {
+            CliError::ParseYaml(filename, ..) => write!(f, "Failed to parse yaml: {filename}"),
+            CliError::Http(message, _) => {
                 write!(f, "{message}")
             }
-            CliError::InitError(message) => write!(f, "Error initializing project: {message}"),
+            CliError::Init(message) => write!(f, "Error initializing project: {message}"),
             
-            CliError::InvalidDirectoryError(message) => {
+            CliError::InvalidDirectory(message) => {
                 write!(f, "Action performed in invalid directory: {message}")
             }
-            CliError::InvalidExtensionNameError =>  write!(f, "The extension name you entered is invalid. The name must start with an alphabet character and may not contain special symbols other than -"),
-            CliError::ExtensionExistsError => write!(f, "The extension you are trying to create already exists!"),
+            CliError::InvalidExtensionName =>  write!(f, "The extension name you entered is invalid. The name must start with an alphabet character and may not contain special symbols other than -"),
+            CliError::ExtensionExists => write!(f, "The extension you are trying to create already exists!"),
         }
     }
 }
@@ -75,26 +68,25 @@ impl Display for CliError {
 impl Error for CliError {
     fn source(&self) -> Option<&(dyn error::Error + 'static)> {
         match self {
-            CliError::NotImplemented(_) => None,
-            CliError::CurrentDirectoryError(ref e) => match e {
+            CliError::CurrentDirectory(ref e) => match e {
                 Some(e) => Some(e),
                 None => None,
             },
-            CliError::WriteError(.., e) => Some(e),
-            CliError::ParseJsonError(.., e) => Some(e),
-            CliError::SerializeJsonError(.., e) => Some(e),
-            CliError::NotADirectoryError(..) => None,
-            CliError::ZipError(e) => Some(e),
-            CliError::OpenFileError(.., e) => Some(e),
-            CliError::ReadFileError(.., e) => Some(e),
-            CliError::InputError(e) => Some(e),
-            CliError::SerializeYamlError(_, e) => Some(e),
-            CliError::ParseYamlError(.., e) => Some(e),
-            CliError::HttpError(.., e) => Some(e),
-            CliError::InitError(_) => None,
-            CliError::InvalidDirectoryError(_) => None,
-            CliError::InvalidExtensionNameError => None,
-            CliError::ExtensionExistsError => None,
+            CliError::Write(.., e) => Some(e),
+            CliError::ParseJson(.., e) => Some(e),
+            CliError::SerializeJson(.., e) => Some(e),
+            CliError::NotADirectory(..) => None,
+            CliError::Zip(e) => Some(e),
+            CliError::OpenFile(.., e) => Some(e),
+            CliError::ReadFile(.., e) => Some(e),
+            CliError::Input(e) => Some(e),
+            CliError::SerializeYaml(_, e) => Some(e),
+            CliError::ParseYaml(.., e) => Some(e),
+            CliError::Http(.., e) => Some(e),
+            CliError::Init(_) => None,
+            CliError::InvalidDirectory(_) => None,
+            CliError::InvalidExtensionName => None,
+            CliError::ExtensionExists => None,
         }
     }
 }
