@@ -14,7 +14,10 @@ set up local development projects for Liferay Client extensions.
 - Dev build leaves packages in so the dev server doesn't break
 - Integration with Liferay Workspace and Blade CLI -- use `blade gw deploy` to deploy your apps
 - Scaffold new Client Extensions automatically
-- Create shared components and easily choose whether to bundle them within the client extension or as a separated JavaScript file
+- Create shared components and easily choose whether to bundle them within the client extension or as a separated
+  JavaScript file
+- Bundle dependencies shared by multiple components into a single shared dependency to reduce bundle size
+  by removing duplicated code
 
 ## Installation
 
@@ -95,6 +98,44 @@ Custom Element. If, however, you use simply the name of the folder that the elem
 which should look something like 'my-element-name', Webpack will know to bundle it separately and convert your
 import to load it externally.
 
+### Adding a Shared Dependency
+
+A shared dependency is a dependency shared by multiple custom element client extensions, but bundled separately.
+This reduces the overall bundle size of each component as it removes the duplicated code from each respective
+bundle and instead hosts it separately on Liferay. Like shared components, this can reduce performance on a page
+the first time a user visits it since an additional JS file must be loaded, but once the browser caches that file
+subsequent loads can see improved performance since the file won't need to be loaded for other components that
+aren't in the browser cache yet.
+
+To make a shared dependency, run the following command:
+
+```bash
+ce-cli add shared-dependency "{npm-package-name}"
+```
+
+Note that you can optionally provide a version for the package as you would when running npm install:
+
+```bash
+ce-cli add shared-dependency "lodash-es@~4.17.21"
+```
+
+#### Caveats
+
+##### ES Modules Required
+
+Packages must be bundles using ECMAScript modules to function properly as a shared dependency
+
+##### Packages with Peer Deps Not Supported
+
+Packages with peer dependencies can't be used this way because the peer deps will end up bundled separately,
+which will cause the build to break.
+
+There is a workaround for this but in involves making a new entrypoint into the app where you import and rexport
+both dependencies. There are some additional steps that need to be made in the webpack config for this to
+work. Documentation is pending.
+
+TODO: document shared dependencies with peer dependencies
+
 ## Roadmap
 
 - Add additional templates for other kinds of remote apps
@@ -106,7 +147,6 @@ import to load it externally.
 - Add Object definition deployment configuration
 - Add Vue configuration
 - Add Angular configuration
-- Add shared dependency configuration (make a dependency in package.json deployed as it's own bundle rather than bundling everywhere its used)
 - Deploy to virtual instances
 
 ## Known Issues
