@@ -1,4 +1,7 @@
-use self::{custom_element::handle_custom_element, shared_component::handle_shared_component};
+use self::{
+    custom_element::handle_custom_element, shared_component::handle_shared_component,
+    shared_dependency::handle_shared_dependency,
+};
 use super::dev_deploy::handle_dev_deploy;
 use crate::{cli::AddOption, error::CliError};
 use lazy_static::lazy_static;
@@ -12,6 +15,7 @@ pub fn handle_add(extension_type: AddOption) -> Result<(), CliError> {
     match extension_type {
         AddOption::CustomElement(args) => handle_custom_element(args)?,
         AddOption::SharedComponent { name } => handle_shared_component(name)?,
+        AddOption::SharedDependency { package } => handle_shared_dependency(package)?,
     }
     handle_dev_deploy()?;
     Ok(())

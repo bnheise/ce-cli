@@ -19,7 +19,8 @@ pub enum CliError {
     Init(String),
     InvalidDirectory(String),
     InvalidExtensionName,
-    ExtensionExists
+    ExtensionExists,
+    ParsePackageName(String)
 }
 
 impl Display for CliError {
@@ -61,6 +62,7 @@ impl Display for CliError {
             }
             CliError::InvalidExtensionName =>  write!(f, "The extension name you entered is invalid. The name must start with an alphabet character and may not contain special symbols other than -"),
             CliError::ExtensionExists => write!(f, "The extension you are trying to create already exists!"),
+            CliError::ParsePackageName(package_name) => write!(f, "Faile to parse npm package name: {}", package_name),
         }
     }
 }
@@ -87,6 +89,7 @@ impl Error for CliError {
             CliError::InvalidDirectory(_) => None,
             CliError::InvalidExtensionName => None,
             CliError::ExtensionExists => None,
+            CliError::ParsePackageName(_) => None,
         }
     }
 }

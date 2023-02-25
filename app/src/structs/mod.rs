@@ -219,3 +219,23 @@ impl TemplateContext {
         format!("{} {} {}", Self::OPENING_DELIM, key, Self::CLOSING_DELIM)
     }
 }
+
+pub trait External {
+    fn get_filename(&self) -> String;
+    fn get_extension(&self) -> String {
+        "js".into()
+    }
+
+    fn add_to_externals(&self, config: &mut Config) {
+        config
+            .externals
+            .insert(self.get_filename().to_owned(), self.get_server_path(config));
+    }
+
+    fn get_server_path(&self, config: &Config) -> String {
+        let filename = [self.get_filename(), self.get_extension()].join(".");
+        let parts = ["/o", &config.project_name, &filename];
+
+        parts.join("/")
+    }
+}

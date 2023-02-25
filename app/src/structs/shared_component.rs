@@ -1,4 +1,6 @@
-use super::{config::Config, typescript_config_json::TSConfigJson, ClientExt, TemplateContext};
+use super::{
+    config::Config, typescript_config_json::TSConfigJson, ClientExt, External, TemplateContext,
+};
 use serde::Serialize;
 
 #[derive(Debug, Serialize)]
@@ -47,5 +49,11 @@ impl ClientExt for SharedComponentDefinition {
 
     fn get_type_name(&self) -> &'static str {
         "shared_component"
+    }
+}
+
+impl External for SharedComponentDefinition {
+    fn get_filename(&self) -> String {
+        self.get_id()
     }
 }

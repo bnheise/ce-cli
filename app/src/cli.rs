@@ -76,6 +76,19 @@ pub enum AddOption {
         #[arg()]
         name: String,
     },
+
+    /// A shared dependency is an npm package that two or more of your    {n}
+    /// custom element remote apps share. Using this option allos you to  {n}
+    /// bundle this dependency separately so that the code is not         {n}
+    /// duplicated in each bundle. This is best to use if the dependency  {n}
+    /// is large.
+    #[command()]
+    SharedDependency {
+        /// The name of the package you wish to bundle separately. It should  {n}
+        /// the same as you would type when running `npm install`
+        #[arg()]
+        package: String,
+    },
 }
 
 #[derive(Debug, Args)]

@@ -5,3 +5,6 @@ assemble:
   - from: dist
     include: '*.js'
     into: static/
+  - from: sharedDeps
+    include: '*.js'
+    into: static/

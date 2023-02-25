@@ -57,24 +57,42 @@ impl AssetsDir {
     }
 
     pub fn generate_static_files() -> Result<(), CliError> {
+        Self::generate_static_from_folder("common")
+    }
+
+    pub fn generate_static_from_folder<S>(folder_name: S) -> Result<(), CliError>
+    where
+        S: AsRef<Path>,
+    {
+        let skip_count = folder_name.as_ref().components().count();
+
         let dir = Self::ASSETS
-            .get_dir("common")
-            .expect("Failed to find common directory");
-        Self::generate_static_recurse(dir)?;
+            .get_dir(folder_name)
+            .expect("Failed to find directory");
+        Self::generate_static_recurse(dir, skip_count)?;
         Ok(())
     }
 
-    fn generate_static_recurse(dir: &Dir) -> Result<(), CliError> {
-        let path = dir.path().components().skip(1).collect::<PathBuf>();
+    fn generate_static_recurse(dir: &Dir, skip_count: usize) -> Result<(), CliError> {
+        let path = dir
+            .path()
+            .components()
+            .skip(skip_count)
+            .collect::<PathBuf>();
+
         fs::create_dir_all(&path)
             .map_err(|e| CliError::Write(path.to_str().unwrap_or_default().to_owned(), e))?;
         for entry in dir.entries() {
             match entry {
                 include_dir::DirEntry::Dir(dir) => {
-                    Self::generate_static_recurse(dir)?;
+                    Self::generate_static_recurse(dir, skip_count)?;
                 }
                 include_dir::DirEntry::File(file) => {
-                    let path = file.path().components().skip(1).collect::<PathBuf>();
+                    let path = file
+                        .path()
+                        .components()
+                        .skip(skip_count)
+                        .collect::<PathBuf>();
                     fs::write(&path, file.contents()).map_err(|e| {
                         CliError::Write(path.to_str().unwrap_or_default().to_owned(), e)
                     })?;

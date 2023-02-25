@@ -16,6 +16,7 @@ pub struct Config {
     pub externals: HashMap<String, String>,
     pub alias: HashMap<String, Vec<PathBuf>>,
     pub default_instance_id: String,
+    pub shared_dependencies: HashMap<String, String>,
 }
 
 impl Default for Config {
@@ -29,6 +30,7 @@ impl Default for Config {
             externals: Default::default(),
             alias: Default::default(),
             default_instance_id: String::from("default"),
+            shared_dependencies: Default::default(),
         }
     }
 }

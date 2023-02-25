@@ -80,4 +80,4 @@ const clayExternals = clayModules.reduce(
 	{}
 );
 
-export const liferayExteranls = { ...reactExternals, ...clayExternals };
+export const liferayExternals = { ...reactExternals, ...clayExternals };

@@ -1,7 +1,7 @@
 import { merge } from 'webpack-merge';
 import common from './webpack.common.js';
 import MiniCssExtractPlugin from 'mini-css-extract-plugin';
-import { liferayExteranls } from './util/liferayExternals.js';
+import { liferayExternals } from './util/liferayExternals.js';
 import { createRequire } from 'module';
 
 const require = createRequire(import.meta.url);
@@ -12,7 +12,7 @@ export default env =>
 		mode: 'production',
 		plugins: [new MiniCssExtractPlugin()],
 		externals: {
-			...liferayExteranls,
+			...liferayExternals,
 			...workspaceConfig.externals,
 		},
 		module: {
