@@ -1,25 +1,19 @@
 import ESLintWebpackPlugin from 'eslint-webpack-plugin';
 import path, { dirname } from 'path';
 import { fileURLToPath } from 'url';
-import { createRequire } from 'module';
+import { resolveAliases } from './util/util.js';
+import workspaceConfig from './util/workspaceConfig.js';
+import frameworkSettings from './util/frameworkSettings.js';
 
-const require = createRequire(import.meta.url);
-const workspaceConfig = require('./workspace-config.json');
 const __dirname = dirname(fileURLToPath(import.meta.url));
-
-const aliasResolved = Object.entries(workspaceConfig.alias)
-	.map(([key, pathArray]) => [
-		key,
-		pathArray.map(filepath => path.resolve(__dirname, filepath)),
-	])
-	.reduce((obj, [key, pathArray]) => {
-		obj[key] = pathArray;
-		return obj;
-	}, {});
+const aliasResolved = resolveAliases(workspaceConfig);
 
 export default {
 	entry: workspaceConfig.entrypoints,
-	plugins: [new ESLintWebpackPlugin()],
+	plugins: [
+		new ESLintWebpackPlugin(),
+		...frameworkSettings.common.webpackPlugins,
+	],
 	module: {
 		rules: [
 			{
@@ -29,6 +23,7 @@ export default {
 					loader: 'babel-loader',
 				},
 			},
+			...frameworkSettings.common.webpackRules,
 		],
 	},
 	resolve: {

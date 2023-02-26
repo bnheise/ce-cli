@@ -1,5 +1,6 @@
 use super::{
     cet_configuration::{CetConfigId, DEFAULT_VIRTUAL_INSTANCE_ID},
+    config::Config,
     ClientExt, ConfigFile, ConfigFormat, TemplateContext,
 };
 use clap::ValueEnum;
@@ -58,6 +59,13 @@ impl ClientExtensionYaml {
 impl<'a> ConfigFile<'a> for ClientExtensionYaml {
     const FILENAME: &'static str = "client-extension.yaml";
     const FORMAT: ConfigFormat = ConfigFormat::Yaml;
+
+    fn add_project_settings<'b: 'a>(
+        &mut self,
+        _config: &'b Config,
+    ) -> Result<(), crate::error::CliError> {
+        Ok(())
+    }
 }
 
 #[derive(Debug, Serialize, Deserialize)]

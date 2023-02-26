@@ -2,7 +2,7 @@ use crate::cli::FrameworkOption;
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 
-use super::{ConfigFile, ConfigFormat, FrameworkConfigurable};
+use super::{config::Config, ConfigFile, ConfigFormat, FrameworkConfigurable};
 
 #[derive(Debug, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
@@ -31,6 +31,13 @@ impl<'a> EslintRc<'a> {
 impl<'a> ConfigFile<'a> for EslintRc<'a> {
     const FILENAME: &'static str = ".eslintrc.yml";
     const FORMAT: super::ConfigFormat = ConfigFormat::Yaml;
+
+    fn add_project_settings<'b: 'a>(
+        &mut self,
+        _config: &'b Config,
+    ) -> Result<(), crate::error::CliError> {
+        Ok(())
+    }
 }
 
 impl<'a> FrameworkConfigurable for EslintRc<'a> {

@@ -75,6 +75,8 @@ pub trait ConfigFile<'a>: Serialize + Deserialize<'a> {
         fs::write(path, raw).map_err(|e| CliError::Write(Self::FILENAME.to_owned(), e))?;
         Ok(())
     }
+
+    fn add_project_settings<'b: 'a>(&mut self, config: &'b Config) -> Result<(), CliError>;
 }
 
 pub trait FrameworkConfigurable {
@@ -219,9 +221,6 @@ impl TemplateContext {
     const CLOSING_DELIM: &'static str = "}}";
     const EXT_NAME: &'static str = "ext-name";
     const ELEMENT_NAME: &'static str = "element-name";
-    pub const FRAMEWORK: &'static str = "framework";
-    pub const FRAMEWORK_IMPORTS: &'static str = "framework-imports";
-    pub const FRAMEWORK_RULES: &'static str = "framework-rules";
 
     pub fn format_key<S: Into<String> + Display>(key: &S) -> String {
         format!("{} {} {}", Self::OPENING_DELIM, key, Self::CLOSING_DELIM)

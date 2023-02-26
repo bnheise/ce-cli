@@ -18,6 +18,7 @@ set up local development projects for Liferay Client extensions.
   JavaScript file
 - Bundle dependencies shared by multiple components into a single shared dependency to reduce bundle size
   by removing duplicated code
+- Supports projects build with React and with Vue
 
 ## Installation
 
@@ -151,4 +152,11 @@ TODO: document shared dependencies with peer dependencies
 
 ## Known Issues
 
-Currently, none!
+### Vue Build Fails with Yarn
+
+A bug in Yarn causes Vue builds to fail for an unknown reason. Since Liferay workspace uses Yarn by default,
+you'll have to update your `gradle.properties` files with the following in order to use npm:
+
+```
+liferay.workspace.node.package.manager=npm
+```

@@ -1,4 +1,4 @@
-use super::{ConfigFile, ConfigFormat};
+use super::{config::Config, ConfigFile, ConfigFormat};
 use serde::{Deserialize, Serialize};
 use std::{collections::HashMap, path::PathBuf};
 
@@ -24,6 +24,13 @@ impl<'a> ConfigFile<'a> for TSConfigJson {
     const FILENAME: &'static str = "tsconfig.json";
 
     const FORMAT: ConfigFormat = ConfigFormat::Json;
+
+    fn add_project_settings<'b: 'a>(
+        &mut self,
+        _config: &'b Config,
+    ) -> Result<(), crate::error::CliError> {
+        Ok(())
+    }
 }
 
 #[derive(Debug, Serialize, Deserialize)]

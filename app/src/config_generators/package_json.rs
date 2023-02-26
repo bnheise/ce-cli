@@ -1,4 +1,4 @@
-use super::{ConfigFile, ConfigFormat, FrameworkConfigurable};
+use super::{config::Config, ConfigFile, ConfigFormat, FrameworkConfigurable};
 use crate::cli::FrameworkOption;
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
@@ -23,7 +23,7 @@ impl<'a> PackageJson<'a> {
         ("react-dom", "^16.12.0"),
     ];
 
-    const VUE_DEV_DEPENDENCIES: [(&str, &str); 9] = [
+    const VUE_DEV_DEPENDENCIES: [(&str, &str); 11] = [
         ("vue-loader", "^17.0.1"),
         ("vue-template-compiler", "^2.7.14"),
         ("vue", "^3.2.47"),
@@ -33,6 +33,8 @@ impl<'a> PackageJson<'a> {
         ("@vue/test-utils", "^2.3.0"),
         ("eslint-plugin-vue", "^9.9.0"),
         ("vue-tsc", "^1.1.5"),
+        ("@vue/compiler-dom", "^3.2.47"),
+        ("@vue/server-renderer", "^3.2.47"),
     ];
 
     const SHARED_DEP_BUILD_CMD: &'static str = "webpack --config ./webpack.sharedDeps.js";
@@ -69,4 +71,13 @@ impl<'a> FrameworkConfigurable for PackageJson<'a> {
 impl<'a> ConfigFile<'a> for PackageJson<'a> {
     const FILENAME: &'static str = "package.json";
     const FORMAT: ConfigFormat = ConfigFormat::Json;
+
+    fn add_project_settings<'b: 'a>(
+        &mut self,
+        config: &'b Config,
+    ) -> Result<(), crate::error::CliError> {
+        self.name = &config.project_name;
+
+        Ok(())
+    }
 }

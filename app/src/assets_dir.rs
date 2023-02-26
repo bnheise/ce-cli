@@ -8,8 +8,6 @@ use crate::config_generators::TemplateContext;
 use crate::error::CliError;
 use include_dir::include_dir;
 use include_dir::Dir;
-use std::collections::HashMap;
-use std::fmt::Display;
 use std::fs;
 use std::path::Path;
 use std::path::PathBuf;
@@ -19,8 +17,6 @@ pub struct AssetsDir;
 impl AssetsDir {
     const ASSETS: Dir<'_> = include_dir!("$CARGO_MANIFEST_DIR/assets");
     const BASE: &'static str = "base";
-    const CYPRESS_CONFIG_FILENAME: &'static str = "cypress.config.js";
-    const WEBPACK_COMMON_FILENAME: &'static str = "webpack.common.js";
 
     pub fn initialize_templates<T: ClientExt>(
         config: &Config,
@@ -115,35 +111,7 @@ impl AssetsDir {
         Self::handle_config::<EslintRc>(base_dir, config)?;
         Self::handle_config::<PackageJson>(base_dir, config)?;
 
-        let mut cypress_context = HashMap::new();
-        cypress_context.insert(TemplateContext::FRAMEWORK, config.framework.into());
-        Self::handle_template(base_dir, Self::CYPRESS_CONFIG_FILENAME, cypress_context)?;
-
-        let mut webpack_common_ctx: HashMap<&str, &str> = HashMap::new();
-        let framework_imports = match config.framework {
-            crate::cli::FrameworkOption::React => "",
-            crate::cli::FrameworkOption::Angular => "",
-            crate::cli::FrameworkOption::Vue => "import { VueLoaderPlugin } from 'vue-loader';",
-        };
-        webpack_common_ctx.insert(TemplateContext::FRAMEWORK_IMPORTS, framework_imports);
-        let framework_rules = match config.framework {
-            crate::cli::FrameworkOption::React => "",
-            crate::cli::FrameworkOption::Angular => "",
-            crate::cli::FrameworkOption::Vue => {
-                r#"{
-        test: /\.vue$/,
-          loader: "vue-loader",
-          options: {
-          compilerOptions: {
-            isCustomElement: (tag) => tag.includes("-"),
-          },
-        },
-      },"#
-            }
-        };
-        webpack_common_ctx.insert(TemplateContext::FRAMEWORK_RULES, framework_rules);
-
-        Self::handle_template(base_dir, Self::WEBPACK_COMMON_FILENAME, webpack_common_ctx)?;
+        Self::generate_static_from_folder(Path::new(config.framework.into()))?;
 
         Ok(())
     }
@@ -162,29 +130,6 @@ impl AssetsDir {
         parsed.set_framework_settings(config.framework);
         let raw = T::try_serialize(parsed)?;
         T::write(raw)?;
-        Ok(())
-    }
-
-    fn handle_template<S: Into<String> + Display + AsRef<str>>(
-        base_dir: &Dir,
-        filename: &str,
-        context: HashMap<S, S>,
-    ) -> Result<(), CliError> {
-        let mut template_file = base_dir
-            .get_file(PathBuf::from(Self::BASE).join(filename))
-            .unwrap_or_else(|| panic!("Didn't find ${filename}",))
-            .contents_utf8()
-            .unwrap_or_else(|| panic!("Couldn't read {filename} as utf-8",))
-            .to_owned();
-
-        for (key, value) in context.iter() {
-            template_file =
-                template_file.replace(&TemplateContext::format_key(key), value.as_ref());
-        }
-
-        fs::write(Path::new("./").join(filename), template_file)
-            .map_err(|e| CliError::Write(filename.to_owned(), e))?;
-
         Ok(())
     }
 }

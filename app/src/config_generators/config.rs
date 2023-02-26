@@ -38,6 +38,13 @@ impl Default for Config {
 impl<'a> ConfigFile<'a> for Config {
     const FILENAME: &'static str = "workspace-config.json";
     const FORMAT: super::ConfigFormat = ConfigFormat::Json;
+
+    fn add_project_settings<'b: 'a>(
+        &mut self,
+        _config: &'b Config,
+    ) -> Result<(), crate::error::CliError> {
+        Ok(())
+    }
 }
 
 #[derive(Debug, Default)]

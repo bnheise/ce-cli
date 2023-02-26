@@ -1,11 +1,9 @@
 import { merge } from 'webpack-merge';
-import path from 'path';
 import common from './webpack.common.js';
 import Dotenv from 'dotenv-webpack';
-import fs from 'fs';
+import workspaceConfig from './util/workspaceConfig.js';
+import frameworkSettings from './util/frameworkSettings.js';
 
-const rawConfig = fs.readFileSync(path.join('./', 'workspace-config.json'));
-const workspaceConfig = JSON.parse(rawConfig);
 const port = workspaceConfig.devServerPort;
 
 export default merge(common, {
@@ -29,31 +27,31 @@ export default merge(common, {
 			'src/**/*.css',
 			'src/**/*.js',
 			'src/**/*.jsx',
+			...frameworkSettings.dev.devServer.watchFiles,
 		],
 		open: false,
 	},
-	plugins: [new Dotenv()],
+	plugins: [new Dotenv(), ...frameworkSettings.dev.webpackPlugins],
 	module: {
 		rules: [
 			{
 				test: /\.css$/,
 				exclude: /node_modules/,
 				use: ['style-loader', 'css-loader'],
-				sideEffects: true,
 			},
 			{
 				test: /\.s[ac]ss$/i,
 				exclude: /node_modules/,
 				use: ['style-loader', 'css-loader', 'sass-loader'],
-				sideEffects: true,
 			},
 			{
 				test: /\.tsx?$/,
-				exclude: /node_modules/,
+				exclude: [/node_modules/, /cypress/],
 				use: {
 					loader: 'ts-loader',
 					options: {
 						configFile: 'tsconfig.dev.json',
+						...frameworkSettings.common.tsOptions,
 					},
 				},
 			},

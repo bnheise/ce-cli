@@ -9,6 +9,8 @@ use regex::Regex;
 use std::vec;
 use std::{env, fs, path::PathBuf};
 
+use super::add::shared_dependency::handle_shared_dependency;
+
 pub fn handle_init(args: InitArgs) -> Result<(), CliError> {
     let config = ConfigBuilder::new();
 
@@ -20,6 +22,12 @@ pub fn handle_init(args: InitArgs) -> Result<(), CliError> {
 
     AssetsDir::generate_static_files()?;
     AssetsDir::generate_framework_files(&config)?;
+
+    match config.framework {
+        FrameworkOption::React => {}
+        FrameworkOption::Angular => {}
+        FrameworkOption::Vue => handle_shared_dependency("vue@^3.2.47".into())?,
+    }
 
     let raw = Config::try_serialize(config)?;
     Config::write(raw)?;

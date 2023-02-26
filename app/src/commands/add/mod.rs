@@ -9,7 +9,7 @@ use regex::Regex;
 
 mod custom_element;
 mod shared_component;
-mod shared_dependency;
+pub mod shared_dependency;
 
 pub fn handle_add(extension_type: AddOption) -> Result<(), CliError> {
     match extension_type {

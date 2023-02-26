@@ -2,15 +2,16 @@ import { merge } from 'webpack-merge';
 import common from './webpack.common.js';
 import MiniCssExtractPlugin from 'mini-css-extract-plugin';
 import { liferayExternals } from './util/liferayExternals.js';
-import { createRequire } from 'module';
+import frameworkSettings from './util/frameworkSettings.js';
+import workspaceConfig from './util/workspaceConfig.js';
 
-const require = createRequire(import.meta.url);
-const workspaceConfig = require('./workspace-config.json');
-
-export default env =>
+export default () =>
 	merge(common, {
 		mode: 'production',
-		plugins: [new MiniCssExtractPlugin()],
+		plugins: [
+			new MiniCssExtractPlugin(),
+			...frameworkSettings.prod.webpackPlugins,
+		],
 		externals: {
 			...liferayExternals,
 			...workspaceConfig.externals,
@@ -37,6 +38,7 @@ export default env =>
 							loader: 'ts-loader',
 							options: {
 								configFile: 'tsconfig.prod.json',
+								...frameworkSettings.common.tsOptions,
 							},
 						},
 					],
