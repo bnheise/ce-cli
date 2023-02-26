@@ -128,6 +128,7 @@ impl AssetsDir {
 
         let mut parsed = T::try_parse(raw)?;
         parsed.set_framework_settings(config.framework);
+        parsed.add_project_settings(config)?;
         let raw = T::try_serialize(parsed)?;
         T::write(raw)?;
         Ok(())

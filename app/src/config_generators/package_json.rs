@@ -23,10 +23,9 @@ impl<'a> PackageJson<'a> {
         ("react-dom", "^16.12.0"),
     ];
 
-    const VUE_DEV_DEPENDENCIES: [(&str, &str); 11] = [
+    const VUE_DEV_DEPENDENCIES: [(&str, &str); 10] = [
         ("vue-loader", "^17.0.1"),
         ("vue-template-compiler", "^2.7.14"),
-        ("vue", "^3.2.47"),
         ("@vue/eslint-config-prettier", "^7.1.0"),
         ("@vue/eslint-config-typescript", "^11.0.2"),
         ("@vue/tsconfig", "^0.1.3"),
@@ -42,10 +41,13 @@ impl<'a> PackageJson<'a> {
     pub fn add_shared_dep_build(&mut self) {
         self.scripts.entry("build").and_modify(|build| {
             let _build = build.clone();
-            build.as_mut();
+            let mut split = _build.split(" && ");
+            build.clear();
+            build.push_str(split.next().unwrap());
+            build.push_str(" && ");
             build.push_str(Self::SHARED_DEP_BUILD_CMD);
             build.push_str(" && ");
-            build.push_str(&_build);
+            build.push_str(split.next().unwrap());
         });
     }
 }

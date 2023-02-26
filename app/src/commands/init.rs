@@ -1,3 +1,4 @@
+use super::add::shared_dependency::handle_shared_dependency;
 use crate::assets_dir::AssetsDir;
 use crate::cli::{FrameworkOption, InitArgs};
 use crate::config_generators::config::{Config, ConfigBuilder};
@@ -9,8 +10,6 @@ use regex::Regex;
 use std::vec;
 use std::{env, fs, path::PathBuf};
 
-use super::add::shared_dependency::handle_shared_dependency;
-
 pub fn handle_init(args: InitArgs) -> Result<(), CliError> {
     let config = ConfigBuilder::new();
 
@@ -19,18 +18,19 @@ pub fn handle_init(args: InitArgs) -> Result<(), CliError> {
     }
 
     let config = initialize_config(config, args)?;
+    let framework = config.framework.to_owned();
 
     AssetsDir::generate_static_files()?;
     AssetsDir::generate_framework_files(&config)?;
 
-    match config.framework {
+    let raw = Config::try_serialize(config)?;
+    Config::write(raw)?;
+
+    match framework {
         FrameworkOption::React => {}
         FrameworkOption::Angular => {}
         FrameworkOption::Vue => handle_shared_dependency("vue@^3.2.47".into())?,
     }
-
-    let raw = Config::try_serialize(config)?;
-    Config::write(raw)?;
 
     run_version_check()?;
 
