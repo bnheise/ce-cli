@@ -1,9 +1,9 @@
 use crate::{
-    error::CliError,
-    structs::{
+    config_generators::{
         cet_configuration::CetConfiguration, client_extension_yaml::ClientExtensionYaml,
         config::Config, AppDir, BuildDir, ConfigFile,
     },
+    error::CliError,
     util::zip::zip_directory,
 };
 use std::path::Path;

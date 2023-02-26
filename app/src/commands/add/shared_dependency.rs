@@ -2,8 +2,8 @@ use std::path::Path;
 
 use crate::{
     assets_dir::AssetsDir,
+    config_generators::{config::Config, package_json::PackageJson, ConfigFile, External},
     error::CliError,
-    structs::{config::Config, package_json::PackageJson, ConfigFile, External},
 };
 
 pub fn handle_shared_dependency(package: String) -> Result<(), CliError> {
@@ -24,8 +24,8 @@ pub fn handle_shared_dependency(package: String) -> Result<(), CliError> {
     let mut package_json = PackageJson::try_parse(&raw)?;
     package_json
         .dependencies
-        .entry(package_info.name.to_string())
-        .or_insert_with(|| package_info.version.to_owned());
+        .entry(package_info.name)
+        .or_insert_with(|| package_info.version);
     package_json.add_shared_dep_build();
     let raw = PackageJson::try_serialize(package_json)?;
     PackageJson::write(raw)?;

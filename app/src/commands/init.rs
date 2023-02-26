@@ -1,8 +1,8 @@
 use crate::assets_dir::AssetsDir;
 use crate::cli::{FrameworkOption, InitArgs};
+use crate::config_generators::config::{Config, ConfigBuilder};
+use crate::config_generators::ConfigFile;
 use crate::error::CliError;
-use crate::structs::config::{Config, ConfigBuilder};
-use crate::structs::ConfigFile;
 use crate::version_check::run_version_check;
 use dialoguer::{Input, Select};
 use regex::Regex;
@@ -94,7 +94,7 @@ fn get_framework_from_user() -> Result<FrameworkOption, CliError> {
     let options = vec![
         FrameworkOption::React,
         // FrameworkOption::Angular,
-        // FrameworkOption::Vue,
+        FrameworkOption::Vue,
     ];
     let user_response = Select::new()
         .with_prompt("Please enter the framework that you wish to use")

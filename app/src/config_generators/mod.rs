@@ -1,9 +1,10 @@
 use self::config::Config;
-use crate::error::CliError;
+use crate::{cli::FrameworkOption, error::CliError};
 use lazy_static::lazy_static;
 use regex::Regex;
 use serde::{Deserialize, Serialize};
 use std::{
+    fmt::Display,
     fs,
     path::{Path, PathBuf},
 };
@@ -16,6 +17,7 @@ pub mod eslintrc;
 pub mod package_json;
 pub mod shared_component;
 pub mod typescript_config_json;
+pub mod webpack_common;
 
 #[derive(Debug, PartialEq)]
 pub enum ConfigFormat {
@@ -73,6 +75,10 @@ pub trait ConfigFile<'a>: Serialize + Deserialize<'a> {
         fs::write(path, raw).map_err(|e| CliError::Write(Self::FILENAME.to_owned(), e))?;
         Ok(())
     }
+}
+
+pub trait FrameworkConfigurable {
+    fn set_framework_settings(&mut self, framework: FrameworkOption);
 }
 
 pub trait AppDir {
@@ -214,8 +220,10 @@ impl TemplateContext {
     const EXT_NAME: &'static str = "ext-name";
     const ELEMENT_NAME: &'static str = "element-name";
     pub const FRAMEWORK: &'static str = "framework";
+    pub const FRAMEWORK_IMPORTS: &'static str = "framework-imports";
+    pub const FRAMEWORK_RULES: &'static str = "framework-rules";
 
-    pub fn format_key(key: &str) -> String {
+    pub fn format_key<S: Into<String> + Display>(key: &S) -> String {
         format!("{} {} {}", Self::OPENING_DELIM, key, Self::CLOSING_DELIM)
     }
 }
@@ -229,7 +237,7 @@ pub trait External {
     fn add_to_externals(&self, config: &mut Config) {
         config
             .externals
-            .insert(self.get_filename().to_owned(), self.get_server_path(config));
+            .insert(self.get_filename(), self.get_server_path(config));
     }
 
     fn get_server_path(&self, config: &Config) -> String {

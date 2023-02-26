@@ -1,9 +1,9 @@
 use super::is_extension_name_valid;
 use crate::assets_dir::AssetsDir;
-use crate::structs::shared_component::SharedComponentDefinition;
-use crate::structs::typescript_config_json::TSConfigJson;
-use crate::structs::{ClientExt, ConfigFile};
-use crate::{error::CliError, structs::config::Config};
+use crate::config_generators::shared_component::SharedComponentDefinition;
+use crate::config_generators::typescript_config_json::TSConfigJson;
+use crate::config_generators::{ClientExt, ConfigFile};
+use crate::{config_generators::config::Config, error::CliError};
 
 pub fn handle_shared_component(name: String) -> Result<(), CliError> {
     if !is_extension_name_valid(&name) {

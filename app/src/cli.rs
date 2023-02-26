@@ -1,4 +1,4 @@
-use crate::structs::client_extension_yaml::PortletCategoryNames;
+use crate::config_generators::client_extension_yaml::PortletCategoryNames;
 use clap::{Args, Parser, Subcommand, ValueEnum};
 use serde::{Deserialize, Serialize};
 use std::{fmt::Display, path::PathBuf};
@@ -152,6 +152,16 @@ impl Display for FrameworkOption {
             FrameworkOption::React => write!(f, "react"),
             FrameworkOption::Angular => write!(f, "angular"),
             FrameworkOption::Vue => write!(f, "vue"),
+        }
+    }
+}
+
+impl From<FrameworkOption> for &str {
+    fn from(value: FrameworkOption) -> Self {
+        match value {
+            FrameworkOption::React => "react",
+            FrameworkOption::Angular => "angular",
+            FrameworkOption::Vue => "vue",
         }
     }
 }

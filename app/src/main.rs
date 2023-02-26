@@ -7,8 +7,8 @@ use std::io::Result;
 mod assets_dir;
 mod cli;
 mod commands;
+mod config_generators;
 mod error;
-mod structs;
 mod util;
 mod version_check;
 

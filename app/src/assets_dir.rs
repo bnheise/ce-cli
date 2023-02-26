@@ -1,13 +1,15 @@
-use crate::cli::FrameworkOption;
+use crate::config_generators::config::Config;
+use crate::config_generators::eslintrc::EslintRc;
+use crate::config_generators::package_json::PackageJson;
+use crate::config_generators::ClientExt;
+use crate::config_generators::ConfigFile;
+use crate::config_generators::FrameworkConfigurable;
+use crate::config_generators::TemplateContext;
 use crate::error::CliError;
-use crate::structs::config::Config;
-use crate::structs::eslintrc::EslintRc;
-use crate::structs::package_json::PackageJson;
-use crate::structs::ClientExt;
-use crate::structs::ConfigFile;
-use crate::structs::TemplateContext;
 use include_dir::include_dir;
 use include_dir::Dir;
+use std::collections::HashMap;
+use std::fmt::Display;
 use std::fs;
 use std::path::Path;
 use std::path::PathBuf;
@@ -16,6 +18,9 @@ pub struct AssetsDir;
 
 impl AssetsDir {
     const ASSETS: Dir<'_> = include_dir!("$CARGO_MANIFEST_DIR/assets");
+    const BASE: &'static str = "base";
+    const CYPRESS_CONFIG_FILENAME: &'static str = "cypress.config.js";
+    const WEBPACK_COMMON_FILENAME: &'static str = "webpack.common.js";
 
     pub fn initialize_templates<T: ClientExt>(
         config: &Config,
@@ -103,57 +108,82 @@ impl AssetsDir {
     }
 
     pub fn generate_framework_files(config: &Config) -> Result<(), CliError> {
-        let base: &str = "base";
-        let cypres_config_filename = "cypress.config.js";
         let base_dir = Self::ASSETS
-            .get_dir(base)
+            .get_dir(Self::BASE)
             .expect("Base directory was not found");
 
-        let eslintrc_raw = base_dir
-            .get_file(PathBuf::from(base).join(EslintRc::FILENAME))
-            .expect("Didn't find eslintrc")
-            .contents_utf8()
-            .expect("Couldn't read eslintrc as utf-8")
-            .to_owned();
+        Self::handle_config::<EslintRc>(base_dir, config)?;
+        Self::handle_config::<PackageJson>(base_dir, config)?;
 
-        let package_json_raw = base_dir
-            .get_file(PathBuf::from(base).join(PackageJson::FILENAME))
-            .expect("Didn't find package.json")
-            .contents_utf8()
-            .expect("Couldn't read package.json as utf-8")
-            .to_owned();
+        let mut cypress_context = HashMap::new();
+        cypress_context.insert(TemplateContext::FRAMEWORK, config.framework.into());
+        Self::handle_template(base_dir, Self::CYPRESS_CONFIG_FILENAME, cypress_context)?;
 
-        let mut cypress_config = base_dir
-            .get_file(PathBuf::from(base).join(cypres_config_filename))
-            .expect("Didn't find cypress.config.js")
-            .contents_utf8()
-            .expect("Cound't read cypres.conifg.js as utf-8")
-            .to_owned();
-
-        match config.framework {
-            FrameworkOption::React => {
-                let mut eslint = EslintRc::try_parse(&eslintrc_raw)?;
-                eslint.set_framework_settings(config.framework);
-                let raw = EslintRc::try_serialize(eslint)?;
-                EslintRc::write(raw)?;
-
-                let mut package_json = PackageJson::try_parse(&package_json_raw)?;
-                package_json.set_framework_settings(config.framework);
-                package_json.name = config.project_name.clone();
-                let raw = PackageJson::try_serialize(package_json)?;
-                PackageJson::write(raw)?;
-
-                cypress_config = cypress_config.replace(
-                    &TemplateContext::format_key(TemplateContext::FRAMEWORK),
-                    &config.framework.to_string(),
-                );
-
-                fs::write(Path::new("./").join(cypres_config_filename), cypress_config)
-                    .map_err(|e| CliError::Write(cypres_config_filename.to_owned(), e))?;
+        let mut webpack_common_ctx: HashMap<&str, &str> = HashMap::new();
+        let framework_imports = match config.framework {
+            crate::cli::FrameworkOption::React => "",
+            crate::cli::FrameworkOption::Angular => "",
+            crate::cli::FrameworkOption::Vue => "import { VueLoaderPlugin } from 'vue-loader';",
+        };
+        webpack_common_ctx.insert(TemplateContext::FRAMEWORK_IMPORTS, framework_imports);
+        let framework_rules = match config.framework {
+            crate::cli::FrameworkOption::React => "",
+            crate::cli::FrameworkOption::Angular => "",
+            crate::cli::FrameworkOption::Vue => {
+                r#"{
+        test: /\.vue$/,
+          loader: "vue-loader",
+          options: {
+          compilerOptions: {
+            isCustomElement: (tag) => tag.includes("-"),
+          },
+        },
+      },"#
             }
-            FrameworkOption::Angular => unimplemented!(),
-            FrameworkOption::Vue => unimplemented!(),
+        };
+        webpack_common_ctx.insert(TemplateContext::FRAMEWORK_RULES, framework_rules);
+
+        Self::handle_template(base_dir, Self::WEBPACK_COMMON_FILENAME, webpack_common_ctx)?;
+
+        Ok(())
+    }
+
+    fn handle_config<'a, T: ConfigFile<'a> + FrameworkConfigurable>(
+        base_dir: &'a Dir,
+        config: &'a Config,
+    ) -> Result<(), CliError> {
+        let raw = base_dir
+            .get_file(PathBuf::from(Self::BASE).join(T::FILENAME))
+            .unwrap_or_else(|| panic!("Didn't find ${}", T::FILENAME))
+            .contents_utf8()
+            .unwrap_or_else(|| panic!("Couldn't read {} as utf-8", T::FILENAME));
+
+        let mut parsed = T::try_parse(raw)?;
+        parsed.set_framework_settings(config.framework);
+        let raw = T::try_serialize(parsed)?;
+        T::write(raw)?;
+        Ok(())
+    }
+
+    fn handle_template<S: Into<String> + Display + AsRef<str>>(
+        base_dir: &Dir,
+        filename: &str,
+        context: HashMap<S, S>,
+    ) -> Result<(), CliError> {
+        let mut template_file = base_dir
+            .get_file(PathBuf::from(Self::BASE).join(filename))
+            .unwrap_or_else(|| panic!("Didn't find ${filename}",))
+            .contents_utf8()
+            .unwrap_or_else(|| panic!("Couldn't read {filename} as utf-8",))
+            .to_owned();
+
+        for (key, value) in context.iter() {
+            template_file =
+                template_file.replace(&TemplateContext::format_key(key), value.as_ref());
         }
+
+        fs::write(Path::new("./").join(filename), template_file)
+            .map_err(|e| CliError::Write(filename.to_owned(), e))?;
 
         Ok(())
     }

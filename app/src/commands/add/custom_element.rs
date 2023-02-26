@@ -2,12 +2,12 @@ use super::is_extension_name_valid;
 use crate::{
     assets_dir::AssetsDir,
     cli::CustomElementArgs,
-    error::CliError,
-    structs::{
+    config_generators::{
         client_extension_yaml::{ClientExtType, ClientExtensionYaml, CustomElementDefinition},
         config::Config,
         ClientExt, ConfigFile,
     },
+    error::CliError,
 };
 
 #[allow(clippy::too_many_arguments)]
