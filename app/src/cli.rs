@@ -138,7 +138,7 @@ pub struct CustomElementArgs {
     pub source_code_url: Option<String>,
 }
 
-#[derive(Debug, Clone, ValueEnum, Serialize, Deserialize, Copy, Default)]
+#[derive(Debug, Clone, ValueEnum, Serialize, Deserialize, Copy, Default, PartialEq)]
 pub enum FrameworkOption {
     #[default]
     React,

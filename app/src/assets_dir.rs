@@ -1,6 +1,7 @@
 use crate::config_generators::config::Config;
 use crate::config_generators::eslintrc::EslintRc;
 use crate::config_generators::package_json::PackageJson;
+use crate::config_generators::typescript_config_prod_json::TSConfigProdJson;
 use crate::config_generators::ClientExt;
 use crate::config_generators::ConfigFile;
 use crate::config_generators::FrameworkConfigurable;
@@ -45,13 +46,17 @@ impl AssetsDir {
                 _ => unreachable!(),
             };
 
+            let name = name.replace(
+                &TemplateContext::format_key(&TemplateContext::NAME_CAMELCASE),
+                &definition.get_camelcase_name(),
+            );
+
             for (key, val) in context.iter() {
                 let replacer = TemplateContext::format_key(key);
                 content = content.replace(&replacer, val);
             }
 
-            fs::write(ext_path.join(name), content)
-                .map_err(|e| CliError::Write(name.to_owned(), e))?;
+            fs::write(ext_path.join(&name), content).map_err(|e| CliError::Write(name, e))?;
         }
 
         Ok(())
@@ -110,6 +115,7 @@ impl AssetsDir {
 
         Self::handle_config::<EslintRc>(base_dir, config)?;
         Self::handle_config::<PackageJson>(base_dir, config)?;
+        Self::handle_config::<TSConfigProdJson>(base_dir, config)?;
 
         Self::generate_static_from_folder(Path::new(config.framework.into()))?;
 

@@ -17,6 +17,7 @@ pub mod eslintrc;
 pub mod package_json;
 pub mod shared_component;
 pub mod typescript_config_json;
+pub mod typescript_config_prod_json;
 pub mod webpack_common;
 
 #[derive(Debug, PartialEq)]
@@ -216,11 +217,11 @@ pub trait ClientExt {
 pub struct TemplateContext;
 
 impl TemplateContext {
-    const NAME_CAMELCASE: &'static str = "name-camelcase";
+    pub const NAME_CAMELCASE: &'static str = "name-camelcase";
     const OPENING_DELIM: &'static str = "{{";
     const CLOSING_DELIM: &'static str = "}}";
-    const EXT_NAME: &'static str = "ext-name";
-    const ELEMENT_NAME: &'static str = "element-name";
+    pub const EXT_NAME: &'static str = "ext-name";
+    pub const ELEMENT_NAME: &'static str = "element-name";
 
     pub fn format_key<S: Into<String> + Display>(key: &S) -> String {
         format!("{} {} {}", Self::OPENING_DELIM, key, Self::CLOSING_DELIM)

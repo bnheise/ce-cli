@@ -6,7 +6,7 @@
     "build": "yarn test && webpack --config webpack.prod.js",
     "deploy": "blade gw deploy",
     "start": "ce-cli dev-deploy && webpack serve --open --config webpack.dev.js",
-    "test:component": "cypress run",
+    "test:component": "cypress run --component",
     "test:unit": "jest",
     "test:e2e": "cypress run --e2e --browser chrome",
     "test": "concurrently yarn:test:unit \"yarn:test:component --component --headless --browser chrome \""

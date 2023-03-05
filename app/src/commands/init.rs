@@ -29,7 +29,7 @@ pub fn handle_init(args: InitArgs) -> Result<(), CliError> {
     match framework {
         FrameworkOption::React => {}
         FrameworkOption::Angular => {}
-        FrameworkOption::Vue => handle_shared_dependency("vue@^3.2.47".into())?,
+        FrameworkOption::Vue => handle_shared_dependency("vue@^3.2.47".into())?, // TODO: for vue, don't add css to client-extension.yaml
     }
 
     run_version_check()?;

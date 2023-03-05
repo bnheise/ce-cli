@@ -1,7 +1,7 @@
 use super::is_extension_name_valid;
 use crate::{
     assets_dir::AssetsDir,
-    cli::CustomElementArgs,
+    cli::{CustomElementArgs, FrameworkOption},
     config_generators::{
         client_extension_yaml::{ClientExtType, ClientExtensionYaml, CustomElementDefinition},
         config::Config,
@@ -61,6 +61,10 @@ pub fn handle_custom_element(args: CustomElementArgs) -> Result<(), CliError> {
         definition.set_source_code_url(source_code_url);
     } else {
         definition.set_source_code_url("".to_string());
+    }
+
+    if config.framework != FrameworkOption::Vue {
+        definition.add_css_filename(format!("{}.css", definition.get_id()));
     }
 
     definition.set_instance_id(&config.default_instance_id);

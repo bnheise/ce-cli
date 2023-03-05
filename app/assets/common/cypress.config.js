@@ -1,5 +1,5 @@
 import { defineConfig } from 'cypress';
-import WebpackProdConfig from './webpack.dev.js';
+import WebpackDevConfig from './webpack.dev.js';
 import dotenv from 'dotenv';
 import { createRequire } from 'module';
 
@@ -15,7 +15,7 @@ export default defineConfig({
 		devServer: {
 			framework: workspaceConfig.framework.toLowerCase(),
 			bundler: 'webpack',
-			webpackConfig: WebpackProdConfig,
+			webpackConfig: WebpackDevConfig,
 		},
 	},
 

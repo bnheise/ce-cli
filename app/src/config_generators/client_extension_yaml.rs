@@ -128,7 +128,6 @@ impl CustomElementDefinition {
         };
         new.set_friendly_url_mapping(new.get_id());
         new.set_html_element_name(new.get_id());
-        new.add_css_filename(format!("{}.css", new.get_id()));
         new.add_js_filename(format!("{}.js", new.get_id()));
         new
     }
