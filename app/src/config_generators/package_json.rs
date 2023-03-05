@@ -1,15 +1,21 @@
 use super::{config::Config, ConfigFile, ConfigFormat, FrameworkConfigurable};
 use crate::cli::FrameworkOption;
-use serde::{Deserialize, Serialize};
-use std::collections::HashMap;
+use serde::{Deserialize, Serialize, Serializer};
+use std::collections::{BTreeMap, HashMap};
 
 #[derive(Debug, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct PackageJson<'a> {
     pub name: &'a str,
-    dev_dependencies: HashMap<&'a str, &'a str>,
-    pub dependencies: HashMap<&'a str, &'a str>,
+    #[serde(rename(serialize = "type"))]
+    pub _type: &'a str,
+    pub version: &'a str,
+    pub license: &'a str,
     pub scripts: HashMap<&'a str, String>,
+    #[serde(serialize_with = "ordered_map")]
+    dev_dependencies: HashMap<&'a str, &'a str>,
+    #[serde(serialize_with = "ordered_map")]
+    pub dependencies: HashMap<&'a str, &'a str>,
     #[serde(flatten)]
     extra: HashMap<&'a str, serde_json::Value>,
 }
@@ -82,4 +88,12 @@ impl<'a> ConfigFile<'a> for PackageJson<'a> {
 
         Ok(())
     }
+}
+
+fn ordered_map<'a, S>(value: &HashMap<&'a str, &'a str>, serializer: S) -> Result<S::Ok, S::Error>
+where
+    S: Serializer,
+{
+    let ordered: BTreeMap<_, _> = value.iter().collect();
+    ordered.serialize(serializer)
 }
