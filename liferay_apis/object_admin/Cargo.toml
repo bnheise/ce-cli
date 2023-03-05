@@ -1,0 +1,15 @@
+[package]
+name = "ObjectAdmin"
+version = "1.0.0"
+authors = ["OpenAPI Generator team and contributors"]
+description = "A Java client JAR is available for use with the group ID 'com.liferay', artifact ID 'com.liferay.object.admin.rest.client', and version '1.0.45'."
+license = "Apache 2.0"
+edition = "2018"
+
+[dependencies]
+serde = "^1.0"
+serde_derive = "^1.0"
+serde_json = "^1.0"
+url = "^2.2"
+uuid = { version = "^1.0", features = ["serde"] }
+reqwest = "~0.9"

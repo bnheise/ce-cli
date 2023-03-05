@@ -1,7 +1,7 @@
 use crate::commands::init::handle_init;
 use clap::Parser;
 use cli::Cli;
-use commands::{add::handle_add, dev_deploy::handle_dev_deploy};
+use commands::{add::handle_add, dev_deploy::handle_dev_deploy, object::handle_object};
 use std::io::Result;
 
 mod assets_dir;
@@ -19,6 +19,7 @@ fn main() -> Result<()> {
         cli::Commands::Init(init_args) => handle_init(init_args),
         cli::Commands::Add { component } => handle_add(component),
         cli::Commands::DevDeploy => handle_dev_deploy(),
+        cli::Commands::Object(args) => handle_object(args),
     };
 
     if let Err(error) = result {

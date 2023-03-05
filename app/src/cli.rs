@@ -1,5 +1,6 @@
 use crate::config_generators::client_extension_yaml::PortletCategoryNames;
-use clap::{Args, Parser, Subcommand, ValueEnum};
+use clap::{ArgGroup, Args, Parser, Subcommand, ValueEnum};
+use reqwest::Url;
 use serde::{Deserialize, Serialize};
 use std::{fmt::Display, path::PathBuf};
 
@@ -29,6 +30,9 @@ pub enum Commands {
     /// switch the port back in client-extension.yaml.
     #[command()]
     DevDeploy,
+
+    #[command(subcommand)]
+    Object(ObjectOption),
 }
 
 /// Initializes a new workspace. This should be carried out inside a  {n}
@@ -56,6 +60,15 @@ pub struct InitArgs {
     /// the default value will deploy to your root instance.              {n}
     #[arg(short, long, value_enum)]
     pub instance_id: Option<String>,
+
+    /// Username of the admin user of your Liferay instance. Used to      {n}
+    /// import/export operations and the like.
+    #[arg(short, long, value_enum)]
+    pub username: Option<String>,
+
+    /// Password for your liferay admin account.                          {n}
+    #[arg(short, long, value_enum)]
+    pub password: Option<String>,
 }
 
 /// Add a new component to your workspace. Components are items that will {n}
@@ -164,4 +177,76 @@ impl From<FrameworkOption> for &str {
             FrameworkOption::Vue => "vue",
         }
     }
+}
+
+/// Import Liferay Object Definitions, data, and Picklists into your local{n}
+/// repository or export them from your repository into a Liferay instance
+#[derive(Debug, Subcommand)]
+pub enum ObjectOption {
+    /// Import Object definitions, picklists, and/or data into this       {n}
+    /// repository
+    #[command()]
+    Import(ImportObjectArgs),
+
+    /// Export Object definitions, picklists, and/or data to a Liferay    {n}
+    /// instance
+    #[command()]
+    Export(ExportObjectArgs),
+}
+
+#[derive(Debug, Args, Clone)]
+#[command(group(
+    ArgGroup::new("target")
+        .required(true)
+        .args(["all", "erc"]),
+), group(
+    ArgGroup::new("target2")
+        .required(true)
+        .args(["all", "source"]),
+))]
+pub struct ImportObjectArgs {
+    /// The url for your Liferay instance. It can be local or remote.
+    #[arg(long)]
+    pub url: Option<Url>,
+
+    /// The port for your Liferay instance
+    #[arg(long)]
+    pub port: Option<u16>,
+
+    /// Setting this flag will import all Object definitions and picklists{n}
+    #[arg(short, long)]
+    pub all: bool,
+
+    /// The external reference code of the item that you want to import.  {n}
+    /// Note that in the case that you're importing object data, the erc  {n}
+    /// refers to the erc of the Object definition, not the object data.
+    #[arg(short, long, requires = "source")]
+    pub erc: Option<String>,
+
+    /// Indicates whether the data to be imported is an ObjectDefinition  {n}
+    /// a picklist, or object data.
+    #[arg(short, long, value_enum, requires = "erc")]
+    pub source: Option<ImportExportSource>,
+
+    /// Liferay user's email address who has access rights to requested data
+    #[arg(short, long, value_enum)]
+    pub username: Option<String>,
+
+    /// Liferay user's password
+    #[arg(short, long, value_enum)]
+    pub password: Option<String>,
+
+    /// Folder to store the output
+    #[arg(short, long, value_enum)]
+    pub output: Option<String>,
+}
+
+#[derive(Debug, Args)]
+pub struct ExportObjectArgs {}
+
+#[derive(Debug, ValueEnum, Clone)]
+pub enum ImportExportSource {
+    Picklist,
+    ObjectDefinition,
+    ObjectData,
 }

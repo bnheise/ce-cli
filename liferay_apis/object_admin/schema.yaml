@@ -1,0 +1,2832 @@
+openapi: 3.0.1
+info:
+  title: Object
+  description:
+    A Java client JAR is available for use with the group ID 'com.liferay',
+    artifact ID 'com.liferay.object.admin.rest.client', and version '1.0.45'.
+  license:
+    name: Apache 2.0
+    url: http://www.apache.org/licenses/LICENSE-2.0.html
+  version: v1.0
+servers:
+  - url: http://localhost:8080/o/object-admin/
+security:
+  - BasicAuth: []
+  - BearerAuth: []
+paths:
+  /v1.0/object-definitions/by-external-reference-code/{externalReferenceCode}/object-actions:
+    get:
+      tags:
+        - ObjectAction
+      operationId: getObjectDefinitionByExternalReferenceCodeObjectActionsPage
+      parameters:
+        - name: externalReferenceCode
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: page
+          in: query
+          schema:
+            type: string
+        - name: pageSize
+          in: query
+          schema:
+            type: string
+        - name: search
+          in: query
+          schema:
+            type: string
+      responses:
+        default:
+          description: default response
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PageObjectAction"
+            application/xml:
+              schema:
+                $ref: "#/components/schemas/PageObjectAction"
+    post:
+      tags:
+        - ObjectAction
+      operationId: postObjectDefinitionByExternalReferenceCodeObjectAction
+      parameters:
+        - name: externalReferenceCode
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ObjectAction"
+          application/xml:
+            schema:
+              $ref: "#/components/schemas/ObjectAction"
+      responses:
+        default:
+          description: default response
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ObjectAction"
+            application/xml:
+              schema:
+                $ref: "#/components/schemas/ObjectAction"
+  /v1.0/object-definitions/{objectDefinitionId}/object-actions:
+    get:
+      tags:
+        - ObjectAction
+      operationId: getObjectDefinitionObjectActionsPage
+      parameters:
+        - name: objectDefinitionId
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: page
+          in: query
+          schema:
+            type: string
+        - name: pageSize
+          in: query
+          schema:
+            type: string
+        - name: search
+          in: query
+          schema:
+            type: string
+      responses:
+        default:
+          description: default response
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PageObjectAction"
+            application/xml:
+              schema:
+                $ref: "#/components/schemas/PageObjectAction"
+    post:
+      tags:
+        - ObjectAction
+      operationId: postObjectDefinitionObjectAction
+      parameters:
+        - name: objectDefinitionId
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ObjectAction"
+          application/xml:
+            schema:
+              $ref: "#/components/schemas/ObjectAction"
+      responses:
+        default:
+          description: default response
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ObjectAction"
+            application/xml:
+              schema:
+                $ref: "#/components/schemas/ObjectAction"
+  /v1.0/object-actions/{objectActionId}:
+    get:
+      tags:
+        - ObjectAction
+      operationId: getObjectAction
+      parameters:
+        - name: objectActionId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        default:
+          description: default response
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ObjectAction"
+            application/xml:
+              schema:
+                $ref: "#/components/schemas/ObjectAction"
+    put:
+      tags:
+        - ObjectAction
+      operationId: putObjectAction
+      parameters:
+        - name: objectActionId
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ObjectAction"
+          application/xml:
+            schema:
+              $ref: "#/components/schemas/ObjectAction"
+      responses:
+        default:
+          description: default response
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ObjectAction"
+            application/xml:
+              schema:
+                $ref: "#/components/schemas/ObjectAction"
+    delete:
+      tags:
+        - ObjectAction
+      operationId: deleteObjectAction
+      parameters:
+        - name: objectActionId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        default:
+          description: default response
+          content:
+            application/json: {}
+            application/xml: {}
+    patch:
+      tags:
+        - ObjectAction
+      operationId: patchObjectAction
+      parameters:
+        - name: objectActionId
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ObjectAction"
+          application/xml:
+            schema:
+              $ref: "#/components/schemas/ObjectAction"
+      responses:
+        default:
+          description: default response
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ObjectAction"
+            application/xml:
+              schema:
+                $ref: "#/components/schemas/ObjectAction"
+  /v1.0/object-definitions/{objectDefinitionId}/object-actions/batch:
+    post:
+      tags:
+        - ObjectAction
+      operationId: postObjectDefinitionObjectActionBatch
+      parameters:
+        - name: objectDefinitionId
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: callbackURL
+          in: query
+          schema:
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+      responses:
+        default:
+          description: default response
+          content:
+            application/json: {}
+  /v1.0/object-actions/batch:
+    put:
+      tags:
+        - ObjectAction
+      operationId: putObjectActionBatch
+      parameters:
+        - name: callbackURL
+          in: query
+          schema:
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+      responses:
+        default:
+          description: default response
+          content:
+            application/json: {}
+    delete:
+      tags:
+        - ObjectAction
+      operationId: deleteObjectActionBatch
+      parameters:
+        - name: callbackURL
+          in: query
+          schema:
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+      responses:
+        default:
+          description: default response
+          content:
+            application/json: {}
+  /v1.0/object-definitions/by-external-reference-code/{externalReferenceCode}:
+    get:
+      tags:
+        - ObjectDefinition
+      operationId: getObjectDefinitionByExternalReferenceCode
+      parameters:
+        - name: externalReferenceCode
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        default:
+          description: default response
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ObjectDefinition"
+            application/xml:
+              schema:
+                $ref: "#/components/schemas/ObjectDefinition"
+    put:
+      tags:
+        - ObjectDefinition
+      operationId: putObjectDefinitionByExternalReferenceCode
+      parameters:
+        - name: externalReferenceCode
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ObjectDefinition"
+          application/xml:
+            schema:
+              $ref: "#/components/schemas/ObjectDefinition"
+      responses:
+        default:
+          description: default response
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ObjectDefinition"
+            application/xml:
+              schema:
+                $ref: "#/components/schemas/ObjectDefinition"
+  /v1.0/object-definitions/{objectDefinitionId}/publish:
+    post:
+      tags:
+        - ObjectDefinition
+      operationId: postObjectDefinitionPublish
+      parameters:
+        - name: objectDefinitionId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        default:
+          description: default response
+          content:
+            application/json: {}
+            application/xml: {}
+  /v1.0/object-definitions:
+    get:
+      tags:
+        - ObjectDefinition
+      operationId: getObjectDefinitionsPage
+      parameters:
+        - name: aggregationTerms
+          in: query
+          schema:
+            type: string
+        - name: filter
+          in: query
+          schema:
+            type: string
+        - name: page
+          in: query
+          schema:
+            type: string
+        - name: pageSize
+          in: query
+          schema:
+            type: string
+        - name: search
+          in: query
+          schema:
+            type: string
+        - name: sort
+          in: query
+          schema:
+            type: string
+      responses:
+        default:
+          description: default response
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PageObjectDefinition"
+            application/xml:
+              schema:
+                $ref: "#/components/schemas/PageObjectDefinition"
+    post:
+      tags:
+        - ObjectDefinition
+      operationId: postObjectDefinition
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ObjectDefinition"
+          application/xml:
+            schema:
+              $ref: "#/components/schemas/ObjectDefinition"
+      responses:
+        default:
+          description: default response
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ObjectDefinition"
+            application/xml:
+              schema:
+                $ref: "#/components/schemas/ObjectDefinition"
+  /v1.0/object-definitions/{objectDefinitionId}:
+    get:
+      tags:
+        - ObjectDefinition
+      operationId: getObjectDefinition
+      parameters:
+        - name: objectDefinitionId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        default:
+          description: default response
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ObjectDefinition"
+            application/xml:
+              schema:
+                $ref: "#/components/schemas/ObjectDefinition"
+    put:
+      tags:
+        - ObjectDefinition
+      operationId: putObjectDefinition
+      parameters:
+        - name: objectDefinitionId
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ObjectDefinition"
+          application/xml:
+            schema:
+              $ref: "#/components/schemas/ObjectDefinition"
+      responses:
+        default:
+          description: default response
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ObjectDefinition"
+            application/xml:
+              schema:
+                $ref: "#/components/schemas/ObjectDefinition"
+    delete:
+      tags:
+        - ObjectDefinition
+      operationId: deleteObjectDefinition
+      parameters:
+        - name: objectDefinitionId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        default:
+          description: default response
+          content:
+            application/json: {}
+            application/xml: {}
+    patch:
+      tags:
+        - ObjectDefinition
+      operationId: patchObjectDefinition
+      parameters:
+        - name: objectDefinitionId
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ObjectDefinition"
+          application/xml:
+            schema:
+              $ref: "#/components/schemas/ObjectDefinition"
+      responses:
+        default:
+          description: default response
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ObjectDefinition"
+            application/xml:
+              schema:
+                $ref: "#/components/schemas/ObjectDefinition"
+  /v1.0/object-definitions/batch:
+    put:
+      tags:
+        - ObjectDefinition
+      operationId: putObjectDefinitionBatch
+      parameters:
+        - name: callbackURL
+          in: query
+          schema:
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+      responses:
+        default:
+          description: default response
+          content:
+            application/json: {}
+    post:
+      tags:
+        - ObjectDefinition
+      operationId: postObjectDefinitionBatch
+      parameters:
+        - name: callbackURL
+          in: query
+          schema:
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+      responses:
+        default:
+          description: default response
+          content:
+            application/json: {}
+    delete:
+      tags:
+        - ObjectDefinition
+      operationId: deleteObjectDefinitionBatch
+      parameters:
+        - name: callbackURL
+          in: query
+          schema:
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+      responses:
+        default:
+          description: default response
+          content:
+            application/json: {}
+  /v1.0/object-definitions/by-external-reference-code/{externalReferenceCode}/object-fields:
+    get:
+      tags:
+        - ObjectField
+      operationId: getObjectDefinitionByExternalReferenceCodeObjectFieldsPage
+      parameters:
+        - name: externalReferenceCode
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: filter
+          in: query
+          schema:
+            type: string
+        - name: page
+          in: query
+          schema:
+            type: string
+        - name: pageSize
+          in: query
+          schema:
+            type: string
+        - name: search
+          in: query
+          schema:
+            type: string
+        - name: sort
+          in: query
+          schema:
+            type: string
+      responses:
+        default:
+          description: default response
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PageObjectField"
+            application/xml:
+              schema:
+                $ref: "#/components/schemas/PageObjectField"
+    post:
+      tags:
+        - ObjectField
+      operationId: postObjectDefinitionByExternalReferenceCodeObjectField
+      parameters:
+        - name: externalReferenceCode
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ObjectField"
+          application/xml:
+            schema:
+              $ref: "#/components/schemas/ObjectField"
+      responses:
+        default:
+          description: default response
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ObjectField"
+            application/xml:
+              schema:
+                $ref: "#/components/schemas/ObjectField"
+  /v1.0/object-definitions/{objectDefinitionId}/object-fields:
+    get:
+      tags:
+        - ObjectField
+      operationId: getObjectDefinitionObjectFieldsPage
+      parameters:
+        - name: objectDefinitionId
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: filter
+          in: query
+          schema:
+            type: string
+        - name: page
+          in: query
+          schema:
+            type: string
+        - name: pageSize
+          in: query
+          schema:
+            type: string
+        - name: search
+          in: query
+          schema:
+            type: string
+        - name: sort
+          in: query
+          schema:
+            type: string
+      responses:
+        default:
+          description: default response
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PageObjectField"
+            application/xml:
+              schema:
+                $ref: "#/components/schemas/PageObjectField"
+    post:
+      tags:
+        - ObjectField
+      operationId: postObjectDefinitionObjectField
+      parameters:
+        - name: objectDefinitionId
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ObjectField"
+          application/xml:
+            schema:
+              $ref: "#/components/schemas/ObjectField"
+      responses:
+        default:
+          description: default response
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ObjectField"
+            application/xml:
+              schema:
+                $ref: "#/components/schemas/ObjectField"
+  /v1.0/object-fields/{objectFieldId}:
+    get:
+      tags:
+        - ObjectField
+      operationId: getObjectField
+      parameters:
+        - name: objectFieldId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        default:
+          description: default response
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ObjectField"
+            application/xml:
+              schema:
+                $ref: "#/components/schemas/ObjectField"
+    put:
+      tags:
+        - ObjectField
+      operationId: putObjectField
+      parameters:
+        - name: objectFieldId
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ObjectField"
+          application/xml:
+            schema:
+              $ref: "#/components/schemas/ObjectField"
+      responses:
+        default:
+          description: default response
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ObjectField"
+            application/xml:
+              schema:
+                $ref: "#/components/schemas/ObjectField"
+    delete:
+      tags:
+        - ObjectField
+      operationId: deleteObjectField
+      parameters:
+        - name: objectFieldId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        default:
+          description: default response
+          content:
+            application/json: {}
+            application/xml: {}
+    patch:
+      tags:
+        - ObjectField
+      operationId: patchObjectField
+      parameters:
+        - name: objectFieldId
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ObjectField"
+          application/xml:
+            schema:
+              $ref: "#/components/schemas/ObjectField"
+      responses:
+        default:
+          description: default response
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ObjectField"
+            application/xml:
+              schema:
+                $ref: "#/components/schemas/ObjectField"
+  /v1.0/object-definitions/{objectDefinitionId}/object-fields/batch:
+    post:
+      tags:
+        - ObjectField
+      operationId: postObjectDefinitionObjectFieldBatch
+      parameters:
+        - name: objectDefinitionId
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: callbackURL
+          in: query
+          schema:
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+      responses:
+        default:
+          description: default response
+          content:
+            application/json: {}
+  /v1.0/object-fields/batch:
+    put:
+      tags:
+        - ObjectField
+      operationId: putObjectFieldBatch
+      parameters:
+        - name: callbackURL
+          in: query
+          schema:
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+      responses:
+        default:
+          description: default response
+          content:
+            application/json: {}
+    delete:
+      tags:
+        - ObjectField
+      operationId: deleteObjectFieldBatch
+      parameters:
+        - name: callbackURL
+          in: query
+          schema:
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+      responses:
+        default:
+          description: default response
+          content:
+            application/json: {}
+  /v1.0/object-definitions/by-external-reference-code/{externalReferenceCode}/object-layouts:
+    get:
+      tags:
+        - ObjectLayout
+      operationId: getObjectDefinitionByExternalReferenceCodeObjectLayoutsPage
+      parameters:
+        - name: externalReferenceCode
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: page
+          in: query
+          schema:
+            type: string
+        - name: pageSize
+          in: query
+          schema:
+            type: string
+        - name: search
+          in: query
+          schema:
+            type: string
+      responses:
+        default:
+          description: default response
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PageObjectLayout"
+            application/xml:
+              schema:
+                $ref: "#/components/schemas/PageObjectLayout"
+    post:
+      tags:
+        - ObjectLayout
+      operationId: postObjectDefinitionByExternalReferenceCodeObjectLayout
+      parameters:
+        - name: externalReferenceCode
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ObjectLayout"
+          application/xml:
+            schema:
+              $ref: "#/components/schemas/ObjectLayout"
+      responses:
+        default:
+          description: default response
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ObjectLayout"
+            application/xml:
+              schema:
+                $ref: "#/components/schemas/ObjectLayout"
+  /v1.0/object-definitions/{objectDefinitionId}/object-layouts:
+    get:
+      tags:
+        - ObjectLayout
+      operationId: getObjectDefinitionObjectLayoutsPage
+      parameters:
+        - name: objectDefinitionId
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: page
+          in: query
+          schema:
+            type: string
+        - name: pageSize
+          in: query
+          schema:
+            type: string
+        - name: search
+          in: query
+          schema:
+            type: string
+      responses:
+        default:
+          description: default response
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PageObjectLayout"
+            application/xml:
+              schema:
+                $ref: "#/components/schemas/PageObjectLayout"
+    post:
+      tags:
+        - ObjectLayout
+      operationId: postObjectDefinitionObjectLayout
+      parameters:
+        - name: objectDefinitionId
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ObjectLayout"
+          application/xml:
+            schema:
+              $ref: "#/components/schemas/ObjectLayout"
+      responses:
+        default:
+          description: default response
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ObjectLayout"
+            application/xml:
+              schema:
+                $ref: "#/components/schemas/ObjectLayout"
+  /v1.0/object-layouts/{objectLayoutId}:
+    get:
+      tags:
+        - ObjectLayout
+      operationId: getObjectLayout
+      parameters:
+        - name: objectLayoutId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        default:
+          description: default response
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ObjectLayout"
+            application/xml:
+              schema:
+                $ref: "#/components/schemas/ObjectLayout"
+    put:
+      tags:
+        - ObjectLayout
+      operationId: putObjectLayout
+      parameters:
+        - name: objectLayoutId
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ObjectLayout"
+          application/xml:
+            schema:
+              $ref: "#/components/schemas/ObjectLayout"
+      responses:
+        default:
+          description: default response
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ObjectLayout"
+            application/xml:
+              schema:
+                $ref: "#/components/schemas/ObjectLayout"
+    delete:
+      tags:
+        - ObjectLayout
+      operationId: deleteObjectLayout
+      parameters:
+        - name: objectLayoutId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        default:
+          description: default response
+          content:
+            application/json: {}
+            application/xml: {}
+  /v1.0/object-definitions/{objectDefinitionId}/object-layouts/batch:
+    post:
+      tags:
+        - ObjectLayout
+      operationId: postObjectDefinitionObjectLayoutBatch
+      parameters:
+        - name: objectDefinitionId
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: callbackURL
+          in: query
+          schema:
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+      responses:
+        default:
+          description: default response
+          content:
+            application/json: {}
+  /v1.0/object-layouts/batch:
+    put:
+      tags:
+        - ObjectLayout
+      operationId: putObjectLayoutBatch
+      parameters:
+        - name: callbackURL
+          in: query
+          schema:
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+      responses:
+        default:
+          description: default response
+          content:
+            application/json: {}
+    delete:
+      tags:
+        - ObjectLayout
+      operationId: deleteObjectLayoutBatch
+      parameters:
+        - name: callbackURL
+          in: query
+          schema:
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+      responses:
+        default:
+          description: default response
+          content:
+            application/json: {}
+  /v1.0/object-definitions/{objectDefinitionId}/object-relationships:
+    get:
+      tags:
+        - ObjectRelationship
+      operationId: getObjectDefinitionObjectRelationshipsPage
+      parameters:
+        - name: objectDefinitionId
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: filter
+          in: query
+          schema:
+            type: string
+        - name: page
+          in: query
+          schema:
+            type: string
+        - name: pageSize
+          in: query
+          schema:
+            type: string
+        - name: search
+          in: query
+          schema:
+            type: string
+      responses:
+        default:
+          description: default response
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PageObjectRelationship"
+            application/xml:
+              schema:
+                $ref: "#/components/schemas/PageObjectRelationship"
+    post:
+      tags:
+        - ObjectRelationship
+      operationId: postObjectDefinitionObjectRelationship
+      parameters:
+        - name: objectDefinitionId
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ObjectRelationship"
+          application/xml:
+            schema:
+              $ref: "#/components/schemas/ObjectRelationship"
+      responses:
+        default:
+          description: default response
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ObjectRelationship"
+            application/xml:
+              schema:
+                $ref: "#/components/schemas/ObjectRelationship"
+  /v1.0/object-relationships/{objectRelationshipId}:
+    get:
+      tags:
+        - ObjectRelationship
+      operationId: getObjectRelationship
+      parameters:
+        - name: objectRelationshipId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        default:
+          description: default response
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ObjectRelationship"
+            application/xml:
+              schema:
+                $ref: "#/components/schemas/ObjectRelationship"
+    put:
+      tags:
+        - ObjectRelationship
+      operationId: putObjectRelationship
+      parameters:
+        - name: objectRelationshipId
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ObjectRelationship"
+          application/xml:
+            schema:
+              $ref: "#/components/schemas/ObjectRelationship"
+      responses:
+        default:
+          description: default response
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ObjectRelationship"
+            application/xml:
+              schema:
+                $ref: "#/components/schemas/ObjectRelationship"
+    delete:
+      tags:
+        - ObjectRelationship
+      operationId: deleteObjectRelationship
+      parameters:
+        - name: objectRelationshipId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        default:
+          description: default response
+          content:
+            application/json: {}
+            application/xml: {}
+  /v1.0/object-definitions/by-external-reference-code/{externalReferenceCode}/object-relationships:
+    get:
+      tags:
+        - ObjectRelationship
+      operationId: getObjectDefinitionByExternalReferenceCodeObjectRelationshipsPage
+      parameters:
+        - name: externalReferenceCode
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: filter
+          in: query
+          schema:
+            type: string
+        - name: page
+          in: query
+          schema:
+            type: string
+        - name: pageSize
+          in: query
+          schema:
+            type: string
+        - name: search
+          in: query
+          schema:
+            type: string
+      responses:
+        default:
+          description: default response
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PageObjectRelationship"
+            application/xml:
+              schema:
+                $ref: "#/components/schemas/PageObjectRelationship"
+    post:
+      tags:
+        - ObjectRelationship
+      operationId: postObjectDefinitionByExternalReferenceCodeObjectRelationship
+      parameters:
+        - name: externalReferenceCode
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ObjectRelationship"
+          application/xml:
+            schema:
+              $ref: "#/components/schemas/ObjectRelationship"
+      responses:
+        default:
+          description: default response
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ObjectRelationship"
+            application/xml:
+              schema:
+                $ref: "#/components/schemas/ObjectRelationship"
+  /v1.0/object-definitions/{objectDefinitionId}/object-relationships/batch:
+    post:
+      tags:
+        - ObjectRelationship
+      operationId: postObjectDefinitionObjectRelationshipBatch
+      parameters:
+        - name: objectDefinitionId
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: callbackURL
+          in: query
+          schema:
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+      responses:
+        default:
+          description: default response
+          content:
+            application/json: {}
+  /v1.0/object-relationships/batch:
+    put:
+      tags:
+        - ObjectRelationship
+      operationId: putObjectRelationshipBatch
+      parameters:
+        - name: callbackURL
+          in: query
+          schema:
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+      responses:
+        default:
+          description: default response
+          content:
+            application/json: {}
+    delete:
+      tags:
+        - ObjectRelationship
+      operationId: deleteObjectRelationshipBatch
+      parameters:
+        - name: callbackURL
+          in: query
+          schema:
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+      responses:
+        default:
+          description: default response
+          content:
+            application/json: {}
+  /v1.0/object-definitions/{objectDefinitionId}/object-validation-rules:
+    get:
+      tags:
+        - ObjectValidationRule
+      operationId: getObjectDefinitionObjectValidationRulesPage
+      parameters:
+        - name: objectDefinitionId
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: page
+          in: query
+          schema:
+            type: string
+        - name: pageSize
+          in: query
+          schema:
+            type: string
+        - name: search
+          in: query
+          schema:
+            type: string
+      responses:
+        default:
+          description: default response
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PageObjectValidationRule"
+            application/xml:
+              schema:
+                $ref: "#/components/schemas/PageObjectValidationRule"
+    post:
+      tags:
+        - ObjectValidationRule
+      operationId: postObjectDefinitionObjectValidationRule
+      parameters:
+        - name: objectDefinitionId
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ObjectValidationRule"
+          application/xml:
+            schema:
+              $ref: "#/components/schemas/ObjectValidationRule"
+      responses:
+        default:
+          description: default response
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ObjectValidationRule"
+            application/xml:
+              schema:
+                $ref: "#/components/schemas/ObjectValidationRule"
+  /v1.0/object-validation-rules/{objectValidationRuleId}:
+    get:
+      tags:
+        - ObjectValidationRule
+      operationId: getObjectValidationRule
+      parameters:
+        - name: objectValidationRuleId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        default:
+          description: default response
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ObjectValidationRule"
+            application/xml:
+              schema:
+                $ref: "#/components/schemas/ObjectValidationRule"
+    put:
+      tags:
+        - ObjectValidationRule
+      operationId: putObjectValidationRule
+      parameters:
+        - name: objectValidationRuleId
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ObjectValidationRule"
+          application/xml:
+            schema:
+              $ref: "#/components/schemas/ObjectValidationRule"
+      responses:
+        default:
+          description: default response
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ObjectValidationRule"
+            application/xml:
+              schema:
+                $ref: "#/components/schemas/ObjectValidationRule"
+    delete:
+      tags:
+        - ObjectValidationRule
+      operationId: deleteObjectValidationRule
+      parameters:
+        - name: objectValidationRuleId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        default:
+          description: default response
+          content:
+            application/json: {}
+            application/xml: {}
+    patch:
+      tags:
+        - ObjectValidationRule
+      operationId: patchObjectValidationRule
+      parameters:
+        - name: objectValidationRuleId
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ObjectValidationRule"
+          application/xml:
+            schema:
+              $ref: "#/components/schemas/ObjectValidationRule"
+      responses:
+        default:
+          description: default response
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ObjectValidationRule"
+            application/xml:
+              schema:
+                $ref: "#/components/schemas/ObjectValidationRule"
+  /v1.0/object-definitions/by-external-reference-code/{externalReferenceCode}/object-validation-rules:
+    get:
+      tags:
+        - ObjectValidationRule
+      operationId: getObjectDefinitionByExternalReferenceCodeObjectValidationRulesPage
+      parameters:
+        - name: externalReferenceCode
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: page
+          in: query
+          schema:
+            type: string
+        - name: pageSize
+          in: query
+          schema:
+            type: string
+        - name: search
+          in: query
+          schema:
+            type: string
+      responses:
+        default:
+          description: default response
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PageObjectValidationRule"
+            application/xml:
+              schema:
+                $ref: "#/components/schemas/PageObjectValidationRule"
+    post:
+      tags:
+        - ObjectValidationRule
+      operationId: postObjectDefinitionByExternalReferenceCodeObjectValidationRule
+      parameters:
+        - name: externalReferenceCode
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ObjectValidationRule"
+          application/xml:
+            schema:
+              $ref: "#/components/schemas/ObjectValidationRule"
+      responses:
+        default:
+          description: default response
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ObjectValidationRule"
+            application/xml:
+              schema:
+                $ref: "#/components/schemas/ObjectValidationRule"
+  /v1.0/object-definitions/{objectDefinitionId}/object-validation-rules/batch:
+    post:
+      tags:
+        - ObjectValidationRule
+      operationId: postObjectDefinitionObjectValidationRuleBatch
+      parameters:
+        - name: objectDefinitionId
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: callbackURL
+          in: query
+          schema:
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+      responses:
+        default:
+          description: default response
+          content:
+            application/json: {}
+  /v1.0/object-validation-rules/batch:
+    put:
+      tags:
+        - ObjectValidationRule
+      operationId: putObjectValidationRuleBatch
+      parameters:
+        - name: callbackURL
+          in: query
+          schema:
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+      responses:
+        default:
+          description: default response
+          content:
+            application/json: {}
+    delete:
+      tags:
+        - ObjectValidationRule
+      operationId: deleteObjectValidationRuleBatch
+      parameters:
+        - name: callbackURL
+          in: query
+          schema:
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+      responses:
+        default:
+          description: default response
+          content:
+            application/json: {}
+  /v1.0/object-definitions/by-external-reference-code/{externalReferenceCode}/object-views:
+    get:
+      tags:
+        - ObjectView
+      operationId: getObjectDefinitionByExternalReferenceCodeObjectViewsPage
+      parameters:
+        - name: externalReferenceCode
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: page
+          in: query
+          schema:
+            type: string
+        - name: pageSize
+          in: query
+          schema:
+            type: string
+        - name: search
+          in: query
+          schema:
+            type: string
+      responses:
+        default:
+          description: default response
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PageObjectView"
+            application/xml:
+              schema:
+                $ref: "#/components/schemas/PageObjectView"
+    post:
+      tags:
+        - ObjectView
+      operationId: postObjectDefinitionByExternalReferenceCodeObjectView
+      parameters:
+        - name: externalReferenceCode
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ObjectView"
+          application/xml:
+            schema:
+              $ref: "#/components/schemas/ObjectView"
+      responses:
+        default:
+          description: default response
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ObjectView"
+            application/xml:
+              schema:
+                $ref: "#/components/schemas/ObjectView"
+  /v1.0/object-definitions/{objectDefinitionId}/object-views:
+    get:
+      tags:
+        - ObjectView
+      operationId: getObjectDefinitionObjectViewsPage
+      parameters:
+        - name: objectDefinitionId
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: page
+          in: query
+          schema:
+            type: string
+        - name: pageSize
+          in: query
+          schema:
+            type: string
+        - name: search
+          in: query
+          schema:
+            type: string
+      responses:
+        default:
+          description: default response
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PageObjectView"
+            application/xml:
+              schema:
+                $ref: "#/components/schemas/PageObjectView"
+    post:
+      tags:
+        - ObjectView
+      operationId: postObjectDefinitionObjectView
+      parameters:
+        - name: objectDefinitionId
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ObjectView"
+          application/xml:
+            schema:
+              $ref: "#/components/schemas/ObjectView"
+      responses:
+        default:
+          description: default response
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ObjectView"
+            application/xml:
+              schema:
+                $ref: "#/components/schemas/ObjectView"
+  /v1.0/object-views/{objectViewId}:
+    get:
+      tags:
+        - ObjectView
+      operationId: getObjectView
+      parameters:
+        - name: objectViewId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        default:
+          description: default response
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ObjectView"
+            application/xml:
+              schema:
+                $ref: "#/components/schemas/ObjectView"
+    put:
+      tags:
+        - ObjectView
+      operationId: putObjectView
+      parameters:
+        - name: objectViewId
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ObjectView"
+          application/xml:
+            schema:
+              $ref: "#/components/schemas/ObjectView"
+      responses:
+        default:
+          description: default response
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ObjectView"
+            application/xml:
+              schema:
+                $ref: "#/components/schemas/ObjectView"
+    delete:
+      tags:
+        - ObjectView
+      operationId: deleteObjectView
+      parameters:
+        - name: objectViewId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        default:
+          description: default response
+          content:
+            application/json: {}
+            application/xml: {}
+  /v1.0/object-views/{objectViewId}/copy:
+    post:
+      tags:
+        - ObjectView
+      operationId: postObjectViewCopy
+      parameters:
+        - name: objectViewId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        default:
+          description: default response
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ObjectView"
+            application/xml:
+              schema:
+                $ref: "#/components/schemas/ObjectView"
+  /v1.0/object-definitions/{objectDefinitionId}/object-views/batch:
+    post:
+      tags:
+        - ObjectView
+      operationId: postObjectDefinitionObjectViewBatch
+      parameters:
+        - name: objectDefinitionId
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: callbackURL
+          in: query
+          schema:
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+      responses:
+        default:
+          description: default response
+          content:
+            application/json: {}
+  /v1.0/object-views/batch:
+    put:
+      tags:
+        - ObjectView
+      operationId: putObjectViewBatch
+      parameters:
+        - name: callbackURL
+          in: query
+          schema:
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+      responses:
+        default:
+          description: default response
+          content:
+            application/json: {}
+    delete:
+      tags:
+        - ObjectView
+      operationId: deleteObjectViewBatch
+      parameters:
+        - name: callbackURL
+          in: query
+          schema:
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+      responses:
+        default:
+          description: default response
+          content:
+            application/json: {}
+  /v1.0/openapi.{type}:
+    get:
+      operationId: getOpenAPI
+      parameters:
+        - name: type
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        default:
+          description: default response
+          content:
+            application/json: {}
+            application/yaml: {}
+components:
+  securitySchemes:
+    BasicAuth:
+      type: http
+      scheme: basic
+    BearerAuth:
+      type: http
+      scheme: bearer
+  schemas:
+    ObjectAction:
+      type: object
+      properties:
+        actions:
+          type: object
+          additionalProperties:
+            type: object
+            additionalProperties:
+              type: string
+          readOnly: true
+        active:
+          type: boolean
+        conditionExpression:
+          type: string
+        dateCreated:
+          type: string
+          format: date-time
+          readOnly: true
+        dateModified:
+          type: string
+          format: date-time
+          readOnly: true
+        description:
+          type: string
+        errorMessage:
+          type: object
+          additionalProperties:
+            type: string
+        externalReferenceCode:
+          type: string
+        id:
+          type: integer
+          format: int64
+          readOnly: true
+        label:
+          type: object
+          additionalProperties:
+            type: string
+        name:
+          type: string
+        objectActionExecutorKey:
+          type: string
+        objectActionTriggerKey:
+          type: string
+        parameters:
+          type: object
+          additionalProperties:
+            type: object
+        status:
+          $ref: "#/components/schemas/Status"
+        x-class-name:
+          type: string
+          readOnly: true
+          default: com.liferay.object.admin.rest.dto.v1_0.ObjectAction
+      xml:
+        name: ObjectAction
+    Status:
+      type: object
+      properties:
+        code:
+          type: integer
+          format: int32
+        label:
+          type: string
+        label_i18n:
+          type: string
+        x-class-name:
+          type: string
+          readOnly: true
+          default: com.liferay.object.admin.rest.dto.v1_0.Status
+      xml:
+        name: Status
+    Facet:
+      type: object
+      properties:
+        facetCriteria:
+          type: string
+        facetValues:
+          type: array
+          items:
+            $ref: "#/components/schemas/FacetValue"
+    FacetValue:
+      type: object
+      properties:
+        numberOfOccurrences:
+          type: integer
+          format: int32
+        term:
+          type: string
+    PageObjectAction:
+      type: object
+      properties:
+        items:
+          type: array
+          items:
+            $ref: "#/components/schemas/ObjectAction"
+        totalCount:
+          type: integer
+          format: int64
+        lastPage:
+          type: integer
+          format: int64
+        facets:
+          type: array
+          items:
+            $ref: "#/components/schemas/Facet"
+        page:
+          type: integer
+          format: int64
+        pageSize:
+          type: integer
+          format: int64
+        actions:
+          type: object
+          additionalProperties:
+            type: object
+            additionalProperties:
+              type: string
+    ObjectDefinition:
+      type: object
+      properties:
+        accountEntryRestricted:
+          type: boolean
+        accountEntryRestrictedObjectFieldName:
+          type: string
+        actions:
+          type: object
+          additionalProperties:
+            type: object
+            additionalProperties:
+              type: string
+          readOnly: true
+        active:
+          type: boolean
+        dateCreated:
+          type: string
+          format: date-time
+          readOnly: true
+        dateModified:
+          type: string
+          format: date-time
+          readOnly: true
+        defaultLanguageId:
+          type: string
+        enableCategorization:
+          type: boolean
+        enableComments:
+          type: boolean
+        enableObjectEntryHistory:
+          type: boolean
+        externalReferenceCode:
+          type: string
+        id:
+          type: integer
+          format: int64
+          readOnly: true
+        label:
+          type: object
+          additionalProperties:
+            type: string
+        name:
+          type: string
+        objectActions:
+          type: array
+          items:
+            $ref: "#/components/schemas/ObjectAction"
+        objectFields:
+          type: array
+          items:
+            $ref: "#/components/schemas/ObjectField"
+        objectLayouts:
+          type: array
+          items:
+            $ref: "#/components/schemas/ObjectLayout"
+        objectRelationships:
+          type: array
+          items:
+            $ref: "#/components/schemas/ObjectRelationship"
+        objectViews:
+          type: array
+          items:
+            $ref: "#/components/schemas/ObjectView"
+        panelAppOrder:
+          type: string
+        panelCategoryKey:
+          type: string
+        parameterRequired:
+          type: boolean
+          readOnly: true
+        pluralLabel:
+          type: object
+          additionalProperties:
+            type: string
+        portlet:
+          type: boolean
+        restContextPath:
+          type: string
+          readOnly: true
+        scope:
+          type: string
+        status:
+          $ref: "#/components/schemas/Status"
+        storageType:
+          type: string
+        system:
+          type: boolean
+          readOnly: true
+        titleObjectFieldName:
+          type: string
+        x-class-name:
+          type: string
+          readOnly: true
+          default: com.liferay.object.admin.rest.dto.v1_0.ObjectDefinition
+      xml:
+        name: ObjectDefinition
+    ObjectField:
+      type: object
+      properties:
+        DBType:
+          type: string
+          enum:
+            - BigDecimal
+            - Boolean
+            - Clob
+            - Date
+            - Double
+            - Integer
+            - Long
+            - String
+        actions:
+          type: object
+          additionalProperties:
+            type: object
+            additionalProperties:
+              type: string
+          readOnly: true
+        businessType:
+          type: string
+          enum:
+            - Aggregation
+            - Attachment
+            - Boolean
+            - Date
+            - Decimal
+            - Formula
+            - Integer
+            - LongInteger
+            - LongText
+            - MultiselectPicklist
+            - Picklist
+            - PrecisionDecimal
+            - Relationship
+            - RichText
+            - Text
+        defaultValue:
+          type: string
+        externalReferenceCode:
+          type: string
+        id:
+          type: integer
+          format: int64
+          readOnly: true
+        indexed:
+          type: boolean
+        indexedAsKeyword:
+          type: boolean
+        indexedLanguageId:
+          type: string
+        label:
+          type: object
+          additionalProperties:
+            type: string
+        listTypeDefinitionExternalReferenceCode:
+          type: string
+        listTypeDefinitionId:
+          type: integer
+          format: int64
+        name:
+          type: string
+        objectFieldSettings:
+          type: array
+          items:
+            $ref: "#/components/schemas/ObjectFieldSetting"
+        relationshipType:
+          type: string
+          readOnly: true
+          enum:
+            - oneToMany
+            - oneToOne
+        required:
+          type: boolean
+        state:
+          type: boolean
+        system:
+          type: boolean
+        type:
+          type: string
+          deprecated: true
+          enum:
+            - BigDecimal
+            - Boolean
+            - Clob
+            - Date
+            - Double
+            - Integer
+            - Long
+            - String
+        x-class-name:
+          type: string
+          readOnly: true
+          default: com.liferay.object.admin.rest.dto.v1_0.ObjectField
+      xml:
+        name: ObjectField
+    ObjectFieldSetting:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+          readOnly: true
+        name:
+          type: string
+        objectFieldId:
+          type: integer
+          format: int64
+        value:
+          type: object
+        x-class-name:
+          type: string
+          readOnly: true
+          default: com.liferay.object.admin.rest.dto.v1_0.ObjectFieldSetting
+      xml:
+        name: ObjectFieldSetting
+    ObjectLayout:
+      type: object
+      properties:
+        actions:
+          type: object
+          additionalProperties:
+            type: object
+            additionalProperties:
+              type: string
+          readOnly: true
+        dateCreated:
+          type: string
+          format: date-time
+          readOnly: true
+        dateModified:
+          type: string
+          format: date-time
+          readOnly: true
+        defaultObjectLayout:
+          type: boolean
+        id:
+          type: integer
+          format: int64
+          readOnly: true
+        name:
+          type: object
+          additionalProperties:
+            type: string
+        objectDefinitionExternalReferenceCode:
+          type: string
+        objectDefinitionId:
+          type: integer
+          format: int64
+        objectLayoutTabs:
+          type: array
+          items:
+            $ref: "#/components/schemas/ObjectLayoutTab"
+        x-class-name:
+          type: string
+          readOnly: true
+          default: com.liferay.object.admin.rest.dto.v1_0.ObjectLayout
+      xml:
+        name: ObjectLayout
+    ObjectLayoutBox:
+      type: object
+      properties:
+        collapsable:
+          type: boolean
+        id:
+          type: integer
+          format: int64
+          readOnly: true
+        name:
+          type: object
+          additionalProperties:
+            type: string
+        objectLayoutRows:
+          type: array
+          items:
+            $ref: "#/components/schemas/ObjectLayoutRow"
+        priority:
+          type: integer
+          format: int32
+        type:
+          type: string
+          enum:
+            - categorization
+            - regular
+        x-class-name:
+          type: string
+          readOnly: true
+          default: com.liferay.object.admin.rest.dto.v1_0.ObjectLayoutBox
+      xml:
+        name: ObjectLayoutBox
+    ObjectLayoutColumn:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+          readOnly: true
+        objectFieldName:
+          type: string
+        priority:
+          type: integer
+          format: int32
+        size:
+          type: integer
+          format: int32
+        x-class-name:
+          type: string
+          readOnly: true
+          default: com.liferay.object.admin.rest.dto.v1_0.ObjectLayoutColumn
+      xml:
+        name: ObjectLayoutColumn
+    ObjectLayoutRow:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+          readOnly: true
+        objectLayoutColumns:
+          type: array
+          items:
+            $ref: "#/components/schemas/ObjectLayoutColumn"
+        priority:
+          type: integer
+          format: int32
+        x-class-name:
+          type: string
+          readOnly: true
+          default: com.liferay.object.admin.rest.dto.v1_0.ObjectLayoutRow
+      xml:
+        name: ObjectLayoutRow
+    ObjectLayoutTab:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+          readOnly: true
+        name:
+          type: object
+          additionalProperties:
+            type: string
+        objectLayoutBoxes:
+          type: array
+          items:
+            $ref: "#/components/schemas/ObjectLayoutBox"
+        objectRelationshipId:
+          type: integer
+          format: int64
+        priority:
+          type: integer
+          format: int32
+        x-class-name:
+          type: string
+          readOnly: true
+          default: com.liferay.object.admin.rest.dto.v1_0.ObjectLayoutTab
+      xml:
+        name: ObjectLayoutTab
+    ObjectRelationship:
+      type: object
+      properties:
+        actions:
+          type: object
+          additionalProperties:
+            type: object
+            additionalProperties:
+              type: string
+          readOnly: true
+        deletionType:
+          type: string
+          enum:
+            - cascade
+            - disassociate
+            - prevent
+        id:
+          type: integer
+          format: int64
+          readOnly: true
+        label:
+          type: object
+          additionalProperties:
+            type: string
+        name:
+          type: string
+        objectDefinitionExternalReferenceCode1:
+          type: string
+        objectDefinitionExternalReferenceCode2:
+          type: string
+        objectDefinitionId1:
+          type: integer
+          format: int64
+        objectDefinitionId2:
+          type: integer
+          format: int64
+        objectDefinitionName2:
+          type: string
+        parameterObjectFieldId:
+          type: integer
+          format: int64
+        parameterObjectFieldName:
+          type: string
+        reverse:
+          type: boolean
+          readOnly: true
+        type:
+          type: string
+          enum:
+            - oneToMany
+            - oneToOne
+            - manyToMany
+        x-class-name:
+          type: string
+          readOnly: true
+          default: com.liferay.object.admin.rest.dto.v1_0.ObjectRelationship
+      xml:
+        name: ObjectRelationship
+    ObjectView:
+      type: object
+      properties:
+        actions:
+          type: object
+          additionalProperties:
+            type: object
+            additionalProperties:
+              type: string
+          readOnly: true
+        dateCreated:
+          type: string
+          format: date-time
+          readOnly: true
+        dateModified:
+          type: string
+          format: date-time
+          readOnly: true
+        defaultObjectView:
+          type: boolean
+        id:
+          type: integer
+          format: int64
+          readOnly: true
+        name:
+          type: object
+          additionalProperties:
+            type: string
+        objectDefinitionExternalReferenceCode:
+          type: string
+        objectDefinitionId:
+          type: integer
+          format: int64
+        objectViewColumns:
+          type: array
+          items:
+            $ref: "#/components/schemas/ObjectViewColumn"
+        objectViewFilterColumns:
+          type: array
+          items:
+            $ref: "#/components/schemas/ObjectViewFilterColumn"
+        objectViewSortColumns:
+          type: array
+          items:
+            $ref: "#/components/schemas/ObjectViewSortColumn"
+        x-class-name:
+          type: string
+          readOnly: true
+          default: com.liferay.object.admin.rest.dto.v1_0.ObjectView
+      xml:
+        name: ObjectView
+    ObjectViewColumn:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+          readOnly: true
+        label:
+          type: object
+          additionalProperties:
+            type: string
+        objectFieldName:
+          type: string
+        priority:
+          type: integer
+          format: int32
+        x-class-name:
+          type: string
+          readOnly: true
+          default: com.liferay.object.admin.rest.dto.v1_0.ObjectViewColumn
+      xml:
+        name: ObjectViewColumn
+    ObjectViewFilterColumn:
+      type: object
+      properties:
+        filterType:
+          type: string
+          enum:
+            - excludes
+            - includes
+        id:
+          type: integer
+          format: int64
+          readOnly: true
+        json:
+          type: string
+        objectFieldName:
+          type: string
+        valueSummary:
+          type: string
+          readOnly: true
+        x-class-name:
+          type: string
+          readOnly: true
+          default: com.liferay.object.admin.rest.dto.v1_0.ObjectViewFilterColumn
+      xml:
+        name: ObjectViewFilterColumn
+    ObjectViewSortColumn:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+          readOnly: true
+        objectFieldName:
+          type: string
+        priority:
+          type: integer
+          format: int32
+        sortOrder:
+          type: string
+          enum:
+            - asc
+            - desc
+        x-class-name:
+          type: string
+          readOnly: true
+          default: com.liferay.object.admin.rest.dto.v1_0.ObjectViewSortColumn
+      xml:
+        name: ObjectViewSortColumn
+    PageObjectDefinition:
+      type: object
+      properties:
+        items:
+          type: array
+          items:
+            $ref: "#/components/schemas/ObjectDefinition"
+        totalCount:
+          type: integer
+          format: int64
+        lastPage:
+          type: integer
+          format: int64
+        facets:
+          type: array
+          items:
+            $ref: "#/components/schemas/Facet"
+        page:
+          type: integer
+          format: int64
+        pageSize:
+          type: integer
+          format: int64
+        actions:
+          type: object
+          additionalProperties:
+            type: object
+            additionalProperties:
+              type: string
+    PageObjectField:
+      type: object
+      properties:
+        items:
+          type: array
+          items:
+            $ref: "#/components/schemas/ObjectField"
+        totalCount:
+          type: integer
+          format: int64
+        lastPage:
+          type: integer
+          format: int64
+        facets:
+          type: array
+          items:
+            $ref: "#/components/schemas/Facet"
+        page:
+          type: integer
+          format: int64
+        pageSize:
+          type: integer
+          format: int64
+        actions:
+          type: object
+          additionalProperties:
+            type: object
+            additionalProperties:
+              type: string
+    PageObjectLayout:
+      type: object
+      properties:
+        items:
+          type: array
+          items:
+            $ref: "#/components/schemas/ObjectLayout"
+        totalCount:
+          type: integer
+          format: int64
+        lastPage:
+          type: integer
+          format: int64
+        facets:
+          type: array
+          items:
+            $ref: "#/components/schemas/Facet"
+        page:
+          type: integer
+          format: int64
+        pageSize:
+          type: integer
+          format: int64
+        actions:
+          type: object
+          additionalProperties:
+            type: object
+            additionalProperties:
+              type: string
+    PageObjectRelationship:
+      type: object
+      properties:
+        items:
+          type: array
+          items:
+            $ref: "#/components/schemas/ObjectRelationship"
+        totalCount:
+          type: integer
+          format: int64
+        lastPage:
+          type: integer
+          format: int64
+        facets:
+          type: array
+          items:
+            $ref: "#/components/schemas/Facet"
+        page:
+          type: integer
+          format: int64
+        pageSize:
+          type: integer
+          format: int64
+        actions:
+          type: object
+          additionalProperties:
+            type: object
+            additionalProperties:
+              type: string
+    ObjectValidationRule:
+      type: object
+      properties:
+        actions:
+          type: object
+          additionalProperties:
+            type: object
+            additionalProperties:
+              type: string
+          readOnly: true
+        active:
+          type: boolean
+        dateCreated:
+          type: string
+          format: date-time
+          readOnly: true
+        dateModified:
+          type: string
+          format: date-time
+          readOnly: true
+        engine:
+          type: string
+        engineLabel:
+          type: string
+          readOnly: true
+        errorLabel:
+          type: object
+          additionalProperties:
+            type: string
+        id:
+          type: integer
+          format: int64
+          readOnly: true
+        name:
+          type: object
+          additionalProperties:
+            type: string
+        objectDefinitionExternalReferenceCode:
+          type: string
+        objectDefinitionId:
+          type: integer
+          format: int64
+        script:
+          type: string
+        x-class-name:
+          type: string
+          readOnly: true
+          default: com.liferay.object.admin.rest.dto.v1_0.ObjectValidationRule
+      xml:
+        name: ObjectValidationRule
+    PageObjectValidationRule:
+      type: object
+      properties:
+        items:
+          type: array
+          items:
+            $ref: "#/components/schemas/ObjectValidationRule"
+        totalCount:
+          type: integer
+          format: int64
+        lastPage:
+          type: integer
+          format: int64
+        facets:
+          type: array
+          items:
+            $ref: "#/components/schemas/Facet"
+        page:
+          type: integer
+          format: int64
+        pageSize:
+          type: integer
+          format: int64
+        actions:
+          type: object
+          additionalProperties:
+            type: object
+            additionalProperties:
+              type: string
+    PageObjectView:
+      type: object
+      properties:
+        items:
+          type: array
+          items:
+            $ref: "#/components/schemas/ObjectView"
+        totalCount:
+          type: integer
+          format: int64
+        lastPage:
+          type: integer
+          format: int64
+        facets:
+          type: array
+          items:
+            $ref: "#/components/schemas/Facet"
+        page:
+          type: integer
+          format: int64
+        pageSize:
+          type: integer
+          format: int64
+        actions:
+          type: object
+          additionalProperties:
+            type: object
+            additionalProperties:
+              type: string

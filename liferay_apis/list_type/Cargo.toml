@@ -1,0 +1,15 @@
+[package]
+name = "headless_admin_list_type"
+version = "1.0.0"
+authors = ["OpenAPI Generator team and contributors"]
+description = "A Java client JAR is available for use with the group ID 'com.liferay', artifact ID 'om.liferay.headless.admin.list.type.client', and version '1.0.0'.. A Java client JAR is available for use with the group ID 'com.liferay', artifact ID 'com.liferay.headless.admin.list.type.client', and version '1.0.11'."
+license = "Apache 2.0"
+edition = "2018"
+
+[dependencies]
+serde = "^1.0"
+serde_derive = "^1.0"
+serde_json = "^1.0"
+url = "^2.2"
+uuid = { version = "^1.0", features = ["serde"] }
+reqwest = "~0.9"

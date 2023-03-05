@@ -17,6 +17,7 @@ pub fn handle_init(args: InitArgs) -> Result<(), CliError> {
         return Err(CliError::Init("Current directory is not empty".into()));
     }
 
+    AssetsDir::set_env_file(&args)?;
     let config = initialize_config(config, args)?;
     let framework = config.framework.to_owned();
 
