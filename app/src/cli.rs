@@ -205,38 +205,50 @@ pub enum ObjectOption {
         .args(["all", "source"]),
 ))]
 pub struct ImportObjectArgs {
-    /// The url for your Liferay instance. It can be local or remote.
+    /// The url for your Liferay instance. It can be local or remote. If {n}
+    /// you don't provide this value, ce-cli will attempt to load it from{n}
+    /// the LIFERAY_HOST environment variable.
     #[arg(long)]
     pub url: Option<Url>,
 
-    /// The port for your Liferay instance
+    /// The port for your Liferay instance. If not provided, ce-cli will {n}
+    /// attempt to load it from the LIFERAY_PORT environment variable.
     #[arg(long)]
     pub port: Option<u16>,
 
-    /// Setting this flag will import all Object definitions and picklists{n}
+    /// Setting this flag will import all Object definitions, picklists,  {n}
+    /// and object data.
     #[arg(short, long)]
     pub all: bool,
 
     /// The external reference code of the item that you want to import.  {n}
     /// Note that in the case that you're importing object data, the erc  {n}
-    /// refers to the erc of the Object definition, not the object data.
+    /// refers to the erc of the Object definition, not the object instance.
     #[arg(short, long, requires = "source")]
     pub erc: Option<String>,
 
     /// Indicates whether the data to be imported is an ObjectDefinition  {n}
-    /// a picklist, or object data.
+    /// a Picklist, or object instance data.
     #[arg(short, long, value_enum, requires = "erc")]
     pub source: Option<ImportExportSource>,
 
-    /// Liferay user's email address who has access rights to requested data
+    /// Liferay user's email address who has access rights to requested   {n}
+    /// data. If not provided, ce-cli will attempt to load it from the    {n}
+    /// LIFERAY_USERNAME environment variable.
     #[arg(short, long, value_enum)]
     pub username: Option<String>,
 
-    /// Liferay user's password
+    /// The password associated with the username parameter. if not       {n}
+    /// provided, ce-cli will attempt to load this from the               {n}
+    /// LIFERAY_PASSWORD environment variable.
     #[arg(short, long, value_enum)]
     pub password: Option<String>,
 
-    /// Folder to store the output
+    /// Folder to store the output. If you are operating in a ce-cli     {n}
+    /// generated workspace, this will default to                        {n}
+    /// {root}/objects/definitions for Liferay Object defiitions,        {n}
+    /// {root}/objects/picklists for Picklist definitions, and           {n}
+    /// {root}/objects/data for object instance data.
     #[arg(short, long, value_enum)]
     pub output: Option<String>,
 }

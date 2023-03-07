@@ -21,8 +21,10 @@ pub enum CliError {
     InvalidExtensionName,
     ExtensionExists,
     ParsePackageName(String),
-    ImportError(&'static str),
-    MissingParameter(&'static str)
+    MissingParameter(&'static str),
+    NetworkError(&'static str, reqwest::Error),
+    InvalidJson(&'static str),
+    GetPicklist(&'static str)
 }
 
 impl Display for CliError {
@@ -65,8 +67,10 @@ impl Display for CliError {
             CliError::InvalidExtensionName =>  write!(f, "The extension name you entered is invalid. The name must start with an alphabet character and may not contain special symbols other than -"),
             CliError::ExtensionExists => write!(f, "The extension you are trying to create already exists!"),
             CliError::ParsePackageName(package_name) => write!(f, "Faile to parse npm package name: {package_name}"),
-            CliError::ImportError(message) => write!(f, "Import failed: {message}"),
-            CliError::MissingParameter(message) => write!(f, "Parameter not provided: {message}"),
+            CliError::MissingParameter(parameter_name) => write!(f, "Parameter not provided: {parameter_name}"),
+            CliError::NetworkError(message, _) => write!(f, "{message}"),
+            CliError::InvalidJson(entity_name) =>  write!(f, "Received invalid json for entity {entity_name}"),
+            CliError::GetPicklist(message) =>  write!(f, "{message}"),
         }
     }
 }
@@ -94,8 +98,10 @@ impl Error for CliError {
             CliError::InvalidExtensionName => None,
             CliError::ExtensionExists => None,
             CliError::ParsePackageName(_) => None,
-            CliError::ImportError(_) => None,
-            CliError::MissingParameter(_) => todo!(),
+            CliError::MissingParameter(_) => None,
+            CliError::NetworkError(_, e) => Some(e),
+            CliError::InvalidJson(_) => None,
+            CliError::GetPicklist(_) => None,
         }
     }
 }
