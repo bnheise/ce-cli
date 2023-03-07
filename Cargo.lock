@@ -3,18 +3,6 @@
 version = 3
 
 [[package]]
-name = "ObjectAdmin"
-version = "1.0.0"
-dependencies = [
- "reqwest 0.9.24",
- "serde",
- "serde_derive",
- "serde_json",
- "url 2.3.1",
- "uuid 1.3.0",
-]
-
-[[package]]
 name = "addr2line"
 version = "0.19.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -140,7 +128,6 @@ checksum = "50d30906286121d95be3d479533b458f87493b30a4b5f79a607db8f5d11aa91f"
 name = "ce-cli"
 version = "0.3.0"
 dependencies = [
- "ObjectAdmin",
  "base64 0.21.0",
  "clap",
  "colored",
@@ -149,11 +136,13 @@ dependencies = [
  "headless_admin_list_type",
  "include_dir",
  "lazy_static",
+ "object_admin",
  "regex",
  "reqwest 0.11.14",
  "serde",
  "serde_json",
  "serde_yaml",
+ "url 2.3.1",
  "walkdir",
  "yaml-rust",
  "zip",
@@ -1123,6 +1112,18 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "ea86265d3d3dcb6a27fc51bd29a4bf387fae9d2986b823079d4986af253eb439"
 dependencies = [
  "memchr",
+]
+
+[[package]]
+name = "object_admin"
+version = "1.0.0"
+dependencies = [
+ "reqwest 0.9.24",
+ "serde",
+ "serde_derive",
+ "serde_json",
+ "url 2.3.1",
+ "uuid 1.3.0",
 ]
 
 [[package]]
