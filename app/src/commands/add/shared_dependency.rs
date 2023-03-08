@@ -2,7 +2,12 @@ use std::path::Path;
 
 use crate::{
     assets_dir::AssetsDir,
-    config_generators::{config::Config, package_json::PackageJson, ConfigFile, External},
+    config_generators::{
+        client_extension_yaml::{AssembleMember, ClientExtensionYaml},
+        config::Config,
+        package_json::PackageJson,
+        ConfigFile, External,
+    },
     error::CliError,
 };
 
@@ -29,6 +34,18 @@ pub fn handle_shared_dependency(package: String) -> Result<(), CliError> {
     package_json.add_shared_dep_build();
     let raw = PackageJson::try_serialize(package_json)?;
     PackageJson::write(raw)?;
+
+    let raw = ClientExtensionYaml::try_open()?;
+    let mut client_ext_yaml = ClientExtensionYaml::try_parse(&raw)?;
+    let shared_dep_assemble = AssembleMember {
+        from: "sharedDeps".into(),
+        include: "*.js".into(),
+        into: "static/".into(),
+    };
+    client_ext_yaml.add_assemble_member(shared_dep_assemble);
+
+    let raw = ClientExtensionYaml::try_serialize(client_ext_yaml)?;
+    ClientExtensionYaml::write(raw)?;
 
     AssetsDir::generate_static_from_folder(Path::new("app_templates/shared_dep"))?;
 

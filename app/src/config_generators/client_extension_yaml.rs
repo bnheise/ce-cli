@@ -21,6 +21,10 @@ impl ClientExtensionYaml {
         self.apps.insert(definition.get_id(), definition);
     }
 
+    pub fn add_assemble_member(&mut self, assemble_member: AssembleMember) {
+        self.assemble.push(assemble_member)
+    }
+
     pub fn set_dev_urls(mut self, port: u16) -> Self {
         self.apps
             .iter_mut()
@@ -70,9 +74,9 @@ impl<'a> ConfigFile<'a> for ClientExtensionYaml {
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct AssembleMember {
-    from: String,
-    include: String,
-    into: String,
+    pub from: String,
+    pub include: String,
+    pub into: String,
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
