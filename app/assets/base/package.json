@@ -9,7 +9,7 @@
     "test:component": "cypress run --component",
     "test:unit": "jest",
     "test:e2e": "cypress run --e2e --browser chrome",
-    "test": "concurrently yarn:test:unit \"yarn:test:component --component --headless --browser chrome \""
+    "test": "concurrently yarn:test:unit \"yarn:test:component --headless --browser chrome \""
   },
   "license": "ISC",
   "devDependencies": {
