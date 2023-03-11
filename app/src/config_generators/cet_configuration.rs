@@ -15,7 +15,7 @@ pub struct CetConfiguration {
     apps: HashMap<String, CetDefinition>,
 }
 
-impl From<ClientExtensionYaml> for CetConfiguration {
+impl<'a> From<ClientExtensionYaml<'a>> for CetConfiguration {
     fn from(value: ClientExtensionYaml) -> Self {
         let apps = value
             .get_apps()

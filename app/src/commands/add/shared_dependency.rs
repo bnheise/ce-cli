@@ -3,9 +3,7 @@ use std::path::Path;
 use crate::{
     assets_dir::AssetsDir,
     config_generators::{
-        client_extension_yaml::{AssembleMember, ClientExtensionYaml},
-        config::Config,
-        package_json::PackageJson,
+        client_extension_yaml::ClientExtensionYaml, config::Config, package_json::PackageJson,
         ConfigFile, External,
     },
     error::CliError,
@@ -37,12 +35,8 @@ pub fn handle_shared_dependency(package: String) -> Result<(), CliError> {
 
     let raw = ClientExtensionYaml::try_open()?;
     let mut client_ext_yaml = ClientExtensionYaml::try_parse(&raw)?;
-    let shared_dep_assemble = AssembleMember {
-        from: "sharedDeps".into(),
-        include: "*.js".into(),
-        into: "static/".into(),
-    };
-    client_ext_yaml.add_assemble_member(shared_dep_assemble);
+
+    client_ext_yaml.add_shared_dep_assemble_if_not_exists();
 
     let raw = ClientExtensionYaml::try_serialize(client_ext_yaml)?;
     ClientExtensionYaml::write(raw)?;

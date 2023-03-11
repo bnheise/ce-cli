@@ -8,20 +8,36 @@ use serde::{Deserialize, Serialize};
 use std::{collections::HashMap, fmt::Display};
 
 #[derive(Debug, Serialize, Deserialize)]
-pub struct ClientExtensionYaml {
-    assemble: Vec<AssembleMember>,
+#[serde(bound(deserialize = "'de: 'a"))]
+pub struct ClientExtensionYaml<'a> {
+    assemble: Vec<AssembleMember<'a>>,
     #[serde(flatten)]
     apps: HashMap<String, ClientExtType>,
     #[serde(flatten)]
     other: HashMap<String, serde_yaml::Value>,
 }
 
-impl ClientExtensionYaml {
+impl<'a> ClientExtensionYaml<'a> {
+    const SHARED_DEP_ASSEMBLE: AssembleMember<'a> = AssembleMember {
+        from: "sharedDeps",
+        include: "*.js",
+        into: "static/",
+    };
+
     pub fn add_app(&mut self, definition: ClientExtType) {
         self.apps.insert(definition.get_id(), definition);
     }
 
-    pub fn add_assemble_member(&mut self, assemble_member: AssembleMember) {
+    pub fn add_shared_dep_assemble_if_not_exists(&mut self) -> bool {
+        if self.assemble.contains(&Self::SHARED_DEP_ASSEMBLE) {
+            false
+        } else {
+            self.add_assemble_member(Self::SHARED_DEP_ASSEMBLE);
+            true
+        }
+    }
+
+    pub fn add_assemble_member(&mut self, assemble_member: AssembleMember<'a>) {
         self.assemble.push(assemble_member)
     }
 
@@ -60,7 +76,7 @@ impl ClientExtensionYaml {
     }
 }
 
-impl<'a> ConfigFile<'a> for ClientExtensionYaml {
+impl<'a> ConfigFile<'a> for ClientExtensionYaml<'a> {
     const FILENAME: &'static str = "client-extension.yaml";
     const FORMAT: ConfigFormat = ConfigFormat::Yaml;
 
@@ -72,11 +88,11 @@ impl<'a> ConfigFile<'a> for ClientExtensionYaml {
     }
 }
 
-#[derive(Debug, Serialize, Deserialize)]
-pub struct AssembleMember {
-    pub from: String,
-    pub include: String,
-    pub into: String,
+#[derive(Debug, Serialize, Deserialize, PartialEq, Eq)]
+pub struct AssembleMember<'a> {
+    pub from: &'a str,
+    pub include: &'a str,
+    pub into: &'a str,
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
