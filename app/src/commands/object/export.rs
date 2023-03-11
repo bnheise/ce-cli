@@ -5,8 +5,11 @@ use crate::{
     config_generators::{config::Config, ConfigFile},
     error::CliError,
 };
-use object_admin::apis::object_definition_api::put_object_definition_by_external_reference_code;
-use object_admin::models::ObjectDefinition;
+use object_admin::apis::object_definition_api::{
+    post_object_definition_batch, put_object_definition_batch,
+    put_object_definition_by_external_reference_code,
+};
+use object_admin::models::{CreationStrategy, ObjectDefinition};
 use std::fs;
 use std::path::Path;
 
@@ -41,13 +44,12 @@ fn export_all(args: ExportObjectArgs) -> Result<(), CliError> {
     api_config.basic_auth = Some((username, Some(password)));
 
     if let Some(url) = &url {
-        println!("HHHHHHHH {url:?}");
         api_config.update_base_path(url);
     }
 
     let base_data_dir = prepare_data_path(directory, config.is_ok())?;
 
-    // let mut object_definitions = Vec::new();
+    let mut object_definitions = Vec::new();
 
     let definitions_path = Path::new(&base_data_dir).join("definitions");
     println!("Loading object definitions...");
@@ -60,56 +62,46 @@ fn export_all(args: ExportObjectArgs) -> Result<(), CliError> {
         let file = fs::read_to_string(&path)
             .map_err(|e| CliError::ReadFile(format!("Failed to open file ${path:?}"), e))?;
 
-        let object_def = serde_json::from_str::<ObjectDefinition>(&file)
+        let mut object_def = serde_json::from_str::<ObjectDefinition>(&file)
             .map_err(|e| CliError::ParseJson(path.to_str().unwrap().to_string(), e))?;
+        object_def.actions = None;
+        object_def.id = None;
+        object_def.active = None;
         let erc = object_def
             .external_reference_code
             .clone()
             .unwrap_or_default();
         println!("Found definition: {erc}");
-        let res =
-            put_object_definition_by_external_reference_code(&api_config, &erc, Some(object_def));
-        match res {
-            Ok(_) => println!("Succeeded in uploading {erc}"),
-            Err(e) => {
-                println!("An error occurred when uploading {erc}:");
-                match e {
-                    object_admin::apis::Error::Reqwest(e) => {
-                        println!("Request failed: {e}")
-                    }
-                    object_admin::apis::Error::Serde(e) => println!("Serialization failed: {e}"),
-                    object_admin::apis::Error::Io(e) => println!("Io error occurred: {e}"),
-                    object_admin::apis::Error::ResponseError(e) => {
-                        println!("Liferay returned an error: {}", e.content.as_str())
-                    }
-                }
-            }
-        }
-        // object_definitions.push(object_def);
+        object_definitions.push(object_def);
     }
-    // let body =
-    //     serde_json::to_value(object_definitions).expect("Should be able to convert to json value");
+    let body =
+        serde_json::to_value(object_definitions).expect("Should be able to convert to json value");
 
-    println!("Sending data to Liferay...");
-    println!("{api_config:?}");
-    // put_object_definition_batch(&api_config, None, Some(body)).map_err(|e| match e {
-    //     object_admin::apis::Error::Reqwest(e) => {
-    //         println!("{e:?}");
-    //         todo!()
-    //     }
-    //     object_admin::apis::Error::Serde(_) => {
-    //         println!("{e:?}");
-    //         todo!()
-    //     }
-    //     object_admin::apis::Error::Io(_) => {
-    //         println!("{e:?}");
-    //         todo!()
-    //     }
-    //     object_admin::apis::Error::ResponseError(_) => {
-    //         println!("{e:?}");
-    //         todo!()
-    //     }
-    // })?;
-    println!("Finished");
+    println!("Sending data to Liferay as batch request...");
+    let response = post_object_definition_batch(
+        &api_config,
+        None,
+        Some(body),
+        Some(CreationStrategy::Upsert),
+    )
+    .map_err(|e| match e {
+        object_admin::apis::Error::Reqwest(e) => CliError::NetworkError("Batch request failed", e),
+        object_admin::apis::Error::Serde(e) => {
+            CliError::SerializeJson("Serialization error occurred during batch request", e)
+        }
+        object_admin::apis::Error::Io(_) => {
+            todo!()
+        }
+        object_admin::apis::Error::ResponseError(_) => {
+            println!("{e:?}");
+            todo!()
+        }
+    })?;
+
+    println!(
+        "Request sent. Batch operation erc is {}",
+        response.external_reference_code.unwrap_or_default()
+    );
+
     Ok(())
 }

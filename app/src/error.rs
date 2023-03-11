@@ -1,6 +1,7 @@
 use std::error::{self, Error};
 use std::fmt::Display;
 use zip::result::ZipError;
+use batch_api::reqwest;
 
 #[derive(Debug)]
 pub enum CliError {

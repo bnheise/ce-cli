@@ -1,6 +1,6 @@
 use crate::config_generators::client_extension_yaml::PortletCategoryNames;
+use batch_api::reqwest::Url;
 use clap::{ArgGroup, Args, Parser, Subcommand, ValueEnum};
-use reqwest::Url;
 use serde::{Deserialize, Serialize};
 use std::{fmt::Display, path::PathBuf};
 
@@ -302,6 +302,7 @@ pub struct ExportObjectArgs {
     /// {root}/objects/data for object instance data.
     #[arg(short, long, value_enum)]
     pub directory: Option<String>,
+    // TODO: add flag publish to automatically publish the objects after creation
 }
 
 #[derive(Debug, ValueEnum, Clone)]

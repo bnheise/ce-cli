@@ -1,5 +1,6 @@
 use self::{export::handle_export, import::handle_import};
 use crate::{cli::ObjectOption, error::CliError};
+use batch_api::reqwest::Url;
 pub use headless_admin_list_type::apis::{
     configuration::Configuration as ListTypeConfig,
     list_type_definition_api::get_list_type_definitions_page,
@@ -8,7 +9,6 @@ pub use object_admin::apis::{
     configuration::Configuration as ObjectAdminConfig,
     object_definition_api::get_object_definitions_page,
 };
-use reqwest::Url;
 use std::str::FromStr;
 
 pub mod export;

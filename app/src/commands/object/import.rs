@@ -7,7 +7,8 @@ use crate::{
     config_generators::{config::Config, ConfigFile},
     error::CliError,
 };
-use reqwest::{blocking, Url};
+use batch_api::reqwest::{self, blocking, Url};
+
 use std::{
     fs::{self, File},
     io::Write,
@@ -149,8 +150,7 @@ fn import_object_definitions(
                 if !system {
                     let path = Path::new(&output_base).join("definitions");
                     let name = object_def.name.as_ref().unwrap();
-                    object_def.actions = None;
-                    object_def.id = None;
+
                     if let (Some(context_path), Some(name)) = (
                         object_def.rest_context_path.to_owned(),
                         object_def.name.to_owned(),
