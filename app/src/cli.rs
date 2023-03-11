@@ -254,7 +254,55 @@ pub struct ImportObjectArgs {
 }
 
 #[derive(Debug, Args)]
-pub struct ExportObjectArgs {}
+pub struct ExportObjectArgs {
+    /// The url for your Liferay instance. It can be local or remote. If {n}
+    /// you don't provide this value, ce-cli will attempt to load it from{n}
+    /// the LIFERAY_HOST environment variable.
+    #[arg(long)]
+    pub url: Option<Url>,
+
+    /// The port for your Liferay instance. If not provided, ce-cli will {n}
+    /// attempt to load it from the LIFERAY_PORT environment variable.
+    #[arg(long)]
+    pub port: Option<u16>,
+
+    /// Setting this flag will export all Object definitions, picklists,  {n}
+    /// and object data.
+    #[arg(short, long)]
+    pub all: bool,
+
+    /// Indicates whether the data to be exported is an ObjectDefinition  {n}
+    /// a Picklist, or object instance data.
+    #[arg(short, long, value_enum)]
+    pub source: Option<ImportExportSource>,
+
+    /// Liferay user's email address who has permission to write the data.{n}
+    /// If not provided, ce-cli will attempt to load it from the          {n}
+    /// LIFERAY_USERNAME environment variable.
+    #[arg(short, long, value_enum)]
+    pub username: Option<String>,
+
+    /// The password associated with the username parameter. if not       {n}
+    /// provided, ce-cli will attempt to load this from the               {n}
+    /// LIFERAY_PASSWORD environment variable.
+    #[arg(short, long, value_enum)]
+    pub password: Option<String>,
+
+    /// Explicitly indicate the endpoint to send the data to. If empty,  {n}
+    /// ce-cli will use the standard picklist or object definition       {n}
+    /// endpoints for picklists and object definitions. In the case of   {n}
+    /// object data, the endpoint is required.
+    #[arg(short, long, value_enum)]
+    pub endpoint: Option<String>,
+
+    /// The directory where the item(s) to export are located. If caleld {n}
+    /// from a ce-cli generated workspace, this will default to          {n}
+    /// {root}/objects/definitions for Liferay Object defiitions,        {n}
+    /// {root}/objects/picklists for Picklist definitions, and           {n}
+    /// {root}/objects/data for object instance data.
+    #[arg(short, long, value_enum)]
+    pub directory: Option<String>,
+}
 
 #[derive(Debug, ValueEnum, Clone)]
 pub enum ImportExportSource {

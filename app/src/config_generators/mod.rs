@@ -50,7 +50,7 @@ pub trait ConfigFile<'a>: Serialize + Deserialize<'a> {
             ConfigFormat::Yaml => serde_yaml::from_str::<Self>(raw)
                 .map_err(|e| CliError::ParseYaml(Self::FILENAME, e))?,
             ConfigFormat::Json => serde_json::from_str::<Self>(raw)
-                .map_err(|e| CliError::ParseJson(Self::FILENAME, e))?,
+                .map_err(|e| CliError::ParseJson(Self::FILENAME.to_string(), e))?,
         };
 
         Ok(parsed)

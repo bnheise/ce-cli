@@ -1,61 +1,33 @@
+use super::{
+    get_list_type_definitions_page, get_object_definitions_page, prepare_data_path, ApiConfig,
+    ListTypeConfig, ObjectAdminConfig,
+};
 use crate::{
     cli::ImportObjectArgs,
     config_generators::{config::Config, ConfigFile},
     error::CliError,
-};
-use headless_admin_list_type::apis::{
-    configuration::Configuration as ListTypeConfig,
-    list_type_definition_api::get_list_type_definitions_page,
-};
-use object_admin::apis::{
-    configuration::Configuration as ObjectAdminConfig,
-    object_definition_api::get_object_definitions_page,
 };
 use reqwest::{blocking, Url};
 use std::{
     fs::{self, File},
     io::Write,
     path::Path,
-    str::FromStr,
 };
 
-pub fn handle_import(args: ImportObjectArgs) -> Result<(), CliError> {
-    let ImportObjectArgs {
-        all, erc, source, ..
-    } = args.clone();
+use super::{initialize_param, prepare_url};
 
-    if all {
+pub fn handle_import(args: ImportObjectArgs) -> Result<(), CliError> {
+    let ImportObjectArgs { all, .. } = &args;
+
+    if *all {
         handle_import_all(args)?;
     } else {
-        let erc = &erc.expect("Erc should have been provided.");
-        let source = &source.expect("Source should have been provided");
+        todo!("Handle cases where -a wasn't passed")
+        // let erc = erc.as_ref().expect("Erc should have been provided.");
+        // let source = &source.as_ref().expect("Source should have been provided");
     }
 
     Ok(())
-}
-
-fn initialize_param<T: From<String>>(
-    param: Option<T>,
-    env_key: &str,
-    param_name: &'static str,
-) -> Result<T, CliError> {
-    if let Some(param) = param {
-        Ok(param)
-    } else if let Ok(username) = dotenv::var(env_key) {
-        Ok(username.into())
-    } else {
-        Err(CliError::MissingParameter(param_name))
-    }
-}
-
-fn prepare_output_path(output: Option<String>, is_workspace: bool) -> Result<String, CliError> {
-    if let Some(output) = output {
-        Ok(output)
-    } else if is_workspace {
-        Ok("./objects".into())
-    } else {
-        Err(CliError::MissingParameter("output"))
-    }
 }
 
 fn handle_import_all(args: ImportObjectArgs) -> Result<(), CliError> {
@@ -73,8 +45,8 @@ fn handle_import_all(args: ImportObjectArgs) -> Result<(), CliError> {
     let password = initialize_param(password, "LIFERAY_PASSWORD", "password")?;
 
     let config = Config::try_open();
-    let url = prepare_url(url, port, config.is_ok());
-    let output_base = prepare_output_path(output, config.is_ok())?;
+    let url = prepare_url(url, port, config.is_ok())?;
+    let output_base = prepare_data_path(output, config.is_ok())?;
 
     let mut api_config = ObjectAdminConfig::new();
     api_config.basic_auth = Some((username.clone(), Some(password.clone())));
@@ -161,22 +133,6 @@ fn prepare_base_url(api_config: &ObjectAdminConfig, url: &Option<Url>) -> String
     }
 }
 
-fn prepare_url(url: Option<Url>, port: Option<u16>, is_workspace: bool) -> Option<Url> {
-    if let Some(mut url) = url {
-        let port = port.unwrap_or(8080);
-        url.set_port(Some(port)).unwrap();
-        Some(url)
-    } else if is_workspace {
-        let host = dotenv::var("LIFERAY_HOST").unwrap_or("http://localhost".to_owned());
-        let port = dotenv::var("LIFERAY_PORT").unwrap_or("8080".to_owned());
-        let mut url = Url::from_str(&host).unwrap();
-        url.set_port(Some(u16::from_str(&port).unwrap())).unwrap();
-        Some(url)
-    } else {
-        None
-    }
-}
-
 fn import_object_definitions(
     api_config: &ObjectAdminConfig,
     output_base: &str,
@@ -194,6 +150,7 @@ fn import_object_definitions(
                     let path = Path::new(&output_base).join("definitions");
                     let name = object_def.name.as_ref().unwrap();
                     object_def.actions = None;
+                    object_def.id = None;
                     if let (Some(context_path), Some(name)) = (
                         object_def.rest_context_path.to_owned(),
                         object_def.name.to_owned(),
@@ -283,24 +240,4 @@ fn import_object_data(
     }
     println!("Successfully imported {record_count} record(s)");
     Ok(())
-}
-
-trait ApiConfig {
-    fn update_base_path(&mut self, replacement: &Url);
-}
-
-impl ApiConfig for ObjectAdminConfig {
-    fn update_base_path(&mut self, replacement: &Url) {
-        self.base_path = self
-            .base_path
-            .replace("http://localhost:8080", replacement.as_str());
-    }
-}
-
-impl ApiConfig for ListTypeConfig {
-    fn update_base_path(&mut self, replacement: &Url) {
-        self.base_path = self
-            .base_path
-            .replace("http://localhost:8080", replacement.as_str());
-    }
 }

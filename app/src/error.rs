@@ -6,7 +6,7 @@ use zip::result::ZipError;
 pub enum CliError {
     CurrentDirectory(Option<std::io::Error>),
     Write(String, std::io::Error),
-    ParseJson(&'static str, serde_json::Error),
+    ParseJson(String, serde_json::Error),
     SerializeJson(&'static str, serde_json::Error),
     NotADirectory(String),
     Zip(ZipError),
@@ -24,7 +24,8 @@ pub enum CliError {
     MissingParameter(&'static str),
     NetworkError(&'static str, reqwest::Error),
     InvalidJson(&'static str),
-    GetPicklist(&'static str)
+    GetPicklist(&'static str),
+    InvalidInput(&'static str)
 }
 
 impl Display for CliError {
@@ -71,6 +72,7 @@ impl Display for CliError {
             CliError::NetworkError(message, _) => write!(f, "{message}"),
             CliError::InvalidJson(entity_name) =>  write!(f, "Received invalid json for entity {entity_name}"),
             CliError::GetPicklist(message) =>  write!(f, "{message}"),
+            CliError::InvalidInput(message) => write!(f, "Invalid input received: {message}"),
         }
     }
 }
@@ -102,6 +104,7 @@ impl Error for CliError {
             CliError::NetworkError(_, e) => Some(e),
             CliError::InvalidJson(_) => None,
             CliError::GetPicklist(_) => None,
+            CliError::InvalidInput(_) => None,
         }
     }
 }
