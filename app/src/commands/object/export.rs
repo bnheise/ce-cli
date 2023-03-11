@@ -6,8 +6,7 @@ use crate::{
     error::CliError,
 };
 use object_admin::apis::object_definition_api::{
-    post_object_definition_batch, put_object_definition_batch,
-    put_object_definition_by_external_reference_code,
+    post_object_definition_batch,
 };
 use object_admin::models::{CreationStrategy, ObjectDefinition};
 use std::fs;
