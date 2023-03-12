@@ -19,7 +19,7 @@ clap = { version = "4.1.4", default-features = false, features = ["derive", "std
 colored = "2.0.0"
 dialoguer = { version = "0.10.3", default-features = false } 
 include_dir = { version = "0.7.3", default-features = false }
-regex = { version = "1.7.1", default-features = false, features = ["std"] }
+regex = { version = "1.7.1", default-features = false, features = ["std", "unicode-perl"] }
 serde = { version = "1.0.152", default-features = false, features = ["derive", "std"] }
 serde_json = { version = "1.0.91", default-features = false, features = ["std"] } 
 serde_yaml = { version = "0.9.17", default-features = false } 

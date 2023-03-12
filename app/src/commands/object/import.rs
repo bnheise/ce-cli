@@ -4,11 +4,11 @@ use super::{
 };
 use crate::{
     cli::ImportObjectArgs,
+    commands::object::get_object_client,
     config_generators::{config::Config, ConfigFile},
     error::CliError,
 };
-use batch_api::reqwest::{self, blocking, Url};
-
+use batch_api::reqwest::Url;
 use std::{
     fs::{self, File},
     io::Write,
@@ -49,23 +49,9 @@ fn handle_import_all(args: ImportObjectArgs) -> Result<(), CliError> {
     let url = prepare_url(url, port, config.is_ok())?;
     let output_base = prepare_data_path(output, config.is_ok())?;
 
-    let mut api_config = ObjectAdminConfig::new();
-    api_config.basic_auth = Some((username.clone(), Some(password.clone())));
+    let context_paths = import_object_definitions(&output_base, &username, &password, &url);
 
-    if let Some(url) = &url {
-        api_config.update_base_path(url);
-    }
-
-    let context_paths = import_object_definitions(&api_config, &output_base);
-
-    import_object_data(
-        context_paths,
-        &url,
-        &api_config,
-        &output_base,
-        &username,
-        &password,
-    )?;
+    import_object_data(context_paths, &url, &output_base, &username, &password)?;
 
     import_picklists(&username, &password, &url, &output_base)?;
 
@@ -75,16 +61,13 @@ fn handle_import_all(args: ImportObjectArgs) -> Result<(), CliError> {
 fn import_picklists(
     username: &str,
     password: &str,
-    url: &Option<Url>,
+    url: &Url,
     output_base: &str,
 ) -> Result<(), CliError> {
     println!("Importing picklist data...");
     let mut api_config = ListTypeConfig::new();
     api_config.basic_auth = Some((username.to_owned(), Some(password.to_owned())));
-
-    if let Some(url) = url {
-        api_config.update_base_path(url);
-    }
+    api_config.update_base_path(url);
 
     let result =
         get_list_type_definitions_page(&api_config, None, None, Some("1"), Some("200"), None, None)
@@ -108,39 +91,20 @@ fn import_picklists(
     Ok(())
 }
 
-fn get_object_client() -> Result<blocking::Client, CliError> {
-    let mut headers = reqwest::header::HeaderMap::new();
-    headers.insert(
-        reqwest::header::ACCEPT,
-        reqwest::header::HeaderValue::from_str("application/json").unwrap(),
-    );
-
-    reqwest::blocking::ClientBuilder::new()
-        .default_headers(headers)
-        .build()
-        .map_err(|e| CliError::NetworkError("Failed to build network client", e))
-}
-
-fn prepare_base_url(api_config: &ObjectAdminConfig, url: &Option<Url>) -> String {
-    let url = if let Some(url) = url.clone() {
-        url
-    } else {
-        Url::parse(&api_config.base_path).unwrap()
-    };
-
-    match url.origin() {
-        url::Origin::Opaque(_) => unreachable!(),
-        url::Origin::Tuple(scheme, host, port) => format!("{scheme}://{host}:{port}"),
-    }
-}
-
 fn import_object_definitions(
-    api_config: &ObjectAdminConfig,
     output_base: &str,
+    username: &str,
+    password: &str,
+    url: &Url,
 ) -> Vec<(String, String)> {
     println!("Importing object definitions...");
+
+    let mut api_config = ObjectAdminConfig::new();
+    api_config.basic_auth = Some((username.to_owned(), Some(password.to_owned())));
+    api_config.update_base_path(&url);
+
     let result =
-        get_object_definitions_page(api_config, None, None, Some("1"), Some("200"), None, None)
+        get_object_definitions_page(&api_config, None, None, Some("1"), Some("200"), None, None)
             .unwrap();
 
     if let Some(mut items) = result.items {
@@ -179,8 +143,7 @@ fn import_object_definitions(
 
 fn import_object_data(
     context_paths: Vec<(String, String)>,
-    url: &Option<Url>,
-    api_config: &ObjectAdminConfig,
+    url: &Url,
     output_base: &str,
     username: &str,
     password: &str,
@@ -188,12 +151,12 @@ fn import_object_data(
     println!("Attemping to import object data...");
     let mut record_count = 0;
     let client = get_object_client()?;
-    println!("{client:?}");
-    let base_url = prepare_base_url(api_config, url);
 
+    let data_path = Path::new(&output_base).join("data");
     for (path, name) in context_paths.iter() {
-        let data_path = Path::new(&output_base).join("data");
-        let url = format!("{base_url}{path}");
+        let url = url
+            .join(path)
+            .map_err(|_| CliError::InvalidInput(path.to_owned()))?;
 
         let resp = client
             .get(url)
@@ -211,12 +174,7 @@ fn import_object_data(
             serde_json::Value::Object(mut object_page) => match object_page.get_mut("items") {
                 Some(items) => match items {
                     serde_json::Value::Array(items) => {
-                        for item in items.iter_mut() {
-                            record_count += 1;
-                            if let serde_json::Value::Object(obj) = item {
-                                obj.remove("actions");
-                            }
-                        }
+                        record_count += items.len();
 
                         fs::create_dir_all(&data_path).unwrap();
 

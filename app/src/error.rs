@@ -26,7 +26,7 @@ pub enum CliError {
     NetworkError(&'static str, reqwest::Error),
     InvalidJson(&'static str),
     GetPicklist(&'static str),
-    InvalidInput(&'static str)
+    InvalidInput(String)
 }
 
 impl Display for CliError {
