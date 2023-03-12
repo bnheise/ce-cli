@@ -32,9 +32,7 @@ fn fetch_package_metadata() -> Result<PackageMetadata, CliError> {
         .expect("Could not parse the npm package registry url");
 
     let resp = reqwest::blocking::get(fetch_url)
-        .map_err(|e| {
-            return CliError::Http(format!("Failed to get latest {PACKAGE_NAME} version"), e);
-        })?
+        .map_err(|e| CliError::Http(format!("Failed to get latest {PACKAGE_NAME} version"), e))?
         .json::<PackageMetadata>()
         .map_err(|e| CliError::Http("Failed to deserialized ce-cli npm metadata".into(), e))?;
     Ok(resp)

@@ -52,12 +52,12 @@ fn prepare_url(
             .map_err(|_| CliError::InvalidInput("Received invalid Liferay host"))?;
         let parsed_port = u16::from_str(&port)
             .map_err(|_| CliError::InvalidInput("Could not parse provided port to u16"))?;
-        println!("{url:?}");
+
         url.set_port(Some(parsed_port))
             .map_err(|_| CliError::InvalidInput("Failed to add port to Liferay host"))?;
-        println!("{url:?}");
+
         url.set_path("");
-        println!("{url:?}");
+
         Ok(Some(url))
     } else {
         Ok(None)

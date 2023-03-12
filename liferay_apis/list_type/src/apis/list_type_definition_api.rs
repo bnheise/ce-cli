@@ -33,7 +33,7 @@ pub enum DeleteListTypeDefinitionBatchError {
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum GetListTypeDefinitionError {
-    DefaultResponse(crate::models::ListTypeDefinition),
+    DefaultResponse(Box<crate::models::ListTypeDefinition>),
     UnknownValue(serde_json::Value),
 }
 
@@ -49,7 +49,7 @@ pub enum GetListTypeDefinitionsPageError {
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum PatchListTypeDefinitionError {
-    DefaultResponse(crate::models::ListTypeDefinition),
+    DefaultResponse(Box<crate::models::ListTypeDefinition>),
     UnknownValue(serde_json::Value),
 }
 
@@ -57,7 +57,7 @@ pub enum PatchListTypeDefinitionError {
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum PostListTypeDefinitionError {
-    DefaultResponse(crate::models::ListTypeDefinition),
+    DefaultResponse(Box<crate::models::ListTypeDefinition>),
     UnknownValue(serde_json::Value),
 }
 
@@ -73,7 +73,7 @@ pub enum PostListTypeDefinitionBatchError {
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum PutListTypeDefinitionError {
-    DefaultResponse(crate::models::ListTypeDefinition),
+    DefaultResponse(Box<crate::models::ListTypeDefinition>),
     UnknownValue(serde_json::Value),
 }
 

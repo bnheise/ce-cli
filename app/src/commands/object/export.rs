@@ -5,9 +5,8 @@ use crate::{
     config_generators::{config::Config, ConfigFile},
     error::CliError,
 };
-use object_admin::apis::object_definition_api::{
-    post_object_definition_batch,
-};
+use object_admin::apis::object_definition_api::post_object_definition_batch;
+use object_admin::models::object_field::BusinessType;
 use object_admin::models::{CreationStrategy, ObjectDefinition};
 use std::fs;
 use std::path::Path;
@@ -66,6 +65,20 @@ fn export_all(args: ExportObjectArgs) -> Result<(), CliError> {
         object_def.actions = None;
         object_def.id = None;
         object_def.active = None;
+        if let Some(object_fields) = object_def.object_fields {
+            object_def.object_fields = Some(
+                object_fields
+                    .into_iter()
+                    .filter(|field| {
+                        if let Some(business_type) = field.business_type {
+                            business_type != BusinessType::Relationship
+                        } else {
+                            true
+                        }
+                    })
+                    .collect::<Vec<_>>(),
+            )
+        }
         let erc = object_def
             .external_reference_code
             .clone()
@@ -80,8 +93,9 @@ fn export_all(args: ExportObjectArgs) -> Result<(), CliError> {
     let response = post_object_definition_batch(
         &api_config,
         None,
-        Some(body),
+        Some(&body),
         Some(CreationStrategy::Upsert),
+        Some(batch_api::models::import_task::ImportStrategy::Continue),
     )
     .map_err(|e| match e {
         object_admin::apis::Error::Reqwest(e) => CliError::NetworkError("Batch request failed", e),
@@ -98,7 +112,7 @@ fn export_all(args: ExportObjectArgs) -> Result<(), CliError> {
     })?;
 
     println!(
-        "Request sent. Batch operation erc is {}",
+        "Post batch sent. Batch operation erc is {}",
         response.external_reference_code.unwrap_or_default()
     );
 

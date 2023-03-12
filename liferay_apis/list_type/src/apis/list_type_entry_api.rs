@@ -41,7 +41,7 @@ pub enum GetListTypeDefinitionListTypeEntriesPageError {
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum GetListTypeEntryError {
-    DefaultResponse(crate::models::ListTypeEntry),
+    DefaultResponse(Box<crate::models::ListTypeEntry>),
     UnknownValue(serde_json::Value),
 }
 
@@ -49,7 +49,7 @@ pub enum GetListTypeEntryError {
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum PostListTypeDefinitionListTypeEntryError {
-    DefaultResponse(crate::models::ListTypeEntry),
+    DefaultResponse(Box<crate::models::ListTypeEntry>),
     UnknownValue(serde_json::Value),
 }
 
@@ -65,7 +65,7 @@ pub enum PostListTypeDefinitionListTypeEntryBatchError {
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum PutListTypeEntryError {
-    DefaultResponse(crate::models::ListTypeEntry),
+    DefaultResponse(Box<crate::models::ListTypeEntry>),
     UnknownValue(serde_json::Value),
 }
 
@@ -182,6 +182,7 @@ pub fn delete_list_type_entry_batch(
     }
 }
 
+#[allow(clippy::too_many_arguments)]
 pub fn get_list_type_definition_list_type_entries_page(
     configuration: &configuration::Configuration,
     list_type_definition_id: &str,
