@@ -71,7 +71,7 @@ fn import_picklists(
 
     let result =
         get_list_type_definitions_page(&api_config, None, None, Some("1"), Some("200"), None, None)
-            .map_err(|_| CliError::GetPicklist("failed to retrieve picklists"))?;
+            .map_err(|e| CliError::NetworkError(format!("failed to retrieve picklists: {e}")))?;
 
     if let Some(mut items) = result.items {
         for picklist in items.iter_mut() {
@@ -101,7 +101,7 @@ fn import_object_definitions(
 
     let mut api_config = ObjectAdminConfig::new();
     api_config.basic_auth = Some((username.to_owned(), Some(password.to_owned())));
-    api_config.update_base_path(&url);
+    api_config.update_base_path(url);
 
     let result =
         get_object_definitions_page(&api_config, None, None, Some("1"), Some("200"), None, None)
@@ -163,12 +163,10 @@ fn import_object_data(
             .basic_auth(username, Some(password))
             .send()
             .map_err(|e| {
-                CliError::NetworkError("Failed to retrieve object data from Liferay", e)
+                CliError::NetworkError(format!("failed to retrieve object data from Liferay: {e}"))
             })?;
 
-        let data = resp.json().map_err(|e| {
-            CliError::NetworkError("Could not parse response from Liferay as json", e)
-        })?;
+        let data = resp.json()?;
 
         match data {
             serde_json::Value::Object(mut object_page) => match object_page.get_mut("items") {
@@ -184,8 +182,8 @@ fn import_object_data(
                             .unwrap();
                     }
                     _ => {
-                        return Err(CliError::InvalidJson(
-                            "Object items: should be an array but was not",
+                        return Err(CliError::JsonError(
+                            "Object items: should be an array but was not".into(),
                         ))
                     }
                 },
@@ -193,7 +191,11 @@ fn import_object_data(
                     println!("An error occured when retrieving object '{name}'. Skipping.")
                 }
             },
-            _ => return Err(CliError::InvalidJson("object page")),
+            _ => {
+                return Err(CliError::JsonError(
+                    "Could not deserialize object page".into(),
+                ))
+            }
         };
     }
     println!("Successfully imported {record_count} record(s)");

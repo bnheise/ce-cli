@@ -36,8 +36,7 @@ pub trait ConfigFile<'a>: Serialize + Deserialize<'a> {
 
     fn try_open() -> Result<String, CliError> {
         let path = Self::get_filepath();
-        let raw =
-            fs::read_to_string(path).map_err(|e| CliError::ReadFile(Self::FILENAME.into(), e))?;
+        let raw = fs::read_to_string(path)?;
 
         Ok(raw)
     }
@@ -47,10 +46,8 @@ pub trait ConfigFile<'a>: Serialize + Deserialize<'a> {
         Self: Sized,
     {
         let parsed = match Self::FORMAT {
-            ConfigFormat::Yaml => serde_yaml::from_str::<Self>(raw)
-                .map_err(|e| CliError::ParseYaml(Self::FILENAME, e))?,
-            ConfigFormat::Json => serde_json::from_str::<Self>(raw)
-                .map_err(|e| CliError::ParseJson(Self::FILENAME.to_string(), e))?,
+            ConfigFormat::Yaml => serde_yaml::from_str::<Self>(raw)?,
+            ConfigFormat::Json => serde_json::from_str::<Self>(raw)?,
         };
 
         Ok(parsed)
@@ -59,12 +56,10 @@ pub trait ConfigFile<'a>: Serialize + Deserialize<'a> {
     fn try_serialize(config: Self) -> Result<String, CliError> {
         let raw = match Self::FORMAT {
             ConfigFormat::Yaml => {
-                let raw = serde_yaml::to_string(&config)
-                    .map_err(|e| CliError::SerializeYaml(Self::FILENAME.to_owned(), e))?;
+                let raw = serde_yaml::to_string(&config)?;
                 format_yaml(&raw)?
             }
-            ConfigFormat::Json => serde_json::to_string_pretty(&config)
-                .map_err(|e| CliError::SerializeJson(Self::FILENAME, e))?,
+            ConfigFormat::Json => serde_json::to_string_pretty(&config)?,
         };
 
         Ok(raw)
@@ -73,7 +68,7 @@ pub trait ConfigFile<'a>: Serialize + Deserialize<'a> {
     fn write(raw: String) -> Result<(), CliError> {
         let path = Self::get_filepath();
 
-        fs::write(path, raw).map_err(|e| CliError::Write(Self::FILENAME.to_owned(), e))?;
+        fs::write(path, raw)?;
         Ok(())
     }
 
@@ -108,10 +103,8 @@ pub trait AppDir {
             path = path.join(subfolder);
         }
 
-        fs::create_dir_all(&path)
-            .map_err(|e| CliError::Write(path.to_string_lossy().to_string(), e))?;
-        fs::write(path.join(filename), content)
-            .map_err(|e| CliError::Write(filename.to_owned(), e))?;
+        fs::create_dir_all(&path)?;
+        fs::write(path.join(filename), content)?;
 
         Ok(())
     }
@@ -194,7 +187,7 @@ pub trait ClientExt {
         if path.exists() {
             return Err(CliError::ExtensionExists);
         }
-        fs::create_dir_all(path).map_err(|e| CliError::Write("./src".to_owned(), e))?;
+        fs::create_dir_all(path)?;
 
         Ok(())
     }

@@ -57,7 +57,7 @@ impl AssetsDir {
                 content = content.replace(&replacer, val);
             }
 
-            fs::write(ext_path.join(&name), content).map_err(|e| CliError::Write(name, e))?;
+            fs::write(ext_path.join(&name), content)?;
         }
 
         Ok(())
@@ -87,8 +87,7 @@ impl AssetsDir {
             .skip(skip_count)
             .collect::<PathBuf>();
 
-        fs::create_dir_all(&path)
-            .map_err(|e| CliError::Write(path.to_str().unwrap_or_default().to_owned(), e))?;
+        fs::create_dir_all(&path)?;
         for entry in dir.entries() {
             match entry {
                 include_dir::DirEntry::Dir(dir) => {
@@ -100,9 +99,7 @@ impl AssetsDir {
                         .components()
                         .skip(skip_count)
                         .collect::<PathBuf>();
-                    fs::write(&path, file.contents()).map_err(|e| {
-                        CliError::Write(path.to_str().unwrap_or_default().to_owned(), e)
-                    })?;
+                    fs::write(&path, file.contents())?;
                 }
             }
         }
@@ -157,7 +154,7 @@ impl AssetsDir {
             contents = contents.replace("test@liferay.com", username);
         }
 
-        fs::write(Path::new("./"), contents).map_err(|e| CliError::Write(".env".to_owned(), e))?;
+        fs::write(Path::new("./"), contents)?;
         Ok(())
     }
 }

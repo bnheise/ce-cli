@@ -266,15 +266,10 @@ pub struct ExportObjectArgs {
     #[arg(long)]
     pub port: Option<u16>,
 
-    /// Setting this flag will export all Object definitions, picklists,  {n}
-    /// and object data.
-    #[arg(short, long)]
-    pub all: bool,
-
     /// Indicates whether the data to be exported is an ObjectDefinition  {n}
     /// a Picklist, or object instance data.
     #[arg(short, long, value_enum)]
-    pub source: Option<ImportExportSource>,
+    pub source: ImportExportSource,
 
     /// Liferay user's email address who has permission to write the data.{n}
     /// If not provided, ce-cli will attempt to load it from the          {n}
@@ -310,4 +305,5 @@ pub enum ImportExportSource {
     Picklist,
     ObjectDefinition,
     ObjectData,
+    DefinitionsAndPicklists,
 }

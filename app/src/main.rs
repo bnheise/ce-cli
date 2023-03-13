@@ -8,9 +8,13 @@ mod assets_dir;
 mod cli;
 mod commands;
 mod config_generators;
+mod data_dir;
 mod error;
+mod liferay_client;
 mod util;
 mod version_check;
+
+// TODO: finish refactoring to use Liferay Client and DataDir
 
 fn main() -> Result<()> {
     let cli = Cli::parse();

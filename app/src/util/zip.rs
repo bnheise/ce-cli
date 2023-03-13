@@ -28,30 +28,25 @@ where
 
         if path.is_file() {
             #[allow(deprecated)]
-            zip.start_file_from_path(name, options)
-                .map_err(CliError::Zip)?;
-            let mut f = File::open(path)
-                .map_err(|e| CliError::OpenFile(path.to_string_lossy().to_string(), e))?;
+            zip.start_file_from_path(name, options)?;
+            let mut f = File::open(path)?;
 
-            f.read_to_end(&mut buffer)
-                .map_err(|e| CliError::ReadFile(path.to_string_lossy().to_string(), e))?;
-            zip.write_all(&buffer)
-                .map_err(|e| CliError::Write(path.to_string_lossy().to_string(), e))?;
+            f.read_to_end(&mut buffer)?;
+            zip.write_all(&buffer)?;
             buffer.clear();
         } else if !name.as_os_str().is_empty() {
             #[allow(deprecated)]
-            zip.add_directory_from_path(name, options)
-                .map_err(|e| CliError::Write(name.to_string_lossy().to_string(), e.into()))?;
+            zip.add_directory_from_path(name, options)?;
         }
     }
-    zip.finish().map_err(CliError::Zip)?;
+    zip.finish()?;
     Result::Ok(())
 }
 
 pub fn zip_directory(src_dir: PathBuf, dst_file: PathBuf) -> Result<(), CliError> {
     if !src_dir.is_dir() {
-        return Err(CliError::NotADirectory(
-            src_dir.to_string_lossy().to_string(),
+        return Err(CliError::FileSystemError(
+            "Specified path should be a directory".into(),
         ));
     }
 

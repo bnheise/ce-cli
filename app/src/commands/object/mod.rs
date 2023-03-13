@@ -33,7 +33,7 @@ fn initialize_param<T: From<String>>(
     } else if let Ok(username) = dotenv::var(env_key) {
         Ok(username.into())
     } else {
-        Err(CliError::MissingParameter(param_name))
+        Err(CliError::MissingParameter(param_name.into()))
     }
 }
 
@@ -57,7 +57,7 @@ fn prepare_url(url: Option<Url>, port: Option<u16>, is_workspace: bool) -> Resul
 
         Ok(url)
     } else {
-        Err(CliError::MissingParameter("Url parameter is required when executing this command from outside a ce-cli generated workspace"))
+        Err(CliError::MissingParameter("Url parameter (required when executing this command from outside a ce-cli generated workspace)".into()))
     }
 }
 
@@ -67,7 +67,7 @@ fn prepare_data_path(output: Option<String>, is_workspace: bool) -> Result<Strin
     } else if is_workspace {
         Ok("./objects".into())
     } else {
-        Err(CliError::MissingParameter("output"))
+        Err(CliError::MissingParameter("output".into()))
     }
 }
 
@@ -99,10 +99,9 @@ fn get_object_client() -> Result<reqwest::blocking::Client, CliError> {
         reqwest::header::HeaderValue::from_str("application/json").unwrap(),
     );
 
-    reqwest::blocking::ClientBuilder::new()
+    Ok(reqwest::blocking::ClientBuilder::new()
         .default_headers(headers)
-        .build()
-        .map_err(|e| CliError::NetworkError("Failed to build network client", e))
+        .build()?)
 }
 
 // fn prepare_base_url(base_path: &str, url: &Option<Url>) -> String {

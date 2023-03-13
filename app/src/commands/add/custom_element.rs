@@ -28,7 +28,7 @@ pub fn handle_custom_element(args: CustomElementArgs) -> Result<(), CliError> {
     }
 
     let raw = Config::try_open()?;
-    let mut config = Config::try_parse(&raw).map_err(|_e| CliError::InvalidDirectory("Could not load workspace-config.json. Are you in the root directory of a ce-cli workspace project?".into()))?;
+    let mut config = Config::try_parse(&raw)?;
     let mut definition = CustomElementDefinition::new(name);
 
     if let Some(friendly_url_mapping) = friendly_url_mapping {

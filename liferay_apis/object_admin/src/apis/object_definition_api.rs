@@ -12,7 +12,7 @@ use batch_api::models::{import_task::ImportStrategy, ImportTask};
 use batch_api::reqwest;
 
 use super::{configuration, Error};
-use crate::{apis::ResponseContent, models::CreationStrategy};
+use crate::{apis::ResponseContent, models::CreateStrategy};
 
 /// struct for typed errors of method [`delete_object_definition`]
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -500,7 +500,7 @@ pub fn post_object_definition_batch(
     configuration: &configuration::Configuration,
     callback_url: Option<&str>,
     body: Option<&serde_json::Value>,
-    creation_strategy: Option<CreationStrategy>,
+    create_strategy: Option<CreateStrategy>,
     import_strategy: Option<ImportStrategy>,
 ) -> Result<ImportTask, Error<PostObjectDefinitionBatchError>> {
     let local_var_configuration = configuration;
@@ -518,7 +518,7 @@ pub fn post_object_definition_batch(
         local_var_req_builder =
             local_var_req_builder.query(&[("callbackURL", &local_var_str.to_string())]);
     }
-    if let Some(ref local_var_str) = creation_strategy {
+    if let Some(ref local_var_str) = create_strategy {
         local_var_req_builder =
             local_var_req_builder.query(&[("createStrategy", local_var_str.to_string())]);
     }
@@ -669,7 +669,7 @@ pub fn put_object_definition_batch(
     configuration: &configuration::Configuration,
     callback_url: Option<&str>,
     body: Option<&serde_json::Value>,
-    creation_strategy: Option<CreationStrategy>,
+    creation_strategy: Option<CreateStrategy>,
     import_strategy: Option<ImportStrategy>,
 ) -> Result<ImportTask, Error<PutObjectDefinitionBatchError>> {
     let local_var_configuration = configuration;

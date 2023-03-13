@@ -2,14 +2,14 @@ use std::fmt::Display;
 
 #[derive(Debug, Serialize, Deserialize)]
 #[serde(rename_all = "UPPERCASE")]
-pub enum CreationStrategy {
+pub enum CreateStrategy {
     Upsert,
 }
 
-impl Display for CreationStrategy {
+impl Display for CreateStrategy {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         match self {
-            CreationStrategy::Upsert => write!(f, "UPSERT"),
+            CreateStrategy::Upsert => write!(f, "UPSERT"),
         }
     }
 }
