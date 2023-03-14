@@ -303,7 +303,7 @@ pub struct ExportObjectArgs {
 #[derive(Debug, ValueEnum, Clone)]
 pub enum ImportExportSource {
     Picklist,
-    ObjectDefinition,
-    ObjectData,
-    DefinitionsAndPicklists,
+    Definition,
+    Data,
+    DefAndPick,
 }

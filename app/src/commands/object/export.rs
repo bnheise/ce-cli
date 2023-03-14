@@ -39,13 +39,13 @@ pub fn handle_export(args: ExportObjectArgs) -> Result<(), CliError> {
     let client = LiferayClient::new(options);
     match source {
         crate::cli::ImportExportSource::Picklist => todo!(),
-        crate::cli::ImportExportSource::ObjectDefinition => {
+        crate::cli::ImportExportSource::Definition => {
             export_object_definitions(&client, &base_data_dir)?;
         }
-        crate::cli::ImportExportSource::ObjectData => {
+        crate::cli::ImportExportSource::Data => {
             export_object_data(&client, &base_data_dir)?;
         }
-        crate::cli::ImportExportSource::DefinitionsAndPicklists => {
+        crate::cli::ImportExportSource::DefAndPick => {
             export_object_definitions(&client, &base_data_dir)?;
             todo!("Add picklists")
         }
