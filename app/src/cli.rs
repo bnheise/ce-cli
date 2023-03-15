@@ -241,8 +241,8 @@ pub struct ImportArgs {
 #[derive(Debug, Args)]
 #[command(group(
     ArgGroup::new("target")
-        .required(true)
-        .args(["objects", "picklists"]).conflicts_with("data"),
+        .args(["objects", "picklists", "data"])
+        .multiple(false)
 ))]
 pub struct ExportArgs {
     /// The url for your Liferay instance. It can be local or remote. If {n}
@@ -280,7 +280,7 @@ pub struct ExportArgs {
     /// The password associated with the username parameter. if not       {n}
     /// provided, ce-cli will attempt to load this from the               {n}
     /// LIFERAY_PASSWORD environment variable.
-    #[arg(short, long, value_enum)]
+    #[arg(long, value_enum)]
     pub password: Option<String>,
 
     /// Explicitly indicate the endpoint to send the data to. If empty,  {n}
@@ -295,7 +295,7 @@ pub struct ExportArgs {
     /// {root}/objects/definitions for Liferay Object defiitions,        {n}
     /// {root}/objects/picklists for Picklist definitions, and           {n}
     /// {root}/objects/data for object instance data.
-    #[arg(short, long, value_enum)]
+    #[arg(long, value_enum)]
     pub directory: Option<String>,
     // TODO: add flag publish to automatically publish the objects after creation
 }

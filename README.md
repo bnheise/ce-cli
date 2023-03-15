@@ -149,10 +149,12 @@ local repo to another Liferay instance. This is useful when you need to onboard 
 can easily run a few commands to get the data they need to start developing into their Liferay instance. However, you
 can also use this feature to deploy to a remote instance.
 
-Exporting is similar to importing, except that you cannot export Object Definitions and Object data at the same time.
-This limitation may be lifted in the future. Also note that currently due to limitations in the picklist batch api,
-exporting large amounts of picklist data could take some time as parts of the process must be carried out synchronously
-due to these limitations.
+Exporting is similar to importing, except that you cannot export Object Definitions, Object data, or Picklists at the same time.
+This is because many of the records to be processed are sent in bulk and processed asynchronously, but Objects, Picklists, and
+entry data depend on each other. This means it's possible for Liferay to try to create an entity before it's dependencies are
+created, leading to an error. This limitation may be lifted in the future. Also note that currently due to limitations in the
+picklist batch api, exporting large amounts of picklist data could take some time as parts of the process must be carried out
+synchronously due to these limitations.
 
 To export data, run the command `ce-cli export` along with a combination of the flags `-o` (Object defintiions),
 `-p` (Picklists), and `-d` (Object entry data). Note that `-o` and `-d` may not be specified at the same time.

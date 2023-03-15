@@ -50,8 +50,6 @@ impl<'a> DataDir<'a> {
         &self,
         clean_for_post: bool,
     ) -> Result<Vec<ObjectDefinition>, CliError> {
-        println!("Loading object definitions...");
-
         let definitions_path = Path::new(self.base_data_dir).join("definitions");
         let mut object_definitions = Vec::new();
 
@@ -75,8 +73,6 @@ impl<'a> DataDir<'a> {
                 Self::clean_fields(&mut object_def);
                 Self::clean_relationships(&mut object_def.object_relationships)
             }
-
-            println!("{}", serde_json::to_string(&object_def).unwrap_or_default());
 
             let erc = object_def
                 .external_reference_code

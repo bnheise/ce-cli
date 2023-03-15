@@ -109,8 +109,6 @@ fn export_picklist_definitions(client: &LiferayClient, data_dir: &DataDir) -> Re
                         ))
                     })?;
 
-                println!("EXISTING: {entries_res:?}");
-
                 if let Some(items) = entries_res.items {
                     for item in items {
                         if let (Some(entry_key), Some(entry_id)) = (item.key, item.id) {
