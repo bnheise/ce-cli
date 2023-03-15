@@ -63,7 +63,7 @@ impl<'a> CustomObjectEndpoints<'a> {
                     content: String::new(),
                     entity: None,
                 };
-                Err(LiferayClientError::Response { origin: resp_cont })
+                Err(LiferayClientError::ObjectResponse { origin: resp_cont })
             }
         } else {
             let resp_cont = ResponseContent {
@@ -71,7 +71,7 @@ impl<'a> CustomObjectEndpoints<'a> {
                 content: resp.text().unwrap(),
                 entity: None,
             };
-            Err(LiferayClientError::Response { origin: resp_cont })
+            Err(LiferayClientError::ObjectResponse { origin: resp_cont })
         }
     }
 

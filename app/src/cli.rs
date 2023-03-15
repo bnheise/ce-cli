@@ -197,12 +197,8 @@ pub enum ObjectOption {
 #[derive(Debug, Args, Clone)]
 #[command(group(
     ArgGroup::new("target")
-        .required(true)
+        .required(false)
         .args(["all", "erc"]),
-), group(
-    ArgGroup::new("target2")
-        .required(true)
-        .args(["all", "source"]),
 ))]
 pub struct ImportObjectArgs {
     /// The url for your Liferay instance. It can be local or remote. If {n}
@@ -229,7 +225,7 @@ pub struct ImportObjectArgs {
 
     /// Indicates whether the data to be imported is an ObjectDefinition  {n}
     /// a Picklist, or object instance data.
-    #[arg(short, long, value_enum, requires = "erc")]
+    #[arg(short, long, value_enum)]
     pub source: Option<ImportExportSource>,
 
     /// Liferay user's email address who has access rights to requested   {n}

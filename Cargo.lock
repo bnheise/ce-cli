@@ -334,6 +334,7 @@ name = "headless_admin_list_type"
 version = "1.0.0"
 dependencies = [
  "batch_api",
+ "object_admin",
  "serde",
  "serde_derive",
  "serde_json",

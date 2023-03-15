@@ -1,8 +1,9 @@
 use std::{fs, path::Path};
 
+use headless_admin_list_type::models::ListTypeDefinition;
 use object_admin::models::{object_field::BusinessType, ObjectDefinition, ObjectRelationship};
 
-use crate::error::CliError;
+use crate::{error::CliError, liferay_client::clean_json};
 
 pub struct DataDir<'a> {
     base_data_dir: &'a str,
@@ -11,6 +12,38 @@ pub struct DataDir<'a> {
 impl<'a> DataDir<'a> {
     pub fn init(base_data_dir: &'a str) -> Self {
         Self { base_data_dir }
+    }
+
+    pub fn load_picklist_data(&self) -> Result<Vec<ListTypeDefinition>, CliError> {
+        let piclist_path = Path::new(self.base_data_dir).join("picklists");
+
+        Ok(fs::read_dir(piclist_path)?
+            .flat_map(|entry| {
+                let entry = entry.map_err(|e| CliError::FileSystemError(e.to_string()))?;
+                let path = entry.path();
+
+                let content = fs::read_to_string(path)?;
+                Ok::<ListTypeDefinition, CliError>(serde_json::from_str::<ListTypeDefinition>(
+                    &content,
+                )?)
+            })
+            .collect::<Vec<_>>())
+    }
+
+    pub fn load_object_data(&self) -> Result<Vec<serde_json::Value>, CliError> {
+        let data_path = Path::new(self.base_data_dir).join("data");
+
+        Ok(fs::read_dir(data_path)?
+            .flat_map(|entry| {
+                let entry = entry.map_err(|e| CliError::FileSystemError(e.to_string()))?;
+                let path = entry.path();
+
+                let content = fs::read_to_string(path)?;
+                Ok::<serde_json::Value, CliError>(serde_json::from_str::<serde_json::Value>(
+                    &content,
+                )?)
+            })
+            .collect::<Vec<_>>())
     }
 
     pub fn load_object_definitions(
@@ -29,7 +62,7 @@ impl<'a> DataDir<'a> {
 
             let mut as_value = serde_json::from_str::<serde_json::Value>(&file)?;
             if clean_for_post {
-                Self::clean_json(&mut as_value);
+                clean_json(&mut as_value);
             }
 
             let mut object_def = serde_json::from_value::<ObjectDefinition>(as_value)?;
@@ -53,28 +86,6 @@ impl<'a> DataDir<'a> {
             object_definitions.push(object_def);
         }
         Ok(object_definitions)
-    }
-
-    fn clean_json(value: &mut serde_json::Value) {
-        match value {
-            serde_json::Value::Array(arr) => arr.iter_mut().for_each(Self::clean_json),
-            serde_json::Value::Object(obj) => {
-                let keys_to_remove = obj
-                    .iter()
-                    .filter(|(key, val)| {
-                        val.is_number() && (key.ends_with("id") || key.ends_with("Id"))
-                    })
-                    .map(|(key, _)| key.to_owned())
-                    .collect::<Vec<_>>();
-
-                for key in keys_to_remove.iter() {
-                    obj.remove(key);
-                }
-
-                obj.iter_mut().for_each(|(_, val)| Self::clean_json(val))
-            }
-            _ => (),
-        }
     }
 
     fn clean_fields(object_def: &mut ObjectDefinition) {
@@ -104,44 +115,4 @@ impl<'a> DataDir<'a> {
             })
         }
     }
-
-    // fn clean_layouts(layouts: &mut Option<Vec<ObjectLayout>>) {
-    //     if let Some(layouts) = layouts.as_mut() {
-    //         layouts.iter_mut().for_each(|mut layout| {
-    //             layout.id = None;
-    //             layout.object_definition_id = None;
-    //             layout.actions = None;
-    //             Self::clean_layout_tabs(&mut layout.object_layout_tabs);
-    //         })
-    //     }
-    // }
-
-    // fn clean_layout_tabs(tabs: &mut Option<Vec<ObjectLayoutTab>>) {
-    //     if let Some(tabs) = tabs.as_mut() {
-    //         tabs.iter_mut().for_each(|mut tab| {
-    //             tab.id = None;
-    //             tab.object_relationship_id = None;
-    //             Self::clean_layout_boxes(&mut tab.object_layout_boxes);
-    //         })
-    //     }
-    // }
-
-    // fn clean_layout_boxes(boxes: &mut Option<Vec<ObjectLayoutBox>>) {
-    //     if let Some(boxes) = boxes.as_mut() {
-    //         boxes.iter_mut().for_each(|mut box_| {
-    //             box_.id = None;
-    //             // Self::clean_layout_boxes(&mut tab.object_layout_boxes);
-    //         })
-    //     }
-    // }
-
-    // fn clean_actions(actions: &mut Option<Vec<ObjectAction>>) {
-    //     if let Some(actions) = actions.as_mut() {
-    //         actions.iter_mut().for_each(|mut action| {
-    //             action.actions = None;
-    //             action.active = None;
-    //             action.id = None;
-    //         });
-    //     }
-    // }
 }

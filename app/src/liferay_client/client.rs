@@ -1,7 +1,7 @@
 use super::{
     client_options::LiferayClientOptions,
     custom_objects::custom_object_endpoints::CustomObjectEndpoints,
-    object_admin_api::object_admin::ObjectAdminApi,
+    list_type_api::list_type::ListTypeApi, object_admin_api::object_admin::ObjectAdminApi,
 };
 
 pub struct LiferayClient {
@@ -31,5 +31,9 @@ impl LiferayClient {
 
     pub fn get_custom_object_api(&self) -> CustomObjectEndpoints {
         CustomObjectEndpoints::new(&self.base_url, &self.username, &self.password)
+    }
+
+    pub fn get_list_type_api(&self) -> ListTypeApi {
+        ListTypeApi::new(&self.base_url, &self.username, &self.password)
     }
 }

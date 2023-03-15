@@ -17,8 +17,11 @@ pub enum LiferayClientError<'a, T> {
     Io {
         origin: std::io::Error,
     },
-    Response {
+    ObjectResponse {
         origin: object_admin::apis::ResponseContent<T>,
+    },
+    PicklistResponse {
+        origin: headless_admin_list_type::apis::ResponseContent<T>,
     },
     // InvalidPayload {
     //     message: String,
@@ -37,7 +40,14 @@ impl<'a, T> Display for LiferayClientError<'a, T> {
             }
             Self::Request { origin } => write!(f, "Request failed: {origin}"),
             Self::Io { .. } => write!(f, "Io error encounted"),
-            Self::Response { origin } => {
+            Self::ObjectResponse { origin } => {
+                write!(
+                    f,
+                    "Server responded with error. Status: {}, content: {}",
+                    origin.status, origin.content
+                )
+            }
+            Self::PicklistResponse { origin } => {
                 write!(
                     f,
                     "Server responded with error. Status: {}, content: {}",
@@ -57,8 +67,8 @@ where
             Self::Serialization { origin, .. } => Some(origin),
             Self::Request { origin } => Some(origin),
             Self::Io { origin } => Some(origin),
-            Self::Response { .. } => None,
-            // Self::InvalidPayload { .. } => None,
+            Self::ObjectResponse { .. } => None,
+            Self::PicklistResponse { .. } => None, // Self::InvalidPayload { .. } => None,
         }
     }
 }
@@ -72,7 +82,23 @@ impl<'a, T> From<object_admin::apis::Error<T>> for LiferayClientError<'a, T> {
                 origin: e,
             },
             object_admin::apis::Error::Io(e) => Self::Io { origin: e },
-            object_admin::apis::Error::ResponseError(e) => Self::Response { origin: e },
+            object_admin::apis::Error::ResponseError(e) => Self::ObjectResponse { origin: e },
+        }
+    }
+}
+
+impl<'a, T> From<headless_admin_list_type::apis::Error<T>> for LiferayClientError<'a, T> {
+    fn from(value: headless_admin_list_type::apis::Error<T>) -> Self {
+        match value {
+            headless_admin_list_type::apis::Error::Reqwest(e) => e.into(),
+            headless_admin_list_type::apis::Error::Serde(e) => Self::Serialization {
+                type_name: classify_serde_error(&e),
+                origin: e,
+            },
+            headless_admin_list_type::apis::Error::Io(e) => Self::Io { origin: e },
+            headless_admin_list_type::apis::Error::ResponseError(e) => {
+                Self::PicklistResponse { origin: e }
+            }
         }
     }
 }

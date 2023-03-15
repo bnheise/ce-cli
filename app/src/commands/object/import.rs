@@ -18,27 +18,15 @@ use std::{
 use super::{initialize_param, prepare_url};
 
 pub fn handle_import(args: ImportObjectArgs) -> Result<(), CliError> {
-    let ImportObjectArgs { all, .. } = &args;
-
-    if *all {
-        handle_import_all(args)?;
-    } else {
-        todo!("Handle cases where -a wasn't passed")
-        // let erc = erc.as_ref().expect("Erc should have been provided.");
-        // let source = &source.as_ref().expect("Source should have been provided");
-    }
-
-    Ok(())
-}
-
-fn handle_import_all(args: ImportObjectArgs) -> Result<(), CliError> {
     dotenv::dotenv().ok();
     let ImportObjectArgs {
+        all,
         username,
         password,
         output,
         url,
         port,
+        source,
         ..
     } = args;
 
@@ -49,11 +37,40 @@ fn handle_import_all(args: ImportObjectArgs) -> Result<(), CliError> {
     let url = prepare_url(url, port, config.is_ok())?;
     let output_base = prepare_data_path(output, config.is_ok())?;
 
-    let context_paths = import_object_definitions(&output_base, &username, &password, &url);
+    if all {
+        handle_import_all(&username, &password, &url, &output_base)?;
+    } else if let Some(source) = source {
+        match source {
+            crate::cli::ImportExportSource::Picklist => {
+                import_picklists(&username, &password, &url, &output_base)?
+            }
+            crate::cli::ImportExportSource::Definition => {
+                import_object_definitions(&output_base, &username, &password, &url);
+            }
+            crate::cli::ImportExportSource::Data => todo!("Need to load context paths first"),
+            crate::cli::ImportExportSource::DefAndPick => {
+                import_object_definitions(&output_base, &username, &password, &url);
+                import_picklists(&username, &password, &url, &output_base)?;
+            }
+        };
+    };
+    // let erc = erc.as_ref().expect("Erc should have been provided.");
+    // let source = &source.as_ref().expect("Source should have been provided");
 
-    import_object_data(context_paths, &url, &output_base, &username, &password)?;
+    Ok(())
+}
 
-    import_picklists(&username, &password, &url, &output_base)?;
+fn handle_import_all(
+    username: &str,
+    password: &str,
+    url: &Url,
+    output_base: &str,
+) -> Result<(), CliError> {
+    let context_paths = import_object_definitions(output_base, username, password, url);
+
+    import_object_data(context_paths, url, output_base, username, password)?;
+
+    import_picklists(username, password, url, output_base)?;
 
     Ok(())
 }
@@ -76,6 +93,21 @@ fn import_picklists(
     if let Some(mut items) = result.items {
         for picklist in items.iter_mut() {
             picklist.actions = None;
+
+            picklist.list_type_entries.as_mut().map(|entries| {
+                let picklist_name = picklist
+                    .external_reference_code
+                    .clone()
+                    .unwrap_or_default()
+                    .to_uppercase();
+
+                entries.iter_mut().for_each(|entry| {
+                    let entry_name = entry.key.clone().unwrap_or_default().to_uppercase();
+                    entry.external_reference_code = Some(format!("{picklist_name}_{entry_name}"));
+                });
+                Some(entries)
+            });
+
             let path = Path::new(&output_base).join("picklists");
             let name = picklist.name.as_ref().unwrap();
             fs::create_dir_all(&path).unwrap();

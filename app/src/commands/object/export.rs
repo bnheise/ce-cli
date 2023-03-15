@@ -1,3 +1,6 @@
+use std::borrow::BorrowMut;
+use std::collections::HashMap;
+
 use super::prepare_data_path;
 use super::{initialize_param, prepare_url};
 use crate::data_dir::DataDir;
@@ -8,9 +11,8 @@ use crate::{
     config_generators::{config::Config, ConfigFile},
     error::CliError,
 };
+use batch_api::models::import_task::ImportStrategy;
 use regex::Regex;
-use std::fs;
-use std::path::Path;
 
 pub fn handle_export(args: ExportObjectArgs) -> Result<(), CliError> {
     let ExportObjectArgs {
@@ -29,6 +31,7 @@ pub fn handle_export(args: ExportObjectArgs) -> Result<(), CliError> {
     let url = prepare_url(url, port, config.is_ok())?;
 
     let base_data_dir = prepare_data_path(directory, config.is_ok())?;
+    let data_dir = DataDir::init(&base_data_dir);
 
     let options = LiferayClientOptions {
         base_url: url,
@@ -38,24 +41,164 @@ pub fn handle_export(args: ExportObjectArgs) -> Result<(), CliError> {
 
     let client = LiferayClient::new(options);
     match source {
-        crate::cli::ImportExportSource::Picklist => todo!(),
+        crate::cli::ImportExportSource::Picklist => {
+            export_picklist_definitions(&client, &data_dir)?;
+        }
         crate::cli::ImportExportSource::Definition => {
-            export_object_definitions(&client, &base_data_dir)?;
+            export_object_definitions(&client, &data_dir)?;
         }
         crate::cli::ImportExportSource::Data => {
-            export_object_data(&client, &base_data_dir)?;
+            export_object_data(&client, &data_dir)?;
         }
         crate::cli::ImportExportSource::DefAndPick => {
-            export_object_definitions(&client, &base_data_dir)?;
+            export_object_definitions(&client, &data_dir)?;
             todo!("Add picklists")
         }
     }
     Ok(())
 }
 
-fn export_object_definitions(client: &LiferayClient, base_data_dir: &str) -> Result<(), CliError> {
+fn export_picklist_definitions(client: &LiferayClient, data_dir: &DataDir) -> Result<(), CliError> {
+    println!("Loading picklist definitions...");
+    let picklists = data_dir.load_picklist_data()?;
+
+    let mut entries_to_process = Vec::new();
+    let mut existing_entry_ids = HashMap::new();
+
+    for mut list_type_definition in picklists {
+        let entries = list_type_definition.list_type_entries.take();
+        let external_reference_code = list_type_definition.external_reference_code.take();
+
+        if let Some(ref external_reference_code) = external_reference_code {
+            println!("Sending put request for picklist ${external_reference_code}");
+            let res = client
+                .get_list_type_api()
+                .get_list_type_api_endpoints()
+                .put_list_type_definition(external_reference_code, Some(list_type_definition))
+                .map_err(|e| {
+                    CliError::NetworkError(format!(
+                        "Failed to put picklist {}: {e}",
+                        external_reference_code
+                    ))
+                })?;
+
+            if let Some(definition_id) = res.id {
+                println!("Put successful. Picklist id is ${definition_id}");
+
+                println!("Getting existing entries for ${definition_id}");
+                let entries_res = client
+                    .get_list_type_api()
+                    .get_list_type_api_endpoints()
+                    .get_list_type_definition_list_type_entries_page(
+                        &definition_id.to_string(),
+                        None,
+                        None,
+                        Some("1"),
+                        Some("200"),
+                        None,
+                        None,
+                        Some(vec!["id", "key"]),
+                    )
+                    .map_err(|e| {
+                        CliError::NetworkError(format!(
+                            "Failed to get existing picklist entries for {}: {e}",
+                            external_reference_code
+                        ))
+                    })?;
+
+                println!("EXISTING: {entries_res:?}");
+
+                if let Some(items) = entries_res.items {
+                    for item in items {
+                        if let (Some(entry_key), Some(entry_id)) = (item.key, item.id) {
+                            existing_entry_ids
+                                .insert(format!("{definition_id}-{entry_key}"), entry_id);
+                        }
+                    }
+                }
+
+                entries_to_process.push((definition_id, entries));
+            } else {
+                println!("Failed to retrieve picklist id. Entries will not be added")
+            }
+        } else {
+            println!("Provided picklist has no external reference code. Skipping");
+        }
+    }
+
+    // TODO: iterate over list type definitions to get list of entries
+    // Partition entries to put into existing entries to update and entries to post
+    // one by one send the requests
+
+    let mut entries_to_put_batch = Vec::new();
+
+    for (definition_id, entries) in entries_to_process {
+        if let Some(entries) = entries {
+            let (entries_to_post, mut entries_to_put): (Vec<_>, Vec<_>) = entries
+                .into_iter()
+                .map(|mut entry| {
+                    let entry_key = entry.key.clone().unwrap_or_default();
+                    let hash_key = format!("{definition_id}-{entry_key}");
+                    entry.id = entry
+                        .borrow_mut()
+                        .id
+                        .and_then(|_| existing_entry_ids.get(&hash_key).copied());
+                    entry
+                })
+                .partition(|entry| entry.id.is_none());
+
+            entries_to_put_batch.append(&mut entries_to_put);
+
+            let res = client
+                .get_list_type_api()
+                .get_list_type_api_endpoints()
+                .post_list_type_definition_list_type_entry_batch(
+                    definition_id,
+                    entries_to_post,
+                    None,
+                    Some(ImportStrategy::Continue),
+                    None,
+                )
+                .map_err(|e| {
+                    CliError::NetworkError(format!(
+                        "Failed to send picklist entries batch request for picklist with id {definition_id}: {e}",
+                    ))
+                })?;
+
+            println!(
+                "Post batch for picklist {definition_id} sent. Batch operation erc is {}",
+                res.external_reference_code
+                    .unwrap_or("(erc not found)".into())
+            );
+        }
+    }
+
+    println!("Sending put batch request for existing picklists...");
+
+    let res = client
+        .get_list_type_api()
+        .get_list_type_api_endpoints()
+        .put_list_type_entry_batch(
+            None,
+            Some(entries_to_put_batch),
+            None,
+            Some(ImportStrategy::Continue),
+        )
+        .map_err(|e| {
+            CliError::NetworkError(format!(
+                "Failed to send picklist entries batch request for picklist existing entries: {e}",
+            ))
+        })?;
+
+    println!(
+        "Existing picklist batch sent. Batch operation erc is {}",
+        res.external_reference_code.unwrap_or_default()
+    );
+    Ok(())
+}
+
+fn export_object_definitions(client: &LiferayClient, data_dir: &DataDir) -> Result<(), CliError> {
     println!("Loading object definitions...");
-    let data_dir = DataDir::init(base_data_dir);
 
     let object_definitions = data_dir.load_object_definitions(true)?;
 
@@ -75,20 +218,14 @@ fn export_object_definitions(client: &LiferayClient, base_data_dir: &str) -> Res
     Ok(())
 }
 
-fn export_object_data(client: &LiferayClient, base_data_dir: &str) -> Result<(), CliError> {
+fn export_object_data(client: &LiferayClient, data_dir: &DataDir) -> Result<(), CliError> {
     println!("Loading object data...");
     let re = Regex::new(r"(/o/c/\w+)").expect("Invalid regex. Please fix.");
 
-    let data_path = Path::new(base_data_dir).join("data");
+    let object_data = data_dir.load_object_data()?;
 
-    for entry in fs::read_dir(data_path)? {
-        let entry = entry?;
-        let path = entry.path();
-
-        let content = fs::read_to_string(&path)?;
-        let parsed = serde_json::from_str::<serde_json::Value>(&content)?;
-
-        let get_href = get_get_href(&parsed);
+    for entry in object_data {
+        let get_href = get_get_href(&entry);
 
         if let Some(get_href) = get_href {
             if let Some(captures) = re.captures(&get_href) {
@@ -103,7 +240,7 @@ fn export_object_data(client: &LiferayClient, base_data_dir: &str) -> Result<(),
 
                 let resp = client
                     .get_custom_object_api()
-                    .post_object_data_batch(&parsed, &batch_path, None, None)
+                    .post_object_data_batch(&entry, &batch_path, None, None)
                     .map_err(|e| {
                         CliError::NetworkError(format!(
                             "Custom objects data batch request post failed: {e}"
