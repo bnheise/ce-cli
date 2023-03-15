@@ -31,7 +31,7 @@ pub fn handle_import(args: ImportArgs) -> Result<(), CliError> {
         data,
         ..
     } = args;
-
+    // TODO: refactor this part to match new pattern
     let username = initialize_param(username, "LIFERAY_USERNAME", "username")?;
     let password = initialize_param(password, "LIFERAY_PASSWORD", "password")?;
 
@@ -45,19 +45,28 @@ pub fn handle_import(args: ImportArgs) -> Result<(), CliError> {
         match (objects, picklists, data) {
             (false, true, false) => import_picklists(&username, &password, &url, &output_base)?,
             (true, false, false) => {
-                import_object_definitions(&output_base, &username, &password, &url);
+                import_object_definitions(&output_base, &username, &password, &url, true);
             }
-            (false, false, true) => todo!("Need to load context paths first"),
+            (false, false, true) => {
+                let context_paths =
+                    import_object_definitions(&output_base, &username, &password, &url, false);
+                import_object_data(context_paths, &url, &output_base, &username, &password)?;
+            }
             (true, true, false) => {
-                import_object_definitions(&output_base, &username, &password, &url);
+                import_object_definitions(&output_base, &username, &password, &url, true);
                 import_picklists(&username, &password, &url, &output_base)?;
             }
             (true, false, true) => {
                 let context_paths =
-                    import_object_definitions(&output_base, &username, &password, &url);
-                import_object_data(context_paths, &url, &output_base, &username, &password);
+                    import_object_definitions(&output_base, &username, &password, &url, true);
+                import_object_data(context_paths, &url, &output_base, &username, &password)?;
             }
-            (false, true, true) => todo!("Need to load context paths first"),
+            (false, true, true) => {
+                let context_paths =
+                    import_object_definitions(&output_base, &username, &password, &url, false);
+                import_picklists(&username, &password, &url, &output_base)?;
+                import_object_data(context_paths, &url, &output_base, &username, &password)?;
+            }
             _ => unreachable!(),
         };
     };
@@ -71,7 +80,7 @@ fn handle_import_all(
     url: &Url,
     output_base: &str,
 ) -> Result<(), CliError> {
-    let context_paths = import_object_definitions(output_base, username, password, url);
+    let context_paths = import_object_definitions(output_base, username, password, url, true);
 
     import_object_data(context_paths, url, output_base, username, password)?;
 
@@ -115,12 +124,11 @@ fn import_picklists(
 
             let path = Path::new(&output_base).join("picklists");
             let name = picklist.name.as_ref().unwrap();
-            fs::create_dir_all(&path).unwrap();
+            fs::create_dir_all(&path)?;
 
             let filepath = path.join(format!("{name}.json"));
             let mut file = File::create(filepath).unwrap();
-            file.write_all(serde_json::to_string_pretty(picklist).unwrap().as_bytes())
-                .unwrap();
+            file.write_all(serde_json::to_string_pretty(picklist).unwrap().as_bytes())?;
         }
         println!("Imported {} picklist(s) ", items.len())
     }
@@ -133,6 +141,7 @@ fn import_object_definitions(
     username: &str,
     password: &str,
     url: &Url,
+    write: bool,
 ) -> Vec<(String, String)> {
     println!("Importing object definitions...");
 
@@ -159,12 +168,16 @@ fn import_object_definitions(
                         context_paths.push((context_path, name));
                     }
 
-                    fs::create_dir_all(&path).unwrap();
+                    if write {
+                        fs::create_dir_all(&path).unwrap();
 
-                    let filepath = path.join(format!("{name}.json"));
-                    let mut file = File::create(filepath).unwrap();
-                    file.write_all(serde_json::to_string_pretty(object_def).unwrap().as_bytes())
-                        .unwrap();
+                        let filepath = path.join(format!("{name}.json"));
+                        let mut file = File::create(filepath).unwrap();
+                        file.write_all(
+                            serde_json::to_string_pretty(object_def).unwrap().as_bytes(),
+                        )
+                        .expect("Failed to write object definitions");
+                    }
                 }
             }
         }
