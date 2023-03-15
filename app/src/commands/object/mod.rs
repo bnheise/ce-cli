@@ -1,5 +1,4 @@
-use self::{export::handle_export, import::handle_import};
-use crate::{cli::ObjectOption, error::CliError};
+use crate::error::CliError;
 use batch_api::reqwest;
 use batch_api::reqwest::Url;
 pub use headless_admin_list_type::apis::{
@@ -14,14 +13,6 @@ use std::str::FromStr;
 
 pub mod export;
 pub mod import;
-
-pub fn handle_object(options: ObjectOption) -> Result<(), CliError> {
-    match options {
-        ObjectOption::Import(args) => handle_import(args)?,
-        ObjectOption::Export(args) => handle_export(args)?,
-    }
-    Ok(())
-}
 
 fn initialize_param<T: From<String>>(
     param: Option<T>,

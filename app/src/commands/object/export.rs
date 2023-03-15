@@ -7,21 +7,23 @@ use crate::data_dir::DataDir;
 use crate::liferay_client::client::LiferayClient;
 use crate::liferay_client::client_options::LiferayClientOptions;
 use crate::{
-    cli::ExportObjectArgs,
+    cli::ExportArgs,
     config_generators::{config::Config, ConfigFile},
     error::CliError,
 };
 use batch_api::models::import_task::ImportStrategy;
 use regex::Regex;
 
-pub fn handle_export(args: ExportObjectArgs) -> Result<(), CliError> {
-    let ExportObjectArgs {
-        source,
+pub fn handle_export(args: ExportArgs) -> Result<(), CliError> {
+    let ExportArgs {
         username,
         password,
         url,
         port,
         directory,
+        objects,
+        picklists,
+        data,
         ..
     } = args;
     let username = initialize_param(username, "LIFERAY_USERNAME", "username")?;
@@ -40,20 +42,21 @@ pub fn handle_export(args: ExportObjectArgs) -> Result<(), CliError> {
     };
 
     let client = LiferayClient::new(options);
-    match source {
-        crate::cli::ImportExportSource::Picklist => {
+    match (objects, picklists, data) {
+        (false, true, false) => {
             export_picklist_definitions(&client, &data_dir)?;
         }
-        crate::cli::ImportExportSource::Definition => {
+        (true, false, false) => {
             export_object_definitions(&client, &data_dir)?;
         }
-        crate::cli::ImportExportSource::Data => {
+        (false, false, true) => {
             export_object_data(&client, &data_dir)?;
         }
-        crate::cli::ImportExportSource::DefAndPick => {
+        (true, true, false) => {
             export_object_definitions(&client, &data_dir)?;
-            todo!("Add picklists")
+            export_picklist_definitions(&client, &data_dir)?;
         }
+        _ => unreachable!(),
     }
     Ok(())
 }

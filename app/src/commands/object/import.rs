@@ -3,7 +3,7 @@ use super::{
     ListTypeConfig, ObjectAdminConfig,
 };
 use crate::{
-    cli::ImportObjectArgs,
+    cli::ImportArgs,
     commands::object::get_object_client,
     config_generators::{config::Config, ConfigFile},
     error::CliError,
@@ -17,16 +17,18 @@ use std::{
 
 use super::{initialize_param, prepare_url};
 
-pub fn handle_import(args: ImportObjectArgs) -> Result<(), CliError> {
+pub fn handle_import(args: ImportArgs) -> Result<(), CliError> {
     dotenv::dotenv().ok();
-    let ImportObjectArgs {
+    let ImportArgs {
         all,
         username,
         password,
         output,
         url,
         port,
-        source,
+        objects,
+        picklists,
+        data,
         ..
     } = args;
 
@@ -39,23 +41,26 @@ pub fn handle_import(args: ImportObjectArgs) -> Result<(), CliError> {
 
     if all {
         handle_import_all(&username, &password, &url, &output_base)?;
-    } else if let Some(source) = source {
-        match source {
-            crate::cli::ImportExportSource::Picklist => {
-                import_picklists(&username, &password, &url, &output_base)?
-            }
-            crate::cli::ImportExportSource::Definition => {
+    } else {
+        match (objects, picklists, data) {
+            (false, true, false) => import_picklists(&username, &password, &url, &output_base)?,
+            (true, false, false) => {
                 import_object_definitions(&output_base, &username, &password, &url);
             }
-            crate::cli::ImportExportSource::Data => todo!("Need to load context paths first"),
-            crate::cli::ImportExportSource::DefAndPick => {
+            (false, false, true) => todo!("Need to load context paths first"),
+            (true, true, false) => {
                 import_object_definitions(&output_base, &username, &password, &url);
                 import_picklists(&username, &password, &url, &output_base)?;
             }
+            (true, false, true) => {
+                let context_paths =
+                    import_object_definitions(&output_base, &username, &password, &url);
+                import_object_data(context_paths, &url, &output_base, &username, &password);
+            }
+            (false, true, true) => todo!("Need to load context paths first"),
+            _ => unreachable!(),
         };
     };
-    // let erc = erc.as_ref().expect("Erc should have been provided.");
-    // let source = &source.as_ref().expect("Source should have been provided");
 
     Ok(())
 }

@@ -31,8 +31,11 @@ pub enum Commands {
     #[command()]
     DevDeploy,
 
-    #[command(subcommand)]
-    Object(ObjectOption),
+    #[command()]
+    Import(ImportArgs),
+
+    #[command()]
+    Export(ExportArgs),
 }
 
 /// Initializes a new workspace. This should be carried out inside a  {n}
@@ -179,28 +182,13 @@ impl From<FrameworkOption> for &str {
     }
 }
 
-/// Import Liferay Object Definitions, data, and Picklists into your local{n}
-/// repository or export them from your repository into a Liferay instance
-#[derive(Debug, Subcommand)]
-pub enum ObjectOption {
-    /// Import Object definitions, picklists, and/or data into this       {n}
-    /// repository
-    #[command()]
-    Import(ImportObjectArgs),
-
-    /// Export Object definitions, picklists, and/or data to a Liferay    {n}
-    /// instance
-    #[command()]
-    Export(ExportObjectArgs),
-}
-
 #[derive(Debug, Args, Clone)]
 #[command(group(
     ArgGroup::new("target")
-        .required(false)
-        .args(["all", "erc"]),
+        .required(true)
+        .args(["objects", "picklists", "data"]).conflicts_with("all"),
 ))]
-pub struct ImportObjectArgs {
+pub struct ImportArgs {
     /// The url for your Liferay instance. It can be local or remote. If {n}
     /// you don't provide this value, ce-cli will attempt to load it from{n}
     /// the LIFERAY_HOST environment variable.
@@ -217,16 +205,17 @@ pub struct ImportObjectArgs {
     #[arg(short, long)]
     pub all: bool,
 
-    /// The external reference code of the item that you want to import.  {n}
-    /// Note that in the case that you're importing object data, the erc  {n}
-    /// refers to the erc of the Object definition, not the object instance.
-    #[arg(short, long, requires = "source")]
-    pub erc: Option<String>,
+    /// Setting this flag will import all Object definitions
+    #[arg(short, long)]
+    pub objects: bool,
 
-    /// Indicates whether the data to be imported is an ObjectDefinition  {n}
-    /// a Picklist, or object instance data.
-    #[arg(short, long, value_enum)]
-    pub source: Option<ImportExportSource>,
+    /// Setting this flag will import all picklists
+    #[arg(short, long)]
+    pub picklists: bool,
+
+    /// Setting this flag will import object data.
+    #[arg(short, long)]
+    pub data: bool,
 
     /// Liferay user's email address who has access rights to requested   {n}
     /// data. If not provided, ce-cli will attempt to load it from the    {n}
@@ -250,7 +239,12 @@ pub struct ImportObjectArgs {
 }
 
 #[derive(Debug, Args)]
-pub struct ExportObjectArgs {
+#[command(group(
+    ArgGroup::new("target")
+        .required(true)
+        .args(["objects", "picklists"]).conflicts_with("data"),
+))]
+pub struct ExportArgs {
     /// The url for your Liferay instance. It can be local or remote. If {n}
     /// you don't provide this value, ce-cli will attempt to load it from{n}
     /// the LIFERAY_HOST environment variable.
@@ -262,10 +256,20 @@ pub struct ExportObjectArgs {
     #[arg(long)]
     pub port: Option<u16>,
 
-    /// Indicates whether the data to be exported is an ObjectDefinition  {n}
-    /// a Picklist, or object instance data.
-    #[arg(short, long, value_enum)]
-    pub source: ImportExportSource,
+    /// Setting this flag will export all Object definitions
+    #[arg(short, long)]
+    pub objects: bool,
+
+    /// Setting this flag will export all picklists
+    #[arg(short, long)]
+    pub picklists: bool,
+
+    /// Setting this flag will export object data. Note that objects and  {n}
+    /// object data cannot be exported simultaneously -- you must export  {n}
+    /// object data first, wait for the operation to complete, and then   {n}
+    /// import the data.
+    #[arg(short, long)]
+    pub data: bool,
 
     /// Liferay user's email address who has permission to write the data.{n}
     /// If not provided, ce-cli will attempt to load it from the          {n}
