@@ -19,6 +19,10 @@ set up local development projects for Liferay Client extensions.
 - Bundle dependencies shared by multiple components into a single shared dependency to reduce bundle size
   by removing duplicated code
 - Supports projects build with React and with Vue
+- BETA: import the Objects and Picklists that your extension depends on as .json to keep your repo as the source of truth for your extension
+- BETA: import Object data into your repo to keep dummy data ready for use
+- BETA: export the Objects and Picklists that your extension depends on from your repo to a Liferay instance. Great for onboarding new developers or even deploying definitions to a production instance. Supports adding new entries and updating existing entries.
+- BETA: export Object entries from your repo to a Liferay instance. Useful for deploying dummy data to a local instance (good for onboarding new developers)
 
 ## Installation
 
@@ -120,6 +124,51 @@ Note that you can optionally provide a version for the package as you would when
 ce-cli add shared-dependency "lodash-es@~4.17.21"
 ```
 
+### Importing Data
+
+The command `ce-cli import` allows you to import Object Definitions, Picklists, and Object entries. This is useful
+for keeping your repo as the single source of truth for its dependencies. Import you can import the Object Definitions
+and Picklists that your client extension depends on and re-export them to other Liferay instances as needed. For
+example to import all three, run
+
+```bash
+ce-cli import -a
+```
+
+You can also specify which you want to import specifically using `-o` (objects), `-p` (picklists), `-d` object
+entry data. For example, to import only objects and picklists, run
+
+```bash
+ce-cli import -o -p
+```
+
+### Exporting Data
+
+The command `ce-cli export` allows you to export Object Definitions, Picklists, and Object that you've imported to your
+local repo to another Liferay instance. This is useful when you need to onboard a new developer to the project since they
+can easily run a few commands to get the data they need to start developing into their Liferay instance. However, you
+can also use this feature to deploy to a remote instance.
+
+Exporting is similar to importing, except that you cannot export Object Definitions and Object data at the same time.
+This limitation may be lifted in the future. Also note that currently due to limitations in the picklist batch api,
+exporting large amounts of picklist data could take some time as parts of the process must be carried out synchronously
+due to these limitations.
+
+To export data, run the command `ce-cli export` along with a combination of the flags `-o` (Object defintiions),
+`-p` (Picklists), and `-d` (Object entry data). Note that `-o` and `-d` may not be specified at the same time.
+
+For example, to import all objects and picklists, run
+
+```bash
+ce-cli export -o -p
+```
+
+To export object entry data, run
+
+```bash
+ce-cli export -d
+```
+
 #### Caveats
 
 ##### ES Modules Required
@@ -145,18 +194,8 @@ TODO: document shared dependencies with peer dependencies
   - IFrame extension
   - Theme CSS
   - Theme Favicon
-- Add Object definition deployment configuration
-- Add Vue configuration
 - Add Angular configuration
-- Deploy to virtual instances
 
 ## Known Issues
 
-### Vue Build Fails with Yarn
-
-A bug in Yarn causes Vue builds to fail for an unknown reason. Since Liferay workspace uses Yarn by default,
-you'll have to update your `gradle.properties` files with the following in order to use npm:
-
-```
-liferay.workspace.node.package.manager=npm
-```
+Currently, none
