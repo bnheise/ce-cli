@@ -18,6 +18,7 @@ pub struct AssetsDir;
 impl AssetsDir {
     const ASSETS: Dir<'_> = include_dir!("$CARGO_MANIFEST_DIR/assets");
     const BASE: &'static str = "base";
+    const ENV: &'static str = ".env";
 
     pub fn initialize_templates<T: ClientExt>(
         config: &Config,
@@ -145,7 +146,7 @@ impl AssetsDir {
             .get_dir(Self::BASE)
             .expect("Base directory was not found");
         let env_file = base_dir
-            .get_file(".env")
+            .get_file(Path::new(Self::BASE).join(Self::ENV))
             .expect("Didn't find the .env file");
         let mut contents = env_file.contents_utf8().unwrap().to_owned();
 
@@ -156,7 +157,7 @@ impl AssetsDir {
             contents = contents.replace("test@liferay.com", &username);
         }
 
-        fs::write(Path::new("./"), contents)?;
+        fs::write(Path::new("./").join(Self::ENV), contents)?;
         Ok(())
     }
 }
