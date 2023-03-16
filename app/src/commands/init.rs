@@ -14,9 +14,12 @@ pub fn handle_init(args: InitArgs) -> Result<(), CliError> {
     let config = ConfigBuilder::new();
 
     if !current_dir_empty()? {
-        return Err(CliError::Init("Current directory is not empty".into()));
+        return Err(CliError::FileSystemError(
+            "Current directory is not empty".into(),
+        ));
     }
 
+    AssetsDir::set_env_file(&args)?;
     let config = initialize_config(config, args)?;
     let framework = config.framework.to_owned();
 
@@ -38,12 +41,7 @@ pub fn handle_init(args: InitArgs) -> Result<(), CliError> {
 }
 
 fn current_dir_empty() -> Result<bool, CliError> {
-    Ok(env::current_dir()
-        .map_err(|e| CliError::CurrentDirectory(Some(e)))?
-        .read_dir()
-        .map_err(|e| CliError::CurrentDirectory(Some(e)))?
-        .next()
-        .is_none())
+    Ok(env::current_dir()?.read_dir()?.next().is_none())
 }
 
 fn initialize_config(mut config: ConfigBuilder, args: InitArgs) -> Result<Config, CliError> {
@@ -92,8 +90,7 @@ fn get_instance_id_from_user() -> Result<String, CliError> {
     let instance_id = Input::new()
         .with_prompt("Please enter the web id for the virtual instance that you want to deploy to")
         .with_initial_text(Config::default().default_instance_id)
-        .interact_text()
-        .map_err(CliError::Input)?;
+        .interact_text()?;
 
     Ok(instance_id)
 }
@@ -108,8 +105,7 @@ fn get_framework_from_user() -> Result<FrameworkOption, CliError> {
         .with_prompt("Please enter the framework that you wish to use")
         .items(&options)
         .default(0)
-        .interact()
-        .map_err(CliError::Input)?;
+        .interact()?;
 
     Ok(options[user_response])
 }
@@ -137,8 +133,7 @@ fn get_deploy_path_from_user(bundle_path: Option<PathBuf>) -> Result<PathBuf, Cl
                 Err("It was not possible to parse your input.")
             }
         })
-        .interact_text()
-        .map_err(CliError::Input)?;
+        .interact_text()?;
 
     Ok(PathBuf::from(user_response))
 }
@@ -172,14 +167,13 @@ pub fn get_bundle_path_from_environment() -> Option<PathBuf> {
 }
 
 pub fn get_project_name_from_user() -> Result<String, CliError> {
-    let folder_name = match env::current_dir()
-        .map_err(|e| CliError::CurrentDirectory(Some(e)))?
+    let folder_name = match env::current_dir()?
         .components()
         .last()
-        .ok_or(CliError::CurrentDirectory(None))?
+        .ok_or(CliError::FileSystemError(String::new()))?
     {
         std::path::Component::Normal(dirname) => dirname,
-        _ => return Err(CliError::CurrentDirectory(None)),
+        _ => return Err(CliError::FileSystemError(String::new())),
     }
     .to_str()
     .unwrap_or_default()
@@ -197,8 +191,7 @@ pub fn get_project_name_from_user() -> Result<String, CliError> {
                 Err("Project name must not contain characters that cannot be displayed in a url")
             }
         })
-        .interact_text()
-        .map_err(CliError::Input)?;
+        .interact_text()?;
 
     Ok(user_response)
 }

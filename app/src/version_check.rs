@@ -1,6 +1,7 @@
 use crate::error::CliError;
+use batch_api::reqwest;
+use batch_api::reqwest::Url;
 use colored::Colorize;
-use reqwest::Url;
 use serde::Deserialize;
 use std::collections::HashMap;
 
@@ -30,12 +31,7 @@ fn fetch_package_metadata() -> Result<PackageMetadata, CliError> {
     let fetch_url = Url::parse(&format!("{NPM_PACKAGE_REGISTRY}/{PACKAGE_NAME}/latest"))
         .expect("Could not parse the npm package registry url");
 
-    let resp = reqwest::blocking::get(fetch_url)
-        .map_err(|e| {
-            return CliError::Http(format!("Failed to get latest {PACKAGE_NAME} version"), e);
-        })?
-        .json::<PackageMetadata>()
-        .map_err(|e| CliError::Http("Failed to deserialized ce-cli npm metadata".into(), e))?;
+    let resp = reqwest::blocking::get(fetch_url)?.json::<PackageMetadata>()?;
     Ok(resp)
 }
 

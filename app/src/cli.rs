@@ -1,5 +1,6 @@
 use crate::config_generators::client_extension_yaml::PortletCategoryNames;
-use clap::{Args, Parser, Subcommand, ValueEnum};
+use batch_api::reqwest::Url;
+use clap::{ArgGroup, Args, Parser, Subcommand, ValueEnum};
 use serde::{Deserialize, Serialize};
 use std::{fmt::Display, path::PathBuf};
 
@@ -29,6 +30,12 @@ pub enum Commands {
     /// switch the port back in client-extension.yaml.
     #[command()]
     DevDeploy,
+
+    #[command()]
+    Import(ImportArgs),
+
+    #[command()]
+    Export(ExportArgs),
 }
 
 /// Initializes a new workspace. This should be carried out inside a  {n}
@@ -56,6 +63,15 @@ pub struct InitArgs {
     /// the default value will deploy to your root instance.              {n}
     #[arg(short, long, value_enum)]
     pub instance_id: Option<String>,
+
+    /// Username of the admin user of your Liferay instance. Used to      {n}
+    /// import/export operations and the like.
+    #[arg(short, long, value_enum)]
+    pub username: Option<String>,
+
+    /// Password for your liferay admin account.                          {n}
+    #[arg(short, long, value_enum)]
+    pub password: Option<String>,
 }
 
 /// Add a new component to your workspace. Components are items that will {n}
@@ -164,4 +180,130 @@ impl From<FrameworkOption> for &str {
             FrameworkOption::Vue => "vue",
         }
     }
+}
+
+#[derive(Debug, Args, Clone)]
+#[command(group(
+    ArgGroup::new("target")
+        .required(true)
+        .args(["objects", "picklists", "data"]).conflicts_with("all"),
+))]
+pub struct ImportArgs {
+    /// The url for your Liferay instance. It can be local or remote. If {n}
+    /// you don't provide this value, ce-cli will attempt to load it from{n}
+    /// the LIFERAY_HOST environment variable.
+    #[arg(long)]
+    pub url: Option<Url>,
+
+    /// The port for your Liferay instance. If not provided, ce-cli will {n}
+    /// attempt to load it from the LIFERAY_PORT environment variable.
+    #[arg(long)]
+    pub port: Option<u16>,
+
+    /// Setting this flag will import all Object definitions, picklists,  {n}
+    /// and object data.
+    #[arg(short, long)]
+    pub all: bool,
+
+    /// Setting this flag will import all Object definitions
+    #[arg(short, long)]
+    pub objects: bool,
+
+    /// Setting this flag will import all picklists
+    #[arg(short, long)]
+    pub picklists: bool,
+
+    /// Setting this flag will import object data.
+    #[arg(short, long)]
+    pub data: bool,
+
+    /// Liferay user's email address who has access rights to requested   {n}
+    /// data. If not provided, ce-cli will attempt to load it from the    {n}
+    /// LIFERAY_USERNAME environment variable.
+    #[arg(short, long, value_enum)]
+    pub username: Option<String>,
+
+    /// The password associated with the username parameter. if not       {n}
+    /// provided, ce-cli will attempt to load this from the               {n}
+    /// LIFERAY_PASSWORD environment variable.
+    #[arg(short, long, value_enum)]
+    pub password: Option<String>,
+
+    /// Folder to store the output. If you are operating in a ce-cli     {n}
+    /// generated workspace, this will default to                        {n}
+    /// {root}/objects/definitions for Liferay Object defiitions,        {n}
+    /// {root}/objects/picklists for Picklist definitions, and           {n}
+    /// {root}/objects/data for object instance data.
+    #[arg(short, long, value_enum)]
+    pub output: Option<String>,
+}
+
+#[derive(Debug, Args)]
+#[command(group(
+    ArgGroup::new("target")
+        .args(["objects", "picklists", "data"])
+        .multiple(false)
+))]
+pub struct ExportArgs {
+    /// The url for your Liferay instance. It can be local or remote. If {n}
+    /// you don't provide this value, ce-cli will attempt to load it from{n}
+    /// the LIFERAY_HOST environment variable.
+    #[arg(long)]
+    pub url: Option<Url>,
+
+    /// The port for your Liferay instance. If not provided, ce-cli will {n}
+    /// attempt to load it from the LIFERAY_PORT environment variable.
+    #[arg(long)]
+    pub port: Option<u16>,
+
+    /// Setting this flag will export all Object definitions
+    #[arg(short, long)]
+    pub objects: bool,
+
+    /// Setting this flag will export all picklists
+    #[arg(short, long)]
+    pub picklists: bool,
+
+    /// Setting this flag will export object data. Note that objects and  {n}
+    /// object data cannot be exported simultaneously -- you must export  {n}
+    /// object data first, wait for the operation to complete, and then   {n}
+    /// import the data.
+    #[arg(short, long)]
+    pub data: bool,
+
+    /// Liferay user's email address who has permission to write the data.{n}
+    /// If not provided, ce-cli will attempt to load it from the          {n}
+    /// LIFERAY_USERNAME environment variable.
+    #[arg(short, long, value_enum)]
+    pub username: Option<String>,
+
+    /// The password associated with the username parameter. if not       {n}
+    /// provided, ce-cli will attempt to load this from the               {n}
+    /// LIFERAY_PASSWORD environment variable.
+    #[arg(long, value_enum)]
+    pub password: Option<String>,
+
+    /// Explicitly indicate the endpoint to send the data to. If empty,  {n}
+    /// ce-cli will use the standard picklist or object definition       {n}
+    /// endpoints for picklists and object definitions. In the case of   {n}
+    /// object data, the endpoint is required.
+    #[arg(short, long, value_enum)]
+    pub endpoint: Option<String>,
+
+    /// The directory where the item(s) to export are located. If caleld {n}
+    /// from a ce-cli generated workspace, this will default to          {n}
+    /// {root}/objects/definitions for Liferay Object defiitions,        {n}
+    /// {root}/objects/picklists for Picklist definitions, and           {n}
+    /// {root}/objects/data for object instance data.
+    #[arg(long, value_enum)]
+    pub directory: Option<String>,
+    // TODO: add flag publish to automatically publish the objects after creation
+}
+
+#[derive(Debug, ValueEnum, Clone)]
+pub enum ImportExportSource {
+    Picklist,
+    Definition,
+    Data,
+    DefAndPick,
 }

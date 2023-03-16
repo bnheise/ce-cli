@@ -1,12 +1,14 @@
 import { defineConfig } from 'cypress';
 import WebpackDevConfig from './webpack.dev.js';
 import dotenv from 'dotenv';
+import dotenvExpand from "dotenv-expand";
 import { createRequire } from 'module';
 
 const require = createRequire(import.meta.url);
 const workspaceConfig = require('./workspace-config.json');
 
-dotenv.config();
+const env = dotenv.config();
+dotenvExpand(env);
 
 const CYPRESS_PREFIX = 'CYPRESS_';
 
