@@ -11,7 +11,10 @@ use crate::{
     config_generators::{config::Config, ConfigFile},
     error::CliError,
 };
-use batch_api::models::import_task::ImportStrategy;
+use headless_admin_list_type::models::list_type_entry::ListTypeEntryField;
+use headless_batch_engine::models::import_task::ImportStrategy;
+use headless_common::api::field_collection::FieldCollection;
+use headless_common::api::page_params::PageParams;
 use regex::Regex;
 
 pub fn handle_export(args: ExportArgs) -> Result<(), CliError> {
@@ -89,18 +92,19 @@ fn export_picklist_definitions(client: &LiferayClient, data_dir: &DataDir) -> Re
                 println!("Put successful. Picklist id is ${definition_id}");
 
                 println!("Getting existing entries for ${definition_id}");
+                let mut options: PageParams<_, &str> = PageParams::new();
+                options.page = Some(1);
+                options.page_size = Some(200);
+                options.fields = Some(FieldCollection::from(vec![
+                    ListTypeEntryField::Id,
+                    ListTypeEntryField::Key,
+                ]));
                 let entries_res = client
                     .get_list_type_api()
                     .get_list_type_api_endpoints()
                     .get_list_type_definition_list_type_entries_page(
                         &definition_id.to_string(),
-                        None,
-                        None,
-                        Some("1"),
-                        Some("200"),
-                        None,
-                        None,
-                        Some(vec!["id", "key"]),
+                        Some(options),
                     )
                     .map_err(|e| {
                         CliError::NetworkError(format!(

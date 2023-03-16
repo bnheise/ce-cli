@@ -2,7 +2,7 @@ use super::{field_collection::FieldCollection, filter::FilterExpression, sort::S
 use std::fmt::Display;
 
 /// Params common to Page requests
-#[derive(Clone, Debug, PartialEq, Default)]
+#[derive(Clone, Debug, PartialEq)]
 
 pub struct PageParams<'a, T, S>
 where
@@ -30,4 +30,37 @@ where
     /// Restrict the fields to be returned by adding the field names to this
     /// collection
     pub fields: Option<FieldCollection<T>>,
+}
+
+impl<'a, T, S> PageParams<'a, T, S>
+where
+    T: Display,
+    S: AsRef<str> + Display,
+{
+    pub fn new() -> Self {
+        Self {
+            ..Default::default()
+        }
+    }
+}
+
+impl<'a, T, S> Default for PageParams<'a, T, S>
+where
+    T: Display,
+    S: AsRef<str> + Display,
+{
+    fn default() -> Self {
+        Self {
+            agregation_terms: None,
+            filter: None,
+            page: None,
+            page_size: Default::default(),
+            search: Default::default(),
+            sort: None,
+            nested_fields: None,
+            nested_fields_depth: Default::default(),
+            flatten: Default::default(),
+            fields: None,
+        }
+    }
 }

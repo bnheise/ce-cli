@@ -10,6 +10,15 @@ pub struct FieldCollection<T>(Vec<T>)
 where
     T: Display;
 
+impl<T> From<Vec<T>> for FieldCollection<T>
+where
+    T: Display,
+{
+    fn from(value: Vec<T>) -> Self {
+        FieldCollection(value)
+    }
+}
+
 impl<T> FieldCollection<T>
 where
     T: Display,

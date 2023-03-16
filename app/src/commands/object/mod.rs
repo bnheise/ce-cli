@@ -1,10 +1,9 @@
 use crate::error::CliError;
-use batch_api::reqwest;
-use batch_api::reqwest::Url;
 pub use headless_admin_list_type::apis::{
     configuration::Configuration as ListTypeConfig,
     list_type_definition_api::get_list_type_definitions_page,
 };
+use headless_common::{reqwest, url::Url};
 pub use object_admin::apis::{
     configuration::Configuration as ObjectAdminConfig,
     object_definition_api::get_object_definitions_page,
@@ -77,9 +76,13 @@ impl ApiConfig for ObjectAdminConfig {
 
 impl ApiConfig for ListTypeConfig {
     fn update_base_path(&mut self, replacement: &Url) {
-        self.base_path = self
-            .base_path
-            .replace("http://localhost:8080", replacement.as_str());
+        self.base_path = Url::parse(
+            &self
+                .base_path
+                .to_string()
+                .replace("http://localhost:8080", replacement.as_str()),
+        )
+        .unwrap();
     }
 }
 

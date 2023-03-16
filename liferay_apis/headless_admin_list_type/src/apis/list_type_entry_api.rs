@@ -12,7 +12,6 @@ use std::fmt::Display;
 
 use super::super::models::list_type_entry::ListTypeEntryFieldName;
 use super::{configuration, Error};
-use crate::models::list_type_definition::ListTypeDefinitionField;
 use crate::{apis::ResponseContent, models::ListTypeEntry};
 use headless_batch_engine::apis::import_task_params::ImportTaskParams;
 use headless_batch_engine::models::ImportTask;
@@ -190,7 +189,7 @@ pub fn delete_list_type_entry_batch(
 pub fn get_list_type_definition_list_type_entries_page<S>(
     configuration: &configuration::Configuration,
     list_type_definition_id: &str,
-    options: PageParams<ListTypeDefinitionField, S>,
+    options: Option<PageParams<ListTypeEntryFieldName, S>>,
 ) -> Result<Page<ListTypeEntry>, Error<GetListTypeDefinitionListTypeEntriesPageError>>
 where
     S: AsRef<str> + Display,
@@ -207,52 +206,55 @@ where
     let mut local_var_req_builder =
         local_var_client.request(reqwest::Method::GET, local_var_uri_str.as_str());
 
-    if let Some(ref local_var_str) = options.agregation_terms {
-        local_var_req_builder =
-            local_var_req_builder.query(&[("aggregationTerms", &local_var_str.to_string())]);
+    if let Some(options) = options {
+        if let Some(ref local_var_str) = options.agregation_terms {
+            local_var_req_builder =
+                local_var_req_builder.query(&[("aggregationTerms", &local_var_str.to_string())]);
+        }
+        if let Some(ref local_var_str) = options.filter {
+            local_var_req_builder =
+                local_var_req_builder.query(&[("filter", &local_var_str.to_string())]);
+        }
+        if let Some(ref local_var_str) = options.page {
+            local_var_req_builder =
+                local_var_req_builder.query(&[("page", &local_var_str.to_string())]);
+        }
+        if let Some(ref local_var_str) = options.page_size {
+            local_var_req_builder =
+                local_var_req_builder.query(&[("pageSize", &local_var_str.to_string())]);
+        }
+        if let Some(ref local_var_str) = options.search {
+            local_var_req_builder =
+                local_var_req_builder.query(&[("search", &local_var_str.to_string())]);
+        }
+        if let Some(ref local_var_str) = options.sort {
+            local_var_req_builder =
+                local_var_req_builder.query(&[("sort", &local_var_str.to_string())]);
+        }
+        if let Some(ref local_var_vec) = options.fields {
+            local_var_req_builder =
+                local_var_req_builder.query(&[("fields", local_var_vec.to_string())]);
+        }
+        if let Some(ref local_var_vec) = options.flatten {
+            local_var_req_builder =
+                local_var_req_builder.query(&[("flatten", local_var_vec.to_string())]);
+        }
+        if let Some(ref local_var_vec) = options.nested_fields_depth {
+            local_var_req_builder =
+                local_var_req_builder.query(&[("nestedFieldsDepth", local_var_vec.to_string())]);
+        }
+        if let Some(ref local_var_vec) = options.nested_fields {
+            local_var_req_builder = local_var_req_builder.query(&[(
+                "nestedFields",
+                local_var_vec
+                    .iter()
+                    .map(S::to_string)
+                    .collect::<Vec<_>>()
+                    .join(","),
+            )]);
+        }
     }
-    if let Some(ref local_var_str) = options.filter {
-        local_var_req_builder =
-            local_var_req_builder.query(&[("filter", &local_var_str.to_string())]);
-    }
-    if let Some(ref local_var_str) = options.page {
-        local_var_req_builder =
-            local_var_req_builder.query(&[("page", &local_var_str.to_string())]);
-    }
-    if let Some(ref local_var_str) = options.page_size {
-        local_var_req_builder =
-            local_var_req_builder.query(&[("pageSize", &local_var_str.to_string())]);
-    }
-    if let Some(ref local_var_str) = options.search {
-        local_var_req_builder =
-            local_var_req_builder.query(&[("search", &local_var_str.to_string())]);
-    }
-    if let Some(ref local_var_str) = options.sort {
-        local_var_req_builder =
-            local_var_req_builder.query(&[("sort", &local_var_str.to_string())]);
-    }
-    if let Some(ref local_var_vec) = options.fields {
-        local_var_req_builder =
-            local_var_req_builder.query(&[("fields", local_var_vec.to_string())]);
-    }
-    if let Some(ref local_var_vec) = options.flatten {
-        local_var_req_builder =
-            local_var_req_builder.query(&[("flatten", local_var_vec.to_string())]);
-    }
-    if let Some(ref local_var_vec) = options.nested_fields_depth {
-        local_var_req_builder =
-            local_var_req_builder.query(&[("nestedFieldsDepth", local_var_vec.to_string())]);
-    }
-    if let Some(ref local_var_vec) = options.nested_fields {
-        local_var_req_builder = local_var_req_builder.query(&[(
-            "nestedFields",
-            local_var_vec
-                .iter()
-                .map(S::to_string)
-                .collect::<Vec<_>>()
-                .join(","),
-        )]);
-    }
+
     if let Some(ref local_var_user_agent) = local_var_configuration.user_agent {
         local_var_req_builder =
             local_var_req_builder.header(reqwest::header::USER_AGENT, local_var_user_agent.clone());

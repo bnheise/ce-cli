@@ -1,7 +1,6 @@
 use crate::error::CliError;
-use batch_api::reqwest;
-use batch_api::reqwest::Url;
 use colored::Colorize;
+use headless_common::{reqwest, url::Url};
 use serde::Deserialize;
 use std::collections::HashMap;
 

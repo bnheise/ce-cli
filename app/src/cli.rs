@@ -1,6 +1,6 @@
 use crate::config_generators::client_extension_yaml::PortletCategoryNames;
-use batch_api::reqwest::Url;
 use clap::{ArgGroup, Args, Parser, Subcommand, ValueEnum};
+use headless_common::url::Url;
 use serde::{Deserialize, Serialize};
 use std::{fmt::Display, path::PathBuf};
 

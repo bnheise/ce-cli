@@ -1,7 +1,5 @@
-use batch_api::{
-    models::{import_task::ImportStrategy, ImportTask},
-    reqwest::Url,
-};
+use std::fmt::Display;
+
 use headless_admin_list_type::{
     apis::{
         configuration::Configuration,
@@ -15,9 +13,13 @@ use headless_admin_list_type::{
             PostListTypeDefinitionListTypeEntryBatchError, PutListTypeEntryBatchError,
         },
     },
-    models::{ListTypeDefinition, ListTypeEntry, PageListTypeEntry},
+    models::{list_type_entry::ListTypeEntryField, ListTypeDefinition, ListTypeEntry},
 };
-use object_admin::models::CreateStrategy;
+use headless_batch_engine::{
+    apis::import_task_params::ImportTaskParams,
+    models::{create_strategy::CreateStrategy, import_task::ImportStrategy, ImportTask},
+};
+use headless_common::{api::page_params::PageParams, models::Page, url::Url};
 
 use crate::{
     commands::object::ApiConfig,
@@ -59,17 +61,16 @@ impl<'a> ListTypeEndpoints<'a> {
     }
 
     #[allow(clippy::too_many_arguments)]
-    pub fn get_list_type_definition_list_type_entries_page(
+    pub fn get_list_type_definition_list_type_entries_page<S>(
         &self,
         list_type_definition_id: &str,
-        aggregation_terms: Option<&str>,
-        filter: Option<&str>,
-        page: Option<&str>,
-        page_size: Option<&str>,
-        search: Option<&str>,
-        sort: Option<&str>,
-        fields: Option<Vec<&str>>,
-    ) -> Result<PageListTypeEntry, LiferayClientError<GetListTypeDefinitionListTypeEntriesPageError>>
+        options: Option<PageParams<ListTypeEntryField, S>>,
+    ) -> Result<
+        Page<ListTypeEntry>,
+        LiferayClientError<GetListTypeDefinitionListTypeEntriesPageError>,
+    >
+    where
+        S: AsRef<str> + Display,
     {
         let mut configuration = Configuration::new();
         configuration.update_base_path(self.base_path);
@@ -78,13 +79,7 @@ impl<'a> ListTypeEndpoints<'a> {
         Ok(get_list_type_definition_list_type_entries_page(
             &configuration,
             list_type_definition_id,
-            aggregation_terms,
-            filter,
-            page,
-            page_size,
-            search,
-            sort,
-            fields,
+            options,
         )?)
     }
 
@@ -92,9 +87,9 @@ impl<'a> ListTypeEndpoints<'a> {
         &self,
         list_type_definition_id: i64,
         list_type_entries: Vec<ListTypeEntry>,
-        create_strategy: Option<object_admin::models::CreateStrategy>,
-        import_strategy: Option<batch_api::models::import_task::ImportStrategy>,
-        callback_url: Option<&str>,
+        create_strategy: Option<CreateStrategy>,
+        import_strategy: Option<ImportStrategy>,
+        callback_url: Option<&Url>,
     ) -> Result<ImportTask, LiferayClientError<PostListTypeDefinitionListTypeEntryBatchError>> {
         let mut configuration = Configuration::new();
         configuration.update_base_path(self.base_path);
@@ -102,21 +97,24 @@ impl<'a> ListTypeEndpoints<'a> {
 
         let mut body = serde_json::to_value(list_type_entries)?;
         clean_json(&mut body);
+        let body = serde_json::from_value::<Vec<ListTypeEntry>>(body)?;
         let list_type_definition_id = list_type_definition_id.to_string();
+        let mut options = ImportTaskParams::new();
+        options.create_strategy = create_strategy;
+        options.import_strategy = import_strategy;
+        options.callback_url = callback_url;
 
         Ok(post_list_type_definition_list_type_entry_batch(
             &configuration,
             &list_type_definition_id,
-            callback_url,
-            create_strategy,
-            import_strategy,
-            Some(body),
+            body,
+            options,
         )?)
     }
 
     pub fn put_list_type_entry_batch(
         &self,
-        callback_url: Option<&str>,
+        callback_url: Option<&Url>,
         body: Option<Vec<ListTypeEntry>>,
         create_strategy: Option<CreateStrategy>,
         import_strategy: Option<ImportStrategy>,
@@ -125,43 +123,10 @@ impl<'a> ListTypeEndpoints<'a> {
         configuration.update_base_path(self.base_path);
         configuration.basic_auth = Some((self.username.to_owned(), Some(self.password.to_owned())));
 
-        let body = serde_json::to_value(body)?;
-        Ok(put_list_type_entry_batch(
-            &configuration,
-            callback_url,
-            Some(body),
-            create_strategy,
-            import_strategy,
-        )?)
+        let mut options = ImportTaskParams::new();
+        options.create_strategy = create_strategy;
+        options.callback_url = callback_url;
+        options.import_strategy = import_strategy;
+        Ok(put_list_type_entry_batch(&configuration, body, options)?)
     }
-
-    // pub fn post_list_type_definition_batch(
-    //     &self,
-    //     body: Vec<ListTypeDefinition>,
-    //     create_strategy: Option<object_admin::models::CreateStrategy>,
-    //     import_strategy: Option<batch_api::models::import_task::ImportStrategy>,
-    // ) -> Result<ImportTask, LiferayClientError<PostListTypeDefinitionBatchError>> {
-    //     let mut configuration = Configuration::new();
-    //     configuration.update_base_path(self.base_path);
-    //     configuration.basic_auth = Some((self.username.to_owned(), Some(self.password.to_owned())));
-
-    //     let mut body =
-    //         serde_json::to_value(body).map_err(|e| LiferayClientError::Serialization {
-    //             type_name: "ListTypeDefinition",
-    //             origin: e,
-    //         })?;
-
-    //     clean_json(&mut body);
-
-    //     println!("{}", serde_json::to_string(&body).unwrap_or_default());
-    //     let res = post_list_type_definition_batch(
-    //         &configuration,
-    //         None,
-    //         Some(body),
-    //         create_strategy.or(Some(CreateStrategy::Upsert)),
-    //         import_strategy.or(Some(ImportStrategy::Continue)),
-    //     )?;
-
-    //     Ok(res)
-    // }
 }

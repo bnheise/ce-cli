@@ -32,3 +32,4 @@ object_admin = { path = "../liferay_apis/object_admin/", version = "1.0.0" }
 headless_admin_list_type = { path = "../liferay_apis/headless_admin_list_type/", version = "1.0.0" }
 headless_batch_engine = { path = "../liferay_apis/headless_batch_engine/", version = "1.0.0"}
 thiserror = "1.0.39"
+headless_common = { path = "../liferay_apis/headless_common" }

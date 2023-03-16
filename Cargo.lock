@@ -90,6 +90,7 @@ dependencies = [
  "dotenv",
  "headless_admin_list_type",
  "headless_batch_engine",
+ "headless_common",
  "include_dir",
  "lazy_static",
  "object_admin",

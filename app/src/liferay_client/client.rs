@@ -1,3 +1,5 @@
+use headless_common::reqwest;
+
 use super::{
     client_options::LiferayClientOptions,
     custom_objects::custom_object_endpoints::CustomObjectEndpoints,
@@ -5,7 +7,7 @@ use super::{
 };
 
 pub struct LiferayClient {
-    base_url: batch_api::reqwest::Url,
+    base_url: reqwest::Url,
     username: String,
     password: String,
 }

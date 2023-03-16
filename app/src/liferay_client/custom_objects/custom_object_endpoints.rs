@@ -1,10 +1,9 @@
-use batch_api::{
-    models::{import_task::ImportStrategy, ImportTask},
-    reqwest::{self, header::CONTENT_TYPE, Url},
-};
-use object_admin::{apis::ResponseContent, models::CreateStrategy};
-
 use crate::liferay_client::liferay_client_error::LiferayClientError;
+use headless_batch_engine::models::{
+    create_strategy::CreateStrategy, import_task::ImportStrategy, ImportTask,
+};
+use headless_common::reqwest::{self, header::CONTENT_TYPE, Url};
+use object_admin::apis::ResponseContent;
 
 pub struct CustomObjectEndpoints<'a> {
     base_path: &'a Url,
@@ -25,8 +24,8 @@ impl<'a> CustomObjectEndpoints<'a> {
         &self,
         body: &serde_json::Value,
         batch_path: &str,
-        create_strategy: Option<object_admin::models::CreateStrategy>,
-        import_strategy: Option<batch_api::models::import_task::ImportStrategy>,
+        create_strategy: Option<CreateStrategy>,
+        import_strategy: Option<ImportStrategy>,
     ) -> Result<ImportTask, LiferayClientError<serde_json::Value>> {
         let client = Self::get_object_client()?;
 

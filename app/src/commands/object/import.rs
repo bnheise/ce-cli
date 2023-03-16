@@ -1,3 +1,5 @@
+use headless_common::{api::page_params::PageParams, url::Url};
+
 use super::{
     get_list_type_definitions_page, get_object_definitions_page, prepare_data_path, ApiConfig,
     ListTypeConfig, ObjectAdminConfig,
@@ -8,7 +10,6 @@ use crate::{
     config_generators::{config::Config, ConfigFile},
     error::CliError,
 };
-use batch_api::reqwest::Url;
 use std::{
     fs::{self, File},
     io::Write,
@@ -100,9 +101,12 @@ fn import_picklists(
     api_config.basic_auth = Some((username.to_owned(), Some(password.to_owned())));
     api_config.update_base_path(url);
 
-    let result =
-        get_list_type_definitions_page(&api_config, None, None, Some("1"), Some("200"), None, None)
-            .map_err(|e| CliError::NetworkError(format!("failed to retrieve picklists: {e}")))?;
+    let mut options: PageParams<_, &str> = PageParams::new();
+    options.page = Some(1);
+    options.page_size = Some(200);
+
+    let result = get_list_type_definitions_page(&api_config, options)
+        .map_err(|e| CliError::NetworkError(format!("failed to retrieve picklists: {e}")))?;
 
     if let Some(mut items) = result.items {
         for picklist in items.iter_mut() {
