@@ -45,7 +45,7 @@ pub struct InitArgs {
     /// Initializes a new workspace. This should be carried out inside a  {n}
     /// The name of the project. The default value is the name of the     {n}
     /// current folder
-    #[arg(short, long)]
+    #[arg(long)]
     pub project_name: Option<String>,
 
     /// The path to the client extension deploy folder in your local      {n}
