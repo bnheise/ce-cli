@@ -1,6 +1,11 @@
 use headless_common::reqwest;
+use headless_common::url::form_urlencoded;
 use std::error;
 use std::fmt;
+use std::fmt::Display;
+
+pub mod export_task_params;
+pub mod import_task_params;
 
 #[derive(Debug, Clone)]
 pub struct ResponseContent<T> {
@@ -59,7 +64,7 @@ impl<T> From<std::io::Error> for Error<T> {
 }
 
 pub fn urlencode<T: AsRef<str>>(s: T) -> String {
-    ::url::form_urlencoded::byte_serialize(s.as_ref().as_bytes()).collect()
+    form_urlencoded::byte_serialize(s.as_ref().as_bytes()).collect()
 }
 
 pub fn parse_deep_object(prefix: &str, value: &serde_json::Value) -> Vec<(String, String)> {
@@ -92,13 +97,21 @@ pub fn parse_deep_object(prefix: &str, value: &serde_json::Value) -> Vec<(String
     unimplemented!("Only objects are supported with style=deepObject")
 }
 
+#[derive(Debug, Clone, PartialEq)]
+pub enum ContentType {
+    Json,
+}
+
+impl Display for ContentType {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        match self {
+            Self::Json => write!(f, "json"),
+        }
+    }
+}
+
 pub mod default_api;
-pub mod object_action_api;
-pub mod object_definition_api;
-pub mod object_field_api;
-pub mod object_layout_api;
-pub mod object_relationship_api;
-pub mod object_validation_rule_api;
-pub mod object_view_api;
+pub mod export_task_api;
+pub mod import_task_api;
 
 pub mod configuration;

@@ -1,6 +1,10 @@
-use headless_common::reqwest;
 use std::error;
 use std::fmt;
+
+pub mod field_collection;
+pub mod filter;
+pub mod page_params;
+pub mod sort;
 
 #[derive(Debug, Clone)]
 pub struct ResponseContent<T> {
@@ -91,14 +95,3 @@ pub fn parse_deep_object(prefix: &str, value: &serde_json::Value) -> Vec<(String
 
     unimplemented!("Only objects are supported with style=deepObject")
 }
-
-pub mod default_api;
-pub mod object_action_api;
-pub mod object_definition_api;
-pub mod object_field_api;
-pub mod object_layout_api;
-pub mod object_relationship_api;
-pub mod object_validation_rule_api;
-pub mod object_view_api;
-
-pub mod configuration;

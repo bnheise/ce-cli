@@ -29,6 +29,6 @@ zip = { version = "0.6.3", default-features = false, features = ["deflate"] }
 lazy_static = "1.4.0"
 dotenv = "0.15.0"
 object_admin = { path = "../liferay_apis/object_admin/", version = "1.0.0" }
-headless_admin_list_type = { path = "../liferay_apis/list_type/", version = "1.0.0" }
-batch_api = { path = "../liferay_apis/batch/", version = "1.0.0"}
+headless_admin_list_type = { path = "../liferay_apis/headless_admin_list_type/", version = "1.0.0" }
+headless_batch_engine = { path = "../liferay_apis/headless_batch_engine/", version = "1.0.0"}
 thiserror = "1.0.39"

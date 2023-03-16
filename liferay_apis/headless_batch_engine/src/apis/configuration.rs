@@ -1,7 +1,7 @@
 /*
- * Object
+ * Headless Batch Engine
  *
- * A Java client JAR is available for use with the group ID 'com.liferay', artifact ID 'com.liferay.object.admin.rest.client', and version '1.0.45'.
+ * A Java client JAR is available for use with the group ID 'com.liferay', artifact ID 'com.liferay.headless.batch.engine.client', and version '1.0.11'.
  *
  * The version of the OpenAPI document: v1.0
  *
@@ -39,7 +39,7 @@ impl Configuration {
 impl Default for Configuration {
     fn default() -> Self {
         Configuration {
-            base_path: "http://localhost:8080/o/object-admin".to_owned(),
+            base_path: "http://localhost:8080/o/headless-batch-engine".to_owned(),
             user_agent: Some("OpenAPI-Generator/v1.0/rust".to_owned()),
             client: reqwest::blocking::Client::new(),
             basic_auth: None,

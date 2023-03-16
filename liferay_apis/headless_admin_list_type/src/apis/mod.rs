@@ -1,4 +1,6 @@
 use headless_common::reqwest;
+use headless_common::serde_json;
+use headless_common::url::form_urlencoded;
 use std::error;
 use std::fmt;
 
@@ -59,7 +61,7 @@ impl<T> From<std::io::Error> for Error<T> {
 }
 
 pub fn urlencode<T: AsRef<str>>(s: T) -> String {
-    ::url::form_urlencoded::byte_serialize(s.as_ref().as_bytes()).collect()
+    form_urlencoded::byte_serialize(s.as_ref().as_bytes()).collect()
 }
 
 pub fn parse_deep_object(prefix: &str, value: &serde_json::Value) -> Vec<(String, String)> {
@@ -93,12 +95,7 @@ pub fn parse_deep_object(prefix: &str, value: &serde_json::Value) -> Vec<(String
 }
 
 pub mod default_api;
-pub mod object_action_api;
-pub mod object_definition_api;
-pub mod object_field_api;
-pub mod object_layout_api;
-pub mod object_relationship_api;
-pub mod object_validation_rule_api;
-pub mod object_view_api;
+pub mod list_type_definition_api;
+pub mod list_type_entry_api;
 
 pub mod configuration;

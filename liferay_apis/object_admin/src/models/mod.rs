@@ -48,5 +48,3 @@ pub mod page_object_view;
 pub use self::page_object_view::PageObjectView;
 pub mod status;
 pub use self::status::Status;
-mod creation_strategy;
-pub use self::creation_strategy::CreateStrategy;
