@@ -11,10 +11,10 @@
 use headless_batch_engine::models::{
     create_strategy::CreateStrategy, import_task::ImportStrategy, ImportTask,
 };
-use headless_common::reqwest;
+use headless_common::{models::Page, reqwest};
 
 use super::{configuration, Error};
-use crate::apis::ResponseContent;
+use crate::{apis::ResponseContent, models::ObjectDefinition};
 
 /// struct for typed errors of method [`delete_object_definition`]
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -52,7 +52,7 @@ pub enum GetObjectDefinitionByExternalReferenceCodeError {
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum GetObjectDefinitionsPageError {
-    DefaultResponse(crate::models::PageObjectDefinition),
+    DefaultResponse(Page<ObjectDefinition>),
     UnknownValue(serde_json::Value),
 }
 
@@ -326,7 +326,7 @@ pub fn get_object_definitions_page(
     page_size: Option<&str>,
     search: Option<&str>,
     sort: Option<&str>,
-) -> Result<crate::models::PageObjectDefinition, Error<GetObjectDefinitionsPageError>> {
+) -> Result<Page<ObjectDefinition>, Error<GetObjectDefinitionsPageError>> {
     let local_var_configuration = configuration;
 
     let local_var_client = &local_var_configuration.client;

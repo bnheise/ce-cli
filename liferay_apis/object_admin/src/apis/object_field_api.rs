@@ -9,8 +9,8 @@
  */
 
 use super::{configuration, Error};
-use crate::apis::ResponseContent;
-use headless_common::reqwest;
+use crate::{apis::ResponseContent, models::ObjectField};
+use headless_common::{models::Page, reqwest};
 
 /// struct for typed errors of method [`delete_object_field`]
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -32,7 +32,7 @@ pub enum DeleteObjectFieldBatchError {
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum GetObjectDefinitionByExternalReferenceCodeObjectFieldsPageError {
-    DefaultResponse(crate::models::PageObjectField),
+    DefaultResponse(Page<ObjectField>),
     UnknownValue(serde_json::Value),
 }
 
@@ -40,7 +40,7 @@ pub enum GetObjectDefinitionByExternalReferenceCodeObjectFieldsPageError {
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum GetObjectDefinitionObjectFieldsPageError {
-    DefaultResponse(crate::models::PageObjectField),
+    DefaultResponse(Page<ObjectField>),
     UnknownValue(serde_json::Value),
 }
 
@@ -213,10 +213,8 @@ pub fn get_object_definition_by_external_reference_code_object_fields_page(
     page_size: Option<&str>,
     search: Option<&str>,
     sort: Option<&str>,
-) -> Result<
-    crate::models::PageObjectField,
-    Error<GetObjectDefinitionByExternalReferenceCodeObjectFieldsPageError>,
-> {
+) -> Result<Page<ObjectField>, Error<GetObjectDefinitionByExternalReferenceCodeObjectFieldsPageError>>
+{
     let local_var_configuration = configuration;
 
     let local_var_client = &local_var_configuration.client;
@@ -288,7 +286,7 @@ pub fn get_object_definition_object_fields_page(
     page_size: Option<&str>,
     search: Option<&str>,
     sort: Option<&str>,
-) -> Result<crate::models::PageObjectField, Error<GetObjectDefinitionObjectFieldsPageError>> {
+) -> Result<Page<ObjectField>, Error<GetObjectDefinitionObjectFieldsPageError>> {
     let local_var_configuration = configuration;
 
     let local_var_client = &local_var_configuration.client;

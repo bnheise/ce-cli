@@ -9,8 +9,8 @@
  */
 
 use super::{configuration, Error};
-use crate::apis::ResponseContent;
-use headless_common::reqwest;
+use crate::{apis::ResponseContent, models::ObjectLayout};
+use headless_common::{models::Page, reqwest};
 
 /// struct for typed errors of method [`delete_object_layout`]
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -32,7 +32,7 @@ pub enum DeleteObjectLayoutBatchError {
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum GetObjectDefinitionByExternalReferenceCodeObjectLayoutsPageError {
-    DefaultResponse(crate::models::PageObjectLayout),
+    DefaultResponse(Page<ObjectLayout>),
     UnknownValue(serde_json::Value),
 }
 
@@ -40,7 +40,7 @@ pub enum GetObjectDefinitionByExternalReferenceCodeObjectLayoutsPageError {
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum GetObjectDefinitionObjectLayoutsPageError {
-    DefaultResponse(crate::models::PageObjectLayout),
+    DefaultResponse(Page<ObjectLayout>),
     UnknownValue(serde_json::Value),
 }
 
@@ -204,7 +204,7 @@ pub fn get_object_definition_by_external_reference_code_object_layouts_page(
     page_size: Option<&str>,
     search: Option<&str>,
 ) -> Result<
-    crate::models::PageObjectLayout,
+    Page<ObjectLayout>,
     Error<GetObjectDefinitionByExternalReferenceCodeObjectLayoutsPageError>,
 > {
     let local_var_configuration = configuration;
@@ -268,7 +268,7 @@ pub fn get_object_definition_object_layouts_page(
     page: Option<&str>,
     page_size: Option<&str>,
     search: Option<&str>,
-) -> Result<crate::models::PageObjectLayout, Error<GetObjectDefinitionObjectLayoutsPageError>> {
+) -> Result<Page<ObjectLayout>, Error<GetObjectDefinitionObjectLayoutsPageError>> {
     let local_var_configuration = configuration;
 
     let local_var_client = &local_var_configuration.client;

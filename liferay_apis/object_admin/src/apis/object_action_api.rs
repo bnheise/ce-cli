@@ -9,8 +9,8 @@
  */
 
 use super::{configuration, Error};
-use crate::apis::ResponseContent;
-use headless_common::reqwest;
+use crate::{apis::ResponseContent, models::ObjectAction};
+use headless_common::{models::Page, reqwest};
 
 /// struct for typed errors of method [`delete_object_action`]
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -40,7 +40,7 @@ pub enum GetObjectActionError {
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum GetObjectDefinitionByExternalReferenceCodeObjectActionsPageError {
-    DefaultResponse(crate::models::PageObjectAction),
+    DefaultResponse(Page<ObjectAction>),
     UnknownValue(serde_json::Value),
 }
 
@@ -48,7 +48,7 @@ pub enum GetObjectDefinitionByExternalReferenceCodeObjectActionsPageError {
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum GetObjectDefinitionObjectActionsPageError {
-    DefaultResponse(crate::models::PageObjectAction),
+    DefaultResponse(Page<ObjectAction>),
     UnknownValue(serde_json::Value),
 }
 
@@ -262,7 +262,7 @@ pub fn get_object_definition_by_external_reference_code_object_actions_page(
     page_size: Option<&str>,
     search: Option<&str>,
 ) -> Result<
-    crate::models::PageObjectAction,
+    Page<ObjectAction>,
     Error<GetObjectDefinitionByExternalReferenceCodeObjectActionsPageError>,
 > {
     let local_var_configuration = configuration;
@@ -326,7 +326,7 @@ pub fn get_object_definition_object_actions_page(
     page: Option<&str>,
     page_size: Option<&str>,
     search: Option<&str>,
-) -> Result<crate::models::PageObjectAction, Error<GetObjectDefinitionObjectActionsPageError>> {
+) -> Result<Page<ObjectAction>, Error<GetObjectDefinitionObjectActionsPageError>> {
     let local_var_configuration = configuration;
 
     let local_var_client = &local_var_configuration.client;

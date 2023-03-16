@@ -9,8 +9,8 @@
  */
 
 use super::{configuration, Error};
-use crate::apis::ResponseContent;
-use headless_common::reqwest;
+use crate::{apis::ResponseContent, models::ObjectRelationship};
+use headless_common::{models::Page, reqwest};
 
 /// struct for typed errors of method [`delete_object_relationship`]
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -32,7 +32,7 @@ pub enum DeleteObjectRelationshipBatchError {
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum GetObjectDefinitionByExternalReferenceCodeObjectRelationshipsPageError {
-    DefaultResponse(crate::models::PageObjectRelationship),
+    DefaultResponse(Page<ObjectRelationship>),
     UnknownValue(serde_json::Value),
 }
 
@@ -40,7 +40,7 @@ pub enum GetObjectDefinitionByExternalReferenceCodeObjectRelationshipsPageError 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum GetObjectDefinitionObjectRelationshipsPageError {
-    DefaultResponse(crate::models::PageObjectRelationship),
+    DefaultResponse(Page<ObjectRelationship>),
     UnknownValue(serde_json::Value),
 }
 
@@ -205,7 +205,7 @@ pub fn get_object_definition_by_external_reference_code_object_relationships_pag
     page_size: Option<&str>,
     search: Option<&str>,
 ) -> Result<
-    crate::models::PageObjectRelationship,
+    Page<ObjectRelationship>,
     Error<GetObjectDefinitionByExternalReferenceCodeObjectRelationshipsPageError>,
 > {
     let local_var_configuration = configuration;
@@ -274,10 +274,7 @@ pub fn get_object_definition_object_relationships_page(
     page: Option<&str>,
     page_size: Option<&str>,
     search: Option<&str>,
-) -> Result<
-    crate::models::PageObjectRelationship,
-    Error<GetObjectDefinitionObjectRelationshipsPageError>,
-> {
+) -> Result<Page<ObjectRelationship>, Error<GetObjectDefinitionObjectRelationshipsPageError>> {
     let local_var_configuration = configuration;
 
     let local_var_client = &local_var_configuration.client;
