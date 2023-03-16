@@ -12,6 +12,8 @@ use std::{env, fs, path::PathBuf};
 
 pub fn handle_init(args: InitArgs) -> Result<(), CliError> {
     let config = ConfigBuilder::new();
+    let username = args.username.clone();
+    let password = args.password.clone();
 
     if !current_dir_empty()? {
         return Err(CliError::FileSystemError(
@@ -19,12 +21,12 @@ pub fn handle_init(args: InitArgs) -> Result<(), CliError> {
         ));
     }
 
-    AssetsDir::set_env_file(&args)?;
     let config = initialize_config(config, args)?;
     let framework = config.framework.to_owned();
 
     AssetsDir::generate_static_files()?;
     AssetsDir::generate_framework_files(&config)?;
+    AssetsDir::set_env_file(username, password)?;
 
     let raw = Config::try_serialize(config)?;
     Config::write(raw)?;

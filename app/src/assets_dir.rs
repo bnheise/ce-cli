@@ -1,4 +1,3 @@
-use crate::cli::InitArgs;
 use crate::config_generators::config::Config;
 use crate::config_generators::eslintrc::EslintRc;
 use crate::config_generators::package_json::PackageJson;
@@ -138,7 +137,10 @@ impl AssetsDir {
         Ok(())
     }
 
-    pub fn set_env_file(args: &InitArgs) -> Result<(), CliError> {
+    pub fn set_env_file(
+        username: Option<String>,
+        password: Option<String>,
+    ) -> Result<(), CliError> {
         let base_dir = Self::ASSETS
             .get_dir(Self::BASE)
             .expect("Base directory was not found");
@@ -147,11 +149,11 @@ impl AssetsDir {
             .expect("Didn't find the .env file");
         let mut contents = env_file.contents_utf8().unwrap().to_owned();
 
-        if let Some(password) = &args.password {
-            contents = contents.replace("test", password);
+        if let Some(password) = password {
+            contents = contents.replace("test", &password);
         }
-        if let Some(username) = &args.username {
-            contents = contents.replace("test@liferay.com", username);
+        if let Some(username) = username {
+            contents = contents.replace("test@liferay.com", &username);
         }
 
         fs::write(Path::new("./"), contents)?;
