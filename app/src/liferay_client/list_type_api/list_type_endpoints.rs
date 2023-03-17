@@ -1,5 +1,3 @@
-use std::fmt::Display;
-
 use headless_admin_list_type::{
     apis::{
         configuration::Configuration,

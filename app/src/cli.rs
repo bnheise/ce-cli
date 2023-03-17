@@ -234,7 +234,7 @@ pub struct ImportArgs {
     /// {root}/objects/definitions for Liferay Object defiitions,        {n}
     /// {root}/objects/picklists for Picklist definitions, and           {n}
     /// {root}/objects/data for object instance data.
-    #[arg(short, long, value_enum)]
+    #[arg(long, value_enum)]
     pub output: Option<String>,
 }
 

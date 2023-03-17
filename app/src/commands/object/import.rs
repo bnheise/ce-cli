@@ -46,7 +46,7 @@ pub fn handle_import(args: ImportArgs) -> Result<(), CliError> {
         match (objects, picklists, data) {
             (false, true, false) => import_picklists(&username, &password, &url, &output_base)?,
             (true, false, false) => {
-                import_object_definitions(&output_base, &username, &password, &url, true);
+                import_object_definitions(&output_base, &username, &password, &url, true)?;
             }
             (false, false, true) => {
                 let context_paths =
@@ -54,7 +54,7 @@ pub fn handle_import(args: ImportArgs) -> Result<(), CliError> {
                 import_object_data(context_paths, &url, &output_base, &username, &password)?;
             }
             (true, true, false) => {
-                import_object_definitions(&output_base, &username, &password, &url, true);
+                import_object_definitions(&output_base, &username, &password, &url, true)?;
                 import_picklists(&username, &password, &url, &output_base)?;
             }
             (true, false, true) => {
