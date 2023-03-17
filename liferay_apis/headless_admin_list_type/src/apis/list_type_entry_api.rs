@@ -186,14 +186,11 @@ pub fn delete_list_type_entry_batch(
     }
 }
 
-pub fn get_list_type_definition_list_type_entries_page<S>(
+pub fn get_list_type_definition_list_type_entries_page(
     configuration: &configuration::Configuration,
     list_type_definition_id: &str,
-    options: Option<PageParams<ListTypeEntryFieldName, S>>,
-) -> Result<Page<ListTypeEntry>, Error<GetListTypeDefinitionListTypeEntriesPageError>>
-where
-    S: AsRef<str> + Display,
-{
+    options: Option<PageParams<ListTypeEntryFieldName>>,
+) -> Result<Page<ListTypeEntry>, Error<GetListTypeDefinitionListTypeEntriesPageError>> {
     let local_var_configuration = configuration;
 
     let local_var_client = &local_var_configuration.client;
@@ -244,14 +241,8 @@ where
                 local_var_req_builder.query(&[("nestedFieldsDepth", local_var_vec.to_string())]);
         }
         if let Some(ref local_var_vec) = options.nested_fields {
-            local_var_req_builder = local_var_req_builder.query(&[(
-                "nestedFields",
-                local_var_vec
-                    .iter()
-                    .map(S::to_string)
-                    .collect::<Vec<_>>()
-                    .join(","),
-            )]);
+            local_var_req_builder =
+                local_var_req_builder.query(&[("nestedFields", local_var_vec.to_string())]);
         }
     }
 

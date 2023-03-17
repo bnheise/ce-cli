@@ -101,7 +101,7 @@ fn import_picklists(
     api_config.basic_auth = Some((username.to_owned(), Some(password.to_owned())));
     api_config.update_base_path(url);
 
-    let mut options: PageParams<_, &str> = PageParams::new();
+    let mut options = PageParams::new();
     options.page = Some(1);
     options.page_size = Some(200);
 

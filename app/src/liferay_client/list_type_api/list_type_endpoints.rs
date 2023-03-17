@@ -61,17 +61,14 @@ impl<'a> ListTypeEndpoints<'a> {
     }
 
     #[allow(clippy::too_many_arguments)]
-    pub fn get_list_type_definition_list_type_entries_page<S>(
+    pub fn get_list_type_definition_list_type_entries_page(
         &self,
         list_type_definition_id: &str,
-        options: Option<PageParams<ListTypeEntryField, S>>,
+        options: Option<PageParams<ListTypeEntryField>>,
     ) -> Result<
         Page<ListTypeEntry>,
         LiferayClientError<GetListTypeDefinitionListTypeEntriesPageError>,
-    >
-    where
-        S: AsRef<str> + Display,
-    {
+    > {
         let mut configuration = Configuration::new();
         configuration.update_base_path(self.base_path);
         configuration.basic_auth = Some((self.username.to_owned(), Some(self.password.to_owned())));

@@ -3,41 +3,28 @@ use std::{fmt::Display, num::ParseIntError};
 
 /// Used to recursively model filter expressions and render them as strings.
 #[derive(Clone, Debug, PartialEq)]
-pub enum FilterExpression<'a, T, S>
+pub enum FilterExpression<'a, T>
 where
     T: Display,
-    S: AsRef<str>,
 {
-    Equal(T, FilterValue<S>),
-    NotEqual(T, FilterValue<S>),
-    GreaterThan(T, FilterValue<S>),
-    GreaterOrEqual(T, FilterValue<S>),
-    LessThan(T, FilterValue<S>),
-    LessOrEqual(T, FilterValue<S>),
-    StartsWith(T, FilterValue<S>),
-    Not(&'a FilterExpression<'a, T, S>),
-    And(
-        &'a FilterExpression<'a, T, S>,
-        &'a FilterExpression<'a, T, S>,
-    ),
-    Or(
-        &'a FilterExpression<'a, T, S>,
-        &'a FilterExpression<'a, T, S>,
-    ),
-    Contains {
-        field: T,
-        value: S,
-    },
-    Group(&'a FilterExpression<'a, T, S>),
+    Equal(T, FilterValue<'a>),
+    NotEqual(T, FilterValue<'a>),
+    GreaterThan(T, FilterValue<'a>),
+    GreaterOrEqual(T, FilterValue<'a>),
+    LessThan(T, FilterValue<'a>),
+    LessOrEqual(T, FilterValue<'a>),
+    StartsWith(T, FilterValue<'a>),
+    Not(&'a FilterExpression<'a, T>),
+    And(&'a FilterExpression<'a, T>, &'a FilterExpression<'a, T>),
+    Or(&'a FilterExpression<'a, T>, &'a FilterExpression<'a, T>),
+    Contains { field: T, value: &'a str },
+    Group(&'a FilterExpression<'a, T>),
     Custom(T),
 }
 
 #[derive(Clone, Debug, PartialEq, Default)]
-pub enum FilterValue<T>
-where
-    T: AsRef<str>,
-{
-    String(T),
+pub enum FilterValue<'a> {
+    String(&'a str),
     Number(i64),
     Float(f64),
     DateTime(Utc),
@@ -46,19 +33,13 @@ where
     Custom(String),
 }
 
-impl<T> From<i64> for FilterValue<T>
-where
-    T: AsRef<str>,
-{
+impl<'a> From<i64> for FilterValue<'a> {
     fn from(value: i64) -> Self {
         Self::Number(value)
     }
 }
 
-impl<T> TryFrom<String> for FilterValue<T>
-where
-    T: AsRef<str>,
-{
+impl<'a> TryFrom<String> for FilterValue<'a> {
     type Error = ParseIntError;
 
     fn try_from(value: String) -> Result<Self, Self::Error> {
@@ -66,10 +47,7 @@ where
     }
 }
 
-impl<T> Display for FilterValue<T>
-where
-    T: AsRef<str> + Display,
-{
+impl<'a> Display for FilterValue<'a> {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         match self {
             Self::String(val) => write!(f, "'{val}'"),
@@ -82,10 +60,9 @@ where
     }
 }
 
-impl<'a, T, S> Display for FilterExpression<'a, T, S>
+impl<'a, T> Display for FilterExpression<'a, T>
 where
     T: Display,
-    S: AsRef<str> + Display,
 {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         match self {

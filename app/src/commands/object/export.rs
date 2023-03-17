@@ -92,7 +92,7 @@ fn export_picklist_definitions(client: &LiferayClient, data_dir: &DataDir) -> Re
                 println!("Put successful. Picklist id is ${definition_id}");
 
                 println!("Getting existing entries for ${definition_id}");
-                let mut options: PageParams<_, &str> = PageParams::new();
+                let mut options = PageParams::new();
                 options.page = Some(1);
                 options.page_size = Some(200);
                 options.fields = Some(FieldCollection::from(vec![

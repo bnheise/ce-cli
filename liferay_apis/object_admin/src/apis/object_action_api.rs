@@ -262,7 +262,7 @@ pub fn get_object_action(
 pub fn get_object_definition_by_external_reference_code_object_actions_page<S>(
     configuration: &configuration::Configuration,
     external_reference_code: &str,
-    options: PageParams<ObjectActionField, S>,
+    options: PageParams<ObjectActionField>,
 ) -> Result<
     Page<ObjectAction>,
     Error<GetObjectDefinitionByExternalReferenceCodeObjectActionsPageError>,

@@ -251,13 +251,10 @@ pub fn get_list_type_definition(
     }
 }
 
-pub fn get_list_type_definitions_page<R>(
+pub fn get_list_type_definitions_page(
     configuration: &configuration::Configuration,
-    options: PageParams<ListTypeDefinitionField, R>,
-) -> Result<Page<ListTypeDefinition>, Error<GetListTypeDefinitionsPageError>>
-where
-    R: AsRef<str> + Display,
-{
+    options: PageParams<ListTypeDefinitionField>,
+) -> Result<Page<ListTypeDefinition>, Error<GetListTypeDefinitionsPageError>> {
     let local_var_configuration = configuration;
 
     let local_var_client = &local_var_configuration.client;
