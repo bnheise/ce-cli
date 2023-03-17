@@ -150,7 +150,7 @@ pub fn delete_list_type_definition_batch(
     configuration: &configuration::Configuration,
     callback_url: Option<&str>,
     body: Option<Vec<ListTypeDefinition>>,
-) -> Result<(), Error<DeleteListTypeDefinitionBatchError>> {
+) -> Result<ImportTask, Error<DeleteListTypeDefinitionBatchError>> {
     let local_var_configuration = configuration;
 
     let local_var_client = &local_var_configuration.client;
@@ -188,7 +188,7 @@ pub fn delete_list_type_definition_batch(
     let local_var_content = local_var_resp.text()?;
 
     if !local_var_status.is_client_error() && !local_var_status.is_server_error() {
-        Ok(())
+        serde_json::from_str(&local_var_content).map_err(Error::from)
     } else {
         let local_var_entity: Option<DeleteListTypeDefinitionBatchError> =
             serde_json::from_str(&local_var_content).ok();
