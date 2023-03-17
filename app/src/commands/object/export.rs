@@ -1,6 +1,3 @@
-use std::borrow::BorrowMut;
-use std::collections::HashMap;
-
 use super::prepare_data_path;
 use super::{initialize_param, prepare_url};
 use crate::data_dir::DataDir;
@@ -12,10 +9,14 @@ use crate::{
     error::CliError,
 };
 use headless_admin_list_type::models::list_type_entry::ListTypeEntryField;
+use headless_batch_engine::apis::import_task_params::ImportTaskParams;
+use headless_batch_engine::models::create_strategy::CreateStrategy;
 use headless_batch_engine::models::import_task::ImportStrategy;
 use headless_common::api::field_collection::FieldCollection;
 use headless_common::api::page_params::PageParams;
 use regex::Regex;
+use std::borrow::BorrowMut;
+use std::collections::HashMap;
 
 pub fn handle_export(args: ExportArgs) -> Result<(), CliError> {
     let ExportArgs {
@@ -76,7 +77,7 @@ fn export_picklist_definitions(client: &LiferayClient, data_dir: &DataDir) -> Re
         let external_reference_code = list_type_definition.external_reference_code.take();
 
         if let Some(ref external_reference_code) = external_reference_code {
-            println!("Sending put request for picklist ${external_reference_code}");
+            println!("Sending put request for picklist {external_reference_code}");
             let res = client
                 .get_list_type_api()
                 .get_list_type_api_endpoints()
@@ -89,9 +90,9 @@ fn export_picklist_definitions(client: &LiferayClient, data_dir: &DataDir) -> Re
                 })?;
 
             if let Some(definition_id) = res.id {
-                println!("Put successful. Picklist id is ${definition_id}");
+                println!("Put successful. Picklist id is {definition_id}");
 
-                println!("Getting existing entries for ${definition_id}");
+                println!("Getting existing entries for {definition_id}");
                 let mut options = PageParams::new();
                 options.page = Some(1);
                 options.page_size = Some(200);
@@ -208,10 +209,14 @@ fn export_object_definitions(client: &LiferayClient, data_dir: &DataDir) -> Resu
     let object_definitions = data_dir.load_object_definitions(true)?;
 
     println!("Sending data to Liferay as batch request...");
+    let mut options = ImportTaskParams::new();
+    options.create_strategy = Some(CreateStrategy::Upsert);
+    options.import_strategy = Some(ImportStrategy::Continue);
+
     let response = client
         .get_object_admin_api()
         .get_object_admin_endpoints()
-        .post_object_definition_batch(object_definitions, None)
+        .post_object_definition_batch(object_definitions, Some(options))
         .map_err(|e| {
             CliError::NetworkError(format!("Failed post object definitions batch: {e}",))
         })?;
@@ -220,6 +225,7 @@ fn export_object_definitions(client: &LiferayClient, data_dir: &DataDir) -> Resu
         "Post batch sent. Batch operation erc is {}",
         response.external_reference_code.unwrap_or_default()
     );
+
     Ok(())
 }
 

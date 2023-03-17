@@ -9,8 +9,7 @@ use object_admin::{
 };
 
 use crate::{
-    commands::object::ApiConfig,
-    liferay_client::{clean_json, liferay_client_error::LiferayClientError},
+    commands::object::ApiConfig, liferay_client::liferay_client_error::LiferayClientError,
 };
 
 pub struct ObjectAdminEndpoints<'a> {
@@ -37,13 +36,10 @@ impl<'a> ObjectAdminEndpoints<'a> {
         configuration.update_base_path(self.base_path);
         configuration.basic_auth = Some((self.username.to_owned(), Some(self.password.to_owned())));
 
-        let mut body =
-            serde_json::to_value(body).map_err(|e| LiferayClientError::Serialization {
-                type_name: "ObjectDefinition",
-                origin: e,
-            })?;
-
-        clean_json(&mut body);
+        let body = serde_json::to_value(body).map_err(|e| LiferayClientError::Serialization {
+            type_name: "ObjectDefinition",
+            origin: e,
+        })?;
 
         let res = post_object_definition_batch(&configuration, Some(&body), options)?;
 
