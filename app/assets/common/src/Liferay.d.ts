@@ -1,5 +1,6 @@
 declare namespace Liferay {
 	const AUI: AUI;
+	const Address: Address;
 	const BREAKPOINTS: Breakpoints;
 	const Brower: Browser;
 	const Util: Util;
@@ -277,4 +278,54 @@ type AUI = {
 	getJavaScriptRootPath(): string;
 	getPortletRootPath: string;
 	getStaticResourceURLParams(): string;
+}
+
+type Address = {
+	getCountries(callback: (countries: Country[]) => void);
+	getRegions(callback: (regions: Region[]) => void, countryId: string);
+}
+
+interface Country {
+	a2: string;
+	a3: string;
+	active: boolean;
+	billingAllowed: boolean;
+	companyId: string;
+	countryId: string;
+	createDate: number;
+	defaultLanguageId: string;
+	groupFilterEnabled: boolean;
+	idd: string;
+	lastPublishDate: Date | null;
+	modifiedDate: number;
+	mvccVersion: string;
+	name: string;
+	nameCurrentValue: string;
+	number: string;
+	position: number;
+	shippingAllowed: boolean;
+	subjectToVAT: boolean;
+	userId: string;
+	userName: string;
+	uuid: string;
+	zipRequired: boolean;
+}
+
+interface Region {
+	active: boolean;
+	companyId: string;
+	countryId: string;
+	createDate: number;
+	defaultLanguageId: string;
+	lastPublishDate: number | null;
+	modifiedDate: number;
+	mvccVersion: string;
+	name: string;
+	position: number;
+	regionCode: string;
+	regionId: string;
+	title: string;
+	userId: string;
+	userName: string;
+	uuid: string;
 }
