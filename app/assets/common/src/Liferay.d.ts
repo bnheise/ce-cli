@@ -1,4 +1,5 @@
 declare namespace Liferay {
+	const AUI: AUI;
 	const BREAKPOINTS: Breakpoints;
 	const Brower: Browser;
 	const Util: Util;
@@ -72,7 +73,7 @@ type ThemeDisplay = {
 	isStateMaximized: () => boolean;
 	isStatePopUp: () => boolean;
 	isVirtualLayout: () => boolean;
-}
+};
 
 type Breakpoints = {
 	PHONE: number;
@@ -265,3 +266,15 @@ type StatusCode = {
 	SC_FILE_SIZE_EXCEPTION: 493;
 	SC_UPLOAD_REQUEST_SIZE_EXCEPTION: 495;
 };
+
+type AUI = {
+	getCombine(): boolean;
+	getComboPath(): string;
+	getDateFormat: string;
+	getEditorCKEditorPath(): string;
+	getFilter(): string;
+	getFilterConfig(): object | null;
+	getJavaScriptRootPath(): string;
+	getPortletRootPath: string;
+	getStaticResourceURLParams(): string;
+}
