@@ -130,8 +130,8 @@ where
             local_var_req_builder.query(&[("createStrategy", &local_var_str.to_string())]);
     }
     if let Some(ref local_var_str) = options.field_name_mapping {
-        local_var_req_builder = local_var_req_builder
-            .query(&[("fieldNameMapping", serde_json::to_string(local_var_str)?)]);
+        local_var_req_builder =
+            local_var_req_builder.query(&[("fieldNameMapping", local_var_str.to_string())]);
     }
     if let Some(ref local_var_user_agent) = local_var_configuration.user_agent {
         local_var_req_builder =
@@ -447,8 +447,8 @@ where
             local_var_req_builder.query(&[("createStrategy", &local_var_str.to_string())]);
     }
     if let Some(ref local_var_str) = options.field_name_mapping {
-        local_var_req_builder = local_var_req_builder
-            .query(&[("fieldNameMapping", serde_json::to_string(local_var_str)?)]);
+        local_var_req_builder =
+            local_var_req_builder.query(&[("fieldNameMapping", local_var_str.to_string())]);
     }
     if let Some(ref local_var_user_agent) = local_var_configuration.user_agent {
         local_var_req_builder =
@@ -517,8 +517,8 @@ where
             local_var_req_builder.query(&[("createStrategy", &local_var_str.to_string())]);
     }
     if let Some(ref local_var_str) = options.field_name_mapping {
-        local_var_req_builder = local_var_req_builder
-            .query(&[("fieldNameMapping", serde_json::to_string(local_var_str)?)]);
+        local_var_req_builder =
+            local_var_req_builder.query(&[("fieldNameMapping", local_var_str.to_string())]);
     }
     if let Some(ref local_var_user_agent) = local_var_configuration.user_agent {
         local_var_req_builder =

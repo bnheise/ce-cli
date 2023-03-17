@@ -211,7 +211,7 @@ fn export_object_definitions(client: &LiferayClient, data_dir: &DataDir) -> Resu
     let response = client
         .get_object_admin_api()
         .get_object_admin_endpoints()
-        .post_object_definition_batch(object_definitions, None, None)
+        .post_object_definition_batch(object_definitions, None)
         .map_err(|e| {
             CliError::NetworkError(format!("Failed post object definitions batch: {e}",))
         })?;
