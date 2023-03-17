@@ -428,7 +428,6 @@ version = "0.1.0"
 dependencies = [
  "headless_batch_engine",
  "headless_common",
- "object_admin",
  "serde",
  "serde_derive",
  "serde_json",

@@ -10,8 +10,7 @@ keywords = ["Liferay", "headless-apis", "api-client"]
 
 [dependencies]
 headless_batch_engine = { path = "../headless_batch_engine", version = "0.1.0" }
-object_admin ={ path = "../object_admin", version = "0.1.0" }
 headless_common = { path = "../headless_common", version = "0.1.1" }
-serde_derive = { version = "1.0.156", default-features = true }
+serde_derive = { version = "1.0.156", default-features = false }
 serde = "1.0.152"
 serde_json = "1.0.91"
