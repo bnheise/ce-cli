@@ -136,7 +136,7 @@ fn publish_to_cargo() {
     println!("Publishing to cargo...");
     let output = Command::new("cargo")
         .current_dir("../app")
-        .args(["publish"])
+        .args(["publish", "--allow-dirty"])
         .output()
         .expect("failed to publish to cargo");
     println!("{output:?}",);
