@@ -1,6 +1,6 @@
 use crate::config_generators::client_extension_yaml::PortletCategoryNames;
-use batch_api::reqwest::Url;
 use clap::{ArgGroup, Args, Parser, Subcommand, ValueEnum};
+use headless_common::url::Url;
 use serde::{Deserialize, Serialize};
 use std::{fmt::Display, path::PathBuf};
 
@@ -234,7 +234,7 @@ pub struct ImportArgs {
     /// {root}/objects/definitions for Liferay Object defiitions,        {n}
     /// {root}/objects/picklists for Picklist definitions, and           {n}
     /// {root}/objects/data for object instance data.
-    #[arg(short, long, value_enum)]
+    #[arg(long, value_enum)]
     pub output: Option<String>,
 }
 

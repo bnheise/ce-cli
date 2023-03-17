@@ -1,3 +1,5 @@
+use headless_common::{api::page_params::PageParams, url::Url};
+
 use super::{
     get_list_type_definitions_page, get_object_definitions_page, prepare_data_path, ApiConfig,
     ListTypeConfig, ObjectAdminConfig,
@@ -8,7 +10,6 @@ use crate::{
     config_generators::{config::Config, ConfigFile},
     error::CliError,
 };
-use batch_api::reqwest::Url;
 use std::{
     fs::{self, File},
     io::Write,
@@ -45,25 +46,25 @@ pub fn handle_import(args: ImportArgs) -> Result<(), CliError> {
         match (objects, picklists, data) {
             (false, true, false) => import_picklists(&username, &password, &url, &output_base)?,
             (true, false, false) => {
-                import_object_definitions(&output_base, &username, &password, &url, true);
+                import_object_definitions(&output_base, &username, &password, &url, true)?;
             }
             (false, false, true) => {
                 let context_paths =
-                    import_object_definitions(&output_base, &username, &password, &url, false);
+                    import_object_definitions(&output_base, &username, &password, &url, false)?;
                 import_object_data(context_paths, &url, &output_base, &username, &password)?;
             }
             (true, true, false) => {
-                import_object_definitions(&output_base, &username, &password, &url, true);
+                import_object_definitions(&output_base, &username, &password, &url, true)?;
                 import_picklists(&username, &password, &url, &output_base)?;
             }
             (true, false, true) => {
                 let context_paths =
-                    import_object_definitions(&output_base, &username, &password, &url, true);
+                    import_object_definitions(&output_base, &username, &password, &url, true)?;
                 import_object_data(context_paths, &url, &output_base, &username, &password)?;
             }
             (false, true, true) => {
                 let context_paths =
-                    import_object_definitions(&output_base, &username, &password, &url, false);
+                    import_object_definitions(&output_base, &username, &password, &url, false)?;
                 import_picklists(&username, &password, &url, &output_base)?;
                 import_object_data(context_paths, &url, &output_base, &username, &password)?;
             }
@@ -80,7 +81,7 @@ fn handle_import_all(
     url: &Url,
     output_base: &str,
 ) -> Result<(), CliError> {
-    let context_paths = import_object_definitions(output_base, username, password, url, true);
+    let context_paths = import_object_definitions(output_base, username, password, url, true)?;
 
     import_object_data(context_paths, url, output_base, username, password)?;
 
@@ -100,9 +101,12 @@ fn import_picklists(
     api_config.basic_auth = Some((username.to_owned(), Some(password.to_owned())));
     api_config.update_base_path(url);
 
-    let result =
-        get_list_type_definitions_page(&api_config, None, None, Some("1"), Some("200"), None, None)
-            .map_err(|e| CliError::NetworkError(format!("failed to retrieve picklists: {e}")))?;
+    let mut options = PageParams::new();
+    options.page = Some(1);
+    options.page_size = Some(200);
+
+    let result = get_list_type_definitions_page(&api_config, options)
+        .map_err(|e| CliError::NetworkError(format!("failed to retrieve picklists: {e}")))?;
 
     if let Some(mut items) = result.items {
         for picklist in items.iter_mut() {
@@ -142,16 +146,22 @@ fn import_object_definitions(
     password: &str,
     url: &Url,
     write: bool,
-) -> Vec<(String, String)> {
+) -> Result<Vec<(String, String)>, CliError> {
     println!("Importing object definitions...");
 
     let mut api_config = ObjectAdminConfig::new();
     api_config.basic_auth = Some((username.to_owned(), Some(password.to_owned())));
     api_config.update_base_path(url);
 
-    let result =
-        get_object_definitions_page(&api_config, None, None, Some("1"), Some("200"), None, None)
-            .unwrap();
+    let mut options = PageParams::new();
+    options.page = Some(1);
+    options.page_size = Some(200);
+
+    let result = get_object_definitions_page(&api_config, options).map_err(|e| {
+        CliError::NetworkError(format!(
+            "failed to retrieve object definitions from Liferay: {e}"
+        ))
+    })?;
 
     if let Some(mut items) = result.items {
         let mut context_paths = Vec::with_capacity(items.len());
@@ -185,9 +195,9 @@ fn import_object_definitions(
             "Successfully imported {} object definitions(s)",
             context_paths.len()
         );
-        context_paths
+        Ok(context_paths)
     } else {
-        Vec::new()
+        Ok(Vec::new())
     }
 }
 

@@ -1,6 +1,5 @@
+use headless_common::reqwest;
 use std::io;
-
-use batch_api::reqwest;
 use thiserror::Error;
 use zip::result::ZipError;
 

@@ -2,5 +2,9 @@
 
 members = [
     "app",
-    "distribution"
+    "distribution",
+    "liferay_apis/headless_batch_engine",
+    "liferay_apis/headless_common",
+    "liferay_apis/headless_admin_list_type",
+    "liferay_apis/object_admin"
 ]

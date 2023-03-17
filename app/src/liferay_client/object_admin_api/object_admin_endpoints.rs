@@ -1,13 +1,11 @@
-use batch_api::{
-    models::{import_task::ImportStrategy, ImportTask},
-    reqwest::Url,
-};
+use headless_batch_engine::{apis::import_task_params::ImportTaskParams, models::ImportTask};
+use headless_common::url::Url;
 use object_admin::{
     apis::{
         configuration::Configuration,
         object_definition_api::{post_object_definition_batch, PostObjectDefinitionBatchError},
     },
-    models::{CreateStrategy, ObjectDefinition},
+    models::{object_definition::ObjectDefinitionField, ObjectDefinition},
 };
 
 use crate::{
@@ -32,8 +30,7 @@ impl<'a> ObjectAdminEndpoints<'a> {
     pub fn post_object_definition_batch(
         &self,
         body: Vec<ObjectDefinition>,
-        create_strategy: Option<object_admin::models::CreateStrategy>,
-        import_strategy: Option<batch_api::models::import_task::ImportStrategy>,
+        options: Option<ImportTaskParams<ObjectDefinitionField>>,
     ) -> Result<ImportTask, LiferayClientError<PostObjectDefinitionBatchError>> {
         let mut configuration = Configuration::new();
         configuration.update_base_path(self.base_path);
@@ -44,13 +41,7 @@ impl<'a> ObjectAdminEndpoints<'a> {
             origin: e,
         })?;
 
-        let res = post_object_definition_batch(
-            &configuration,
-            None,
-            Some(&body),
-            create_strategy.or(Some(CreateStrategy::Upsert)),
-            import_strategy.or(Some(ImportStrategy::Continue)),
-        )?;
+        let res = post_object_definition_batch(&configuration, Some(&body), options)?;
 
         Ok(res)
     }

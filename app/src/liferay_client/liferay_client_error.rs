@@ -1,9 +1,9 @@
+use crate::util::classify_serde_error;
+use headless_common::reqwest;
 use std::{
     error::{self, Error},
     fmt::{Debug, Display},
 };
-
-use crate::util::classify_serde_error;
 
 #[derive(Debug)]
 pub enum LiferayClientError<'a, T> {
@@ -12,7 +12,7 @@ pub enum LiferayClientError<'a, T> {
         origin: serde_json::Error,
     },
     Request {
-        origin: batch_api::reqwest::Error,
+        origin: reqwest::Error,
     },
     Io {
         origin: std::io::Error,
@@ -103,8 +103,8 @@ impl<'a, T> From<headless_admin_list_type::apis::Error<T>> for LiferayClientErro
     }
 }
 
-impl<'a, T> From<batch_api::reqwest::Error> for LiferayClientError<'a, T> {
-    fn from(value: batch_api::reqwest::Error) -> Self {
+impl<'a, T> From<reqwest::Error> for LiferayClientError<'a, T> {
+    fn from(value: reqwest::Error) -> Self {
         Self::Request { origin: value }
     }
 }

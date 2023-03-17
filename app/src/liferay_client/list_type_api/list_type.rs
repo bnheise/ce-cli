@@ -1,4 +1,4 @@
-use batch_api::reqwest::Url;
+use headless_common::url::Url;
 
 use super::list_type_endpoints::ListTypeEndpoints;
 
