@@ -2,7 +2,11 @@ declare namespace Liferay {
 	const AUI: AUI;
 	const Address: Address;
 	const BREAKPOINTS: Breakpoints;
-	const Brower: Browser;
+	const Browser: Browser;
+	const CollapseProvider: CollapseProvider;
+	const CustomDialogs: {
+		enabled: boolean;
+	}
 	const Util: Util;
 	const ThemeDisplay: ThemeDisplay;
 	const FeatureFlags: FeatureFlags;
@@ -328,4 +332,18 @@ interface Region {
 	userId: string;
 	userName: string;
 	uuid: string;
+}
+
+type CollapseProvider = {
+	EVENT_HIDDEN: string;
+	EVENT_HIDE: string;
+	EVENT_SHOW: string;
+	EVENT_SHOWN: string;
+	hide: (input: HideShow) => void;
+	show: (input: HideShow) => void;
+};
+
+interface HideShow {
+	panel: unknown; // TODO: find type
+	trigger: unknown; // TODO; find type
 }
