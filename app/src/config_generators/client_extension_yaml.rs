@@ -18,11 +18,11 @@ pub struct ClientExtensionYaml<'a> {
 }
 
 impl<'a> ClientExtensionYaml<'a> {
-    const SHARED_DEP_ASSEMBLE: AssembleMember<'a> = AssembleMember {
+    const SHARED_DEP_ASSEMBLE: AssembleMember<'a> = AssembleMember::Files(AssembleFiles {
         from: "sharedDeps",
         include: "*.js",
         into: "static/",
-    };
+    });
 
     pub fn add_app(&mut self, definition: ClientExtType) {
         self.apps.insert(definition.get_id(), definition);
@@ -89,10 +89,25 @@ impl<'a> ConfigFile<'a> for ClientExtensionYaml<'a> {
 }
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Eq)]
-pub struct AssembleMember<'a> {
+#[serde(bound(deserialize = "'de: 'a"))]
+#[serde(untagged)]
+pub enum AssembleMember<'a> {
+    Task(AssembleTask<'a>),
+    Files(AssembleFiles<'a>),
+    Unkown(serde_yaml::Value),
+}
+
+#[derive(Debug, Serialize, Deserialize, PartialEq, Eq)]
+pub struct AssembleFiles<'a> {
     pub from: &'a str,
     pub include: &'a str,
     pub into: &'a str,
+}
+
+#[derive(Debug, Serialize, Deserialize, PartialEq, Eq)]
+#[serde(rename_all = "camelCase")]
+pub struct AssembleTask<'a> {
+    pub from_task: &'a str,
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
