@@ -33,3 +33,9 @@ headless_admin_list_type = { path = "../liferay_apis/headless_admin_list_type/",
 headless_batch_engine = { path = "../liferay_apis/headless_batch_engine/", version = "0.1.0" }
 thiserror = "1.0.39"
 headless_common = { path = "../liferay_apis/headless_common", version = "0.1.1" }
+
+[dev-dependencies]
+assert_cmd = "2.0.10"
+assert_fs = "1.0.12"
+predicates = "3.0.1"
+rexpect = "0.5.0"
