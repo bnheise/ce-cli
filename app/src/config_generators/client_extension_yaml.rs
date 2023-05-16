@@ -47,11 +47,7 @@ impl<'a> ClientExtensionYaml<'a> {
             .map(|(key, ext)| {
                 match ext {
                     ClientExtType::CustomElement(elem) => {
-                        elem.css_urls = elem
-                            .css_urls
-                            .iter()
-                            .map(|url| format!("http://localhost:{port}{url}"))
-                            .collect::<Vec<_>>();
+                        elem.css_urls = Vec::with_capacity(0);
 
                         elem.urls = elem
                             .urls

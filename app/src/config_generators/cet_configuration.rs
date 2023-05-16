@@ -83,10 +83,17 @@ impl From<CustomElementDefinition> for CetDefinition {
             value.get_js_urls().join("\n"),
         ));
 
-        let css_urls = Some(Attribute::new(
-            "cssURLs".to_string(),
-            value.get_css_urls().join("\n"),
-        ));
+        let css_urls = {
+            let css_urls = value.get_css_urls();
+            if css_urls.is_empty() {
+                None
+            } else {
+                Some(Attribute::new(
+                    "cssURLs".to_string(),
+                    value.get_css_urls().join("\n"),
+                ))
+            }
+        };
 
         let use_esm = Some(Attribute::new(
             "useESM".to_string(),
