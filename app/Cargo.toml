@@ -1,10 +1,10 @@
 [package]
 name = "ce-cli"
 description = "A command line tool for building and managing Liferay remote app projects."
-version = "0.4.6"
+version = "0.4.7"
 edition = "2021"
 authors = ["Brian Heise <brian.heise@liferay.com>"]
-rust-version = "1.69.0"
+rust-version = "1.70.0"
 documentation = "https://github.com/bnheise/ce-cli/blob/main/README.md"
 readme = "README.md"
 homepage = "https://github.com/bnheise/ce-cli/"

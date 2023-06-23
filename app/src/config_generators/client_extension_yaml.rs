@@ -332,7 +332,7 @@ mod test {
 
     #[test]
     fn makes_correct_js_filename() {
-        let mut element = CustomElementDefinition::new("My Custom Element".into());
+        let element = CustomElementDefinition::new("My Custom Element".into());
         assert_eq!(element.urls.first().unwrap(), "my-custom-element.*.js")
     }
 }
