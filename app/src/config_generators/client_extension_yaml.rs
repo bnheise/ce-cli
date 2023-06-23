@@ -159,7 +159,7 @@ impl CustomElementDefinition {
         };
         new.set_friendly_url_mapping(new.get_id());
         new.set_html_element_name(new.get_id());
-        new.add_js_filename(format!("{}.js", new.get_id()));
+        new.add_js_filename(new.get_id());
         new
     }
 
@@ -207,12 +207,12 @@ impl CustomElementDefinition {
         self.description.as_ref()
     }
 
-    pub fn add_css_filename(&mut self, filename: String) {
-        self.css_urls.push(format!("/{filename}"));
+    pub fn set_css_filename(&mut self) {
+        self.css_urls.push(format!("{}.*.css", self.get_id()));
     }
 
     pub fn add_js_filename(&mut self, filename: String) {
-        self.urls.push(format!("/{filename}"));
+        self.urls.push(format!("{filename}.*.js"));
     }
 
     pub fn get_source_code_url(&self) -> Option<&String> {
@@ -316,5 +316,23 @@ impl Display for PortletCategoryNames {
         match self {
             PortletCategoryNames::ClientExtensions => write!(f, "category.client-extensions"),
         }
+    }
+}
+
+#[cfg(test)]
+mod test {
+    use super::CustomElementDefinition;
+
+    #[test]
+    fn makes_correct_css_filename() {
+        let mut element = CustomElementDefinition::new("My Custom Element".into());
+        element.set_css_filename();
+        assert_eq!(element.css_urls.first().unwrap(), "my-custom-element.*.css")
+    }
+
+    #[test]
+    fn makes_correct_js_filename() {
+        let mut element = CustomElementDefinition::new("My Custom Element".into());
+        assert_eq!(element.urls.first().unwrap(), "my-custom-element.*.js")
     }
 }

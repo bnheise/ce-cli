@@ -64,7 +64,7 @@ pub fn handle_custom_element(args: CustomElementArgs) -> Result<(), CliError> {
     }
 
     if config.framework != FrameworkOption::Vue {
-        definition.add_css_filename(format!("{}.css", definition.get_id()));
+        definition.set_css_filename();
     }
 
     definition.set_instance_id(&config.default_instance_id);

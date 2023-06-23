@@ -9,7 +9,9 @@ export default () =>
 	merge(common, {
 		mode: 'production',
 		plugins: [
-			new MiniCssExtractPlugin(),
+			new MiniCssExtractPlugin({
+				filename: "[name].[contenthash].css"
+			}),
 			...frameworkSettings.prod.webpackPlugins,
 		],
 		externals: {
@@ -46,7 +48,7 @@ export default () =>
 			],
 		},
 		output: {
-			filename: '[name].js',
+			filename: '[name].[contenthash].js',
 			module: true,
 			libraryTarget: 'module',
 		},
