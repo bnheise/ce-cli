@@ -41,6 +41,13 @@ impl<'a> ClientExtensionYaml<'a> {
         self.assemble.push(assemble_member)
     }
 
+    fn format_dev_url(port: u16) -> Box<dyn Fn(&String) -> String> {
+        Box::new(move |url| {
+            let url = url.replace("*.", "");
+            format!("http://localhost:{port}/{url}")
+        })
+    }
+
     pub fn set_dev_urls(mut self, port: u16) -> Self {
         self.apps
             .iter_mut()
@@ -52,7 +59,7 @@ impl<'a> ClientExtensionYaml<'a> {
                         elem.urls = elem
                             .urls
                             .iter()
-                            .map(|url| format!("http://localhost:{port}{url}"))
+                            .map(Self::format_dev_url(port))
                             .collect::<Vec<_>>();
                         elem
                     }
@@ -321,7 +328,7 @@ impl Display for PortletCategoryNames {
 
 #[cfg(test)]
 mod test {
-    use super::CustomElementDefinition;
+    use super::{ClientExtensionYaml, CustomElementDefinition};
 
     #[test]
     fn makes_correct_css_filename() {
@@ -334,5 +341,17 @@ mod test {
     fn makes_correct_js_filename() {
         let element = CustomElementDefinition::new("My Custom Element".into());
         assert_eq!(element.urls.first().unwrap(), "my-custom-element.*.js")
+    }
+
+    #[test]
+    fn formats_dev_url_correctly() {
+        let url = ClientExtensionYaml::format_dev_url(3001)(&String::from("test.*.js"));
+        assert_eq!("http://localhost:3001/test.js", url);
+    }
+
+    #[test]
+    fn doesnt_break_regular_urls() {
+        let url = ClientExtensionYaml::format_dev_url(3001)(&String::from("test.js"));
+        assert_eq!("http://localhost:3001/test.js", url);
     }
 }

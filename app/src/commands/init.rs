@@ -7,6 +7,7 @@ use crate::error::CliError;
 use crate::version_check::run_version_check;
 use dialoguer::{Input, Select};
 use regex::Regex;
+use std::path::Path;
 use std::vec;
 use std::{env, fs, path::PathBuf};
 
@@ -65,7 +66,7 @@ fn initialize_config(mut config: ConfigBuilder, args: InitArgs) -> Result<Config
     if let Some(deploy_path) = deploy_path {
         config.set_deploy_path(deploy_path);
     } else {
-        let bundle_path = get_bundle_path_from_environment();
+        let bundle_path = get_relative_bundle_path_from_environment();
         let deploy_path = get_deploy_path_from_user(bundle_path)?;
         config.set_deploy_path(deploy_path);
     }
@@ -114,7 +115,7 @@ fn get_framework_from_user() -> Result<FrameworkOption, CliError> {
 
 fn get_deploy_path_from_user(bundle_path: Option<PathBuf>) -> Result<PathBuf, CliError> {
     let default_deploy_path = if let Some(bundle_path) = bundle_path {
-        bundle_path.join("osgi").join("client-extensions")
+        bundle_path
     } else {
         PathBuf::new()
     };
@@ -140,22 +141,34 @@ fn get_deploy_path_from_user(bundle_path: Option<PathBuf>) -> Result<PathBuf, Cl
     Ok(PathBuf::from(user_response))
 }
 
-pub fn get_bundle_path_from_environment() -> Option<PathBuf> {
-    let mut current_dir = env::current_dir().unwrap();
-
+pub fn get_relative_bundle_path_from_environment() -> Option<PathBuf> {
+    let mut current_dir = env::current_dir().expect("Failed to find the current directory.");
+    let mut levels = Vec::new();
     loop {
-        let paths = fs::read_dir(&current_dir).unwrap();
+        let paths = fs::read_dir(&current_dir).expect("Failed to read the current directory.");
 
         for path in paths {
-            let path = path.unwrap().path();
+            let path = path
+                .expect("Failed to extract the path from the directory.")
+                .path();
+
             if path.is_dir() {
-                let dirname = match path.components().last().unwrap() {
-                    std::path::Component::Normal(dirname) => dirname.to_str().unwrap(),
+                let dirname = match path
+                    .components()
+                    .last()
+                    .expect("Directory path did not have a final component.")
+                {
+                    std::path::Component::Normal(dirname) => dirname
+                        .to_str()
+                        .expect("Failed to convert directory path to string"),
                     _ => unreachable!(),
                 };
 
                 if dirname == "bundles" {
-                    return Some(path);
+                    levels.push("bundles/osgi/client-extensions");
+                    let path = levels.join("/");
+                    let path = Path::new(&path);
+                    return Some(path.into());
                 }
             }
         }
@@ -163,6 +176,7 @@ pub fn get_bundle_path_from_environment() -> Option<PathBuf> {
         if !current_dir.pop() {
             break;
         }
+        levels.push("..");
     }
 
     None
