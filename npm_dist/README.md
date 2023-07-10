@@ -32,10 +32,14 @@ Rust and compiling the binary yourself with `cargo install ce-cli`.
 
 Note on installing with `yarn`. Currently there is a bug which causes installation to fail with yarn. Install using npm as a workaround.
 
+## Update
 Note on installing with `pnpm`. Currently pnpm has a bug where when you try to install a new version of ce-cli, it will
-hold binary even if you uninstall and install again. Youll have to delete your pnpm cache to clear it. Just running
-`pnpm cache prune` is not enough. An issue has been filed with pnpm, but for now this is the only way to get the new version
-by pnpm.
+hold binary even if you uninstall and install again. Just running `pnpm store prune` is not enough.
+This issue has been filed with pnpm, but for below is the only way to get the new version by pnpm. 
+
+1. Delete your pnpm cache (use `pnpm store path` to get the path, and delete the folder)
+2. Run `npm install -g ce-cli` to update it. (Maybe you need the force option `npm install -gf ce-cli`)
+3. Check if the version is updated by `ce-cli --version`
 
 ## Usage
 
